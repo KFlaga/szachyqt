@@ -15,7 +15,6 @@ TEMPLATE = app
 SOURCES += main.cpp\
         oknologowania.cpp \
     oknoopcji.cpp \
-    Figury/figura.cpp \
     Figury/goniec.cpp \
     Figury/hetman.cpp \
     Figury/krol.cpp \

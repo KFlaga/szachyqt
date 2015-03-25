@@ -6,8 +6,6 @@ class Hetman : public Figura
 {
 public:
     Hetman(int strona, int pole);
-    QList<int> dostepneRuchy(QString **tab);
-    QList<int> szachowanePola(QString **tab);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
 };

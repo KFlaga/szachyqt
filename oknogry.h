@@ -47,7 +47,7 @@ private slots:
     void timeout();
 
 private:
-    Ui::OknoGry *ui; // w jakim to celu?
+    Ui::OknoGry *ui;
     Plansza *plansza;
     QLabel *wiadomoscTura,*labTimerBiale,*labTimerCzarne;
     QTimer *timer;

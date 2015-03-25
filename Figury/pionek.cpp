@@ -13,44 +13,6 @@ Pionek::Pionek(int strona, int pole)
 }
 
 
-
-QList<int> Pionek::dostepneRuchy(QString **tab)
-{
-    dr.clear();
-    if(strona==0){  //0 - białe, 1- czarne
-        if(y==6){ //jesli pionek bialy jeszcze sie nie ruszyl
-            if(tab[y-1][x]=="0" && tab[y-2][x]=="0")
-                dr.append(this->getIdd(x,y-2));
-        }
-        if(y-1>=0 && tab[y-1][x]=="0")
-            dr.append(this->getIdd(x,y-1));
-        if(y-1>=0 && x+1<8 && tab[y-1][x+1]!="0" && rozneOdSwoich(tab[y-1][x+1]))
-            dr.append(this->getIdd(x+1,y-1));
-        if(y-1>=0 && x-1>=0 && tab[y-1][x-1]!="0" && rozneOdSwoich(tab[y-1][x-1]))
-            dr.append(this->getIdd(x-1,y-1));
-    }else{
-        if(y==1){ //jesli pionek czarny jeszcze sie nie ruszyl
-            if(tab[y+1][x]=="0" && tab[y+2][x]=="0")
-                dr.append(this->getIdd(x,y+2));
-        }
-        if(y+1<8 && tab[y+1][x]=="0")
-            dr.append(this->getIdd(x,y+1));
-        if(y+1<8 && x+1<8 && tab[y+1][x+1]!="0" && rozneOdSwoich(tab[y+1][x+1]))
-            dr.append(this->getIdd(x+1,y+1));
-        if(y+1<8 && x-1>=0 && tab[y+1][x-1]!="0" && rozneOdSwoich(tab[y+1][x-1]))
-            dr.append(this->getIdd(x-1,y+1));
-    }
-    return dr;
-}
-
-
-QList<int> Pionek::szachowanePola(QString **tab)
-{
-    polaSzachowane.clear();
-
-    return polaSzachowane;
-}
-
 QVector<int> Pionek::dostepneRuchy(int* plansza, QVector<Figura*>* figury)
 {
     ruchy.clear();

@@ -6,8 +6,6 @@ class Wieza : public Figura
 {
 public:
     Wieza(int strona, int pole);
-    QList<int> dostepneRuchy(QString **tab);
-    QList<int> szachowanePola(QString **tab);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
 };
