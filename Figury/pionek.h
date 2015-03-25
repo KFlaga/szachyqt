@@ -5,7 +5,7 @@
 class Pionek : public Figura
 {
 public:
-    Pionek(TypFigury typ, int strona, int pole);
+    Pionek(int strona, int pole);
     QList<int> dostepneRuchy(QString **tab);
     QList<int> szachowanePola(QString **tab);
 

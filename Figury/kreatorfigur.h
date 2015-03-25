@@ -12,6 +12,13 @@
 
 class KreatorFigur
 {
+private:
+    int polaWiez[4];
+    int polaSkoczkow[4];
+    int polaGoncow[4];
+    int polaKroli[2];
+    int polaHetmanow[2];
+
 public:
     KreatorFigur();
 

@@ -105,6 +105,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
 {
     pola[pozBitego] = pola[pozBijacego];
     pola[pozBijacego] = -1;
+    figury[pola[pozBitego]]->UstawPole(pozBitego);
 
     emit UsunietoFigureZPola(pozBitego);
     emit UsunietoFigureZPola(pozBijacego);
@@ -118,6 +119,7 @@ void Silnik::RuszPionek(int skad, int dokad)
 {
     pola[dokad] = pola[skad];
     pola[skad] = -1;
+    figury[pola[dokad]]->UstawPole(dokad);
 
     emit UsunietoFigureZPola(skad);
     emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));

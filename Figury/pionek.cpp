@@ -1,8 +1,8 @@
 #include "pionek.h"
 
-Pionek::Pionek(TypFigury typ, int strona, int pole)
+Pionek::Pionek(int strona, int pole)
 {
-   this->typ = typ;
+   this->typ = TPionek;
     this->strona = strona;
     this->x = X(pole);
     this->y = Y(pole);
@@ -54,9 +54,9 @@ QList<int> Pionek::szachowanePola(QString **tab)
 
 QVector<int> Pionek::dostepneRuchy(int pole, int* plansza, QVector<Figura*>* figury)
 {
-    QVector<int> ruchy;
-    int x = X(pole);
-    int y = Y(pole);
+    ruchy.clear();
+    x = X(pole);
+    y = Y(pole);
     int p;
     if( strona == 0 ) // Bialy pionek
     {
@@ -75,8 +75,8 @@ QVector<int> Pionek::dostepneRuchy(int pole, int* plansza, QVector<Figura*>* fig
                 ruchy.push_back(Pole(x-1,y-1));
         }
     }
-        else // Czarny pionek
-        {
+    else // Czarny pionek
+    {
             // Jesli sie nie ruszyl i przed pionkiem pusto, to moze ruszyc 2 pola
             if(y == 1 && plansza[Pole(x,y+1)] == -1 && plansza[Pole(x,y+2)] == -1)
                 ruchy.push_back(Pole(x,y+2));
@@ -91,8 +91,7 @@ QVector<int> Pionek::dostepneRuchy(int pole, int* plansza, QVector<Figura*>* fig
                 if( x > 0 && (p=plansza[Pole(x-1,y+1)]) != -1 && figury->at(p)->strona != strona )
                     ruchy.push_back(Pole(x-1,y+1));
             }
-        }
-
+    }
 
     return ruchy;
 }
