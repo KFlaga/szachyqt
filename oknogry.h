@@ -13,11 +13,16 @@
 #include <QStringList>
 #include <QLabel>
 #include <QTimer>
-#include "ModulRozgrywki/plansza.h"
-#include "opcje.h"
+#include "figura.h"
+#include "goniec.h"
+#include "hetman.h"
+#include "krol.h"
+#include "pionek.h"
+#include "skoczek.h"
+#include "wieza.h"
+#include "oknoopcji.h"
 
-namespace Ui
-{
+namespace Ui {
 class OknoGry;
 }
 
@@ -28,31 +33,25 @@ class OknoGry : public QMainWindow
 public:
     explicit OknoGry(QWidget *parent = 0);
     ~OknoGry();
-
-    Plansza* WezPlansze();
-    void NowaGra(Opcje* opts);
-
-private:
-    void inicjalizujUI();
-    void inicjalizujRamke();
-
-public slots:
-    void WykonanoRuch();
-
-signals:
-
-
 private slots:
     void closeEvent(QCloseEvent *);
+    void clicked(int id);
     void timeout();
+    void on_actionNowa_Gra_triggered();
+    void nowa_gra();
 
 private:
-    Ui::OknoGry *ui; // w jakim to celu?
-    Plansza *plansza;
-    QLabel *wiadomoscTura,*labTimerBiale,*labTimerCzarne;
+    Ui::OknoGry *ui;
+    OknoOpcji *opcje;
+    QString **pola;
+    QList<Figura*> figury;
+    QPushButton **pb;
+    QLabel *wiadomosc,*timerLabel,*timerLabel2;
     QTimer *timer;
+    int zaznaczony; //okresla czy wybrano jakies pole
+    bool czy_koniec; //okresla czy zakonczono gre
+    Figura *pomocnicza;
     bool tura; //false biale true czarne
-    bool czy_koniec;
     int max_czas_biale;
     int max_czas_czarne;
     QString przelicz_czas(int t);

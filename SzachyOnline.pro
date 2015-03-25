@@ -14,36 +14,27 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         oknologowania.cpp \
-    oknoopcji.cpp \
-    Figury/figura.cpp \
-    Figury/goniec.cpp \
-    Figury/hetman.cpp \
-    Figury/krol.cpp \
-    Figury/pionek.cpp \
-    Figury/skoczek.cpp \
-    Figury/wieza.cpp \
     oknogry.cpp \
-    szachyapp.cpp \
-    ModulRozgrywki/silnik.cpp \
-    Figury/kreatorfigur.cpp \
-    ModulRozgrywki/plansza.cpp
+    figura.cpp \
+    goniec.cpp \
+    hetman.cpp \
+    krol.cpp \
+    pionek.cpp \
+    skoczek.cpp \
+    wieza.cpp \
+    oknoopcji.cpp
 
 HEADERS  += oknologowania.h \
-    oknoopcji.h \
-    Figury/figura.h \
-    Figury/goniec.h \
-    Figury/hetman.h \
-    Figury/krol.h \
-    Figury/pionek.h \
-    Figury/skoczek.h \
-    Figury/wieza.h \
     oknogry.h \
-    szachyapp.h \
-    ModulRozgrywki/silnik.h \
-    Figury/kreatorfigur.h \
-    ModulRozgrywki/plansza.h \
-    opcje.h
+    figura.h \
+    goniec.h \
+    hetman.h \
+    krol.h \
+    pionek.h \
+    skoczek.h \
+    wieza.h \
+    oknoopcji.h
 
 FORMS    += oknologowania.ui \
-    oknoopcji.ui \
-    oknogry.ui
+    oknogry.ui \
+    oknoopcji.ui
