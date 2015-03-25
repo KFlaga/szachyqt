@@ -1,11 +1,11 @@
-#include "oknologowania.h"
+#include "szachyapp.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    OknoLogowania w;
-    w.show();
+    SzachyApp sapp;
+    sapp.Run();
 
     return a.exec();
 }

@@ -18,13 +18,12 @@ OknoOpcji::~OknoOpcji()
 
 void OknoOpcji::on_buttonBox_accepted()
 {
-    this->hide();
-    emit nowa_gra();
+    emit noweOpcje();
 }
 
 void OknoOpcji::on_buttonBox_rejected()
 {
-    this->hide();
+    emit stareOpcje();
 }
 
 void OknoOpcji::on_radioButton_clicked()

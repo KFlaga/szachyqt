@@ -2,6 +2,7 @@
 #define OKNOOPCJI_H
 
 #include <QDialog>
+#include "opcje.h"
 
 namespace Ui {
 class OknoOpcji;
@@ -27,10 +28,12 @@ private slots:
 
     void on_radioButton_2_clicked();
 
+signals:
+    void noweOpcje();
+    void stareOpcje();
+
 private:
     Ui::OknoOpcji *ui;
-signals:
-    void nowa_gra();                        //sygnał wysyłany, gdy klikniemy 'ok'
 };
 
 #endif // OKNOOPCJI_H

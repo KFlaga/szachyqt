@@ -15,7 +15,5 @@ OknoLogowania::~OknoLogowania()
 
 void OknoLogowania::on_buttonLogin_clicked()
 {
-    this->hide();
-    okno=new OknoGry(this);
-    okno->show();
+    emit logowanieZakonczone();
 }
