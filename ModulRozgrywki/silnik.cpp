@@ -28,7 +28,7 @@ void Silnik::NowaGra(Opcje* opts)
 
     for(int i = 16; i < 32; i++)
     {
-        Figura* fig = kreator->StwórzFigurę(i,0);
+        Figura* fig = kreator->StwórzFigurę(63-i+16,0);
         figury.push_back(fig);
         pola[63-i+16] = i;
         emit DodanoFigureNaPole(63-i+16,&(fig->ikona));
@@ -52,7 +52,7 @@ void Silnik::PoleWcisniete(int nrPola)
         if( pola[nrPola] != -1 && figury[pola[nrPola]]->strona == aktualnyGracz )
         {
             zaznaczonePola.clear();
-            zaznaczonePola = figury[pola[nrPola]]->dostepneRuchy(nrPola, pola, &figury);
+            zaznaczonePola = figury[pola[nrPola]]->dostepneRuchy(pola, &figury);
             zaznaczonePola.push_front(nrPola);
             zaznaczonePole = nrPola;
         }
@@ -85,7 +85,7 @@ void Silnik::PoleWcisniete(int nrPola)
             if( pola[nrPola] != -1 && figury[pola[nrPola]]->strona == aktualnyGracz )
             {
                 zaznaczonePola.clear();
-                zaznaczonePola = figury[pola[nrPola]]->dostepneRuchy(nrPola, pola, &figury);
+                zaznaczonePola = figury[pola[nrPola]]->dostepneRuchy(pola, &figury);
                 zaznaczonePola.push_front(nrPola);
                 zaznaczonePole = nrPola;
             }

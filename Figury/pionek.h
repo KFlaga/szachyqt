@@ -9,7 +9,7 @@ public:
     QList<int> dostepneRuchy(QString **tab);
     QList<int> szachowanePola(QString **tab);
 
-    QVector<int> dostepneRuchy(int pole, int* pola, QVector<Figura*>* figury);
+    QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
     QVector<int> szachowanePola(int pole) { return QVector<int>(); }
 };
 

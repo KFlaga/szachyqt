@@ -2,10 +2,9 @@
 
 Pionek::Pionek(int strona, int pole)
 {
+    UstawPole(pole);
    this->typ = TPionek;
     this->strona = strona;
-    this->x = X(pole);
-    this->y = Y(pole);
 
     if(strona==0)
         this->ikona=QIcon("szachy/pionek_b.png");
@@ -52,11 +51,9 @@ QList<int> Pionek::szachowanePola(QString **tab)
     return polaSzachowane;
 }
 
-QVector<int> Pionek::dostepneRuchy(int pole, int* plansza, QVector<Figura*>* figury)
+QVector<int> Pionek::dostepneRuchy(int* plansza, QVector<Figura*>* figury)
 {
     ruchy.clear();
-    x = X(pole);
-    y = Y(pole);
     int p;
     if( strona == 0 ) // Bialy pionek
     {

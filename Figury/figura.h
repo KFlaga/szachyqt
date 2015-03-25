@@ -20,7 +20,7 @@ public:
         x = X(pole);
         y = Y(pole);
     }
-    virtual QVector<int> dostepneRuchy(int pole, int* pola, QVector<Figura*>* figury) = 0;
+    virtual QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury) = 0;
 
     int x,y;
     int strona;

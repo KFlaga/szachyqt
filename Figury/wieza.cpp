@@ -12,9 +12,10 @@ Wieza::Wieza(int strona, int pole)
         this->ikona=QIcon("szachy/wieza_c.png");
 }
 
-QVector<int> Wieza::dostepneRuchy(int pole, int *pola, QVector<Figura *> *figury)
+QVector<int> Wieza::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 {
     ruchy.clear();
+    int p;
     int tX = x+1;
     int tY = y;
 
