@@ -15,6 +15,8 @@ Silnik::Silnik()
     goniecButton = msgBox->addButton("Goniec", QMessageBox::ActionRole);
     skoczekButton = msgBox->addButton("Skoczek", QMessageBox::ActionRole);
     wiezaButton = msgBox->addButton("Wieza", QMessageBox::ActionRole);
+
+    czy_koniec = false;
 }
 
 Silnik::~Silnik()
@@ -49,6 +51,7 @@ void Silnik::NowaGra(Opcje* opts)
 
 void Silnik::PoleWcisniete(int nrPola)
 {
+    if(czy_koniec)return;
     static QVector<int> zaznaczonePola;
     if( zaznaczonePole == nrPola ) // Odznaczamy
     {
@@ -149,6 +152,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     {
         if(Sprawdz_czy_mat())
         {
+            czy_koniec = true;
             emit WykonanoRuch(2);
         }
         else
@@ -156,6 +160,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     }
     else if(sprawdz_czy_pat())
     {
+        czy_koniec = true;
         emit WykonanoRuch(3);
     }
     else
@@ -279,8 +284,6 @@ bool Silnik::Sprawdz_czy_szach()
         }
     }
 
-    int ilu_szachujacych=0;
-
     for(int i = 0;i<64;i++)
     {
         if(pola[i]==-1)continue;
@@ -290,14 +293,11 @@ bool Silnik::Sprawdz_czy_szach()
             tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
             if(tmp.contains(figury[krolID]->Pole()))
             {
-                ilu_szachujacych++;
+                return true; //jesli ktos ma naszego krola na celowniku to szach
             }
         }
 
     }
-       //jeśli przynajmniej 1 figura przeciwnika ma króla na celowniku to jest szach
-    if(ilu_szachujacych>0)
-        return true;
     return false;
 }
 
@@ -315,13 +315,13 @@ bool Silnik::Sprawdz_czy_mat()
     }
     QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
 
-    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla krola, jak przy każdym ruchu jest szach to mamy mata
     {
 
         int pozBitego = dostepneRuchyDlaKrola[i];
         int pozBijacego = figury[krolID]->Pole();
 
-        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        int tmpBitego;
         tmpBitego = pola[pozBitego];
         pola[pozBitego] = pola[pozBijacego];
         pola[pozBijacego] = -1;
@@ -354,13 +354,13 @@ bool Silnik::sprawdz_czy_pat()
     }
     QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
 
-    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla  krola, jesli mozna sie ruszyc krolem to nie ma pata
     {
 
         int pozBitego = dostepneRuchyDlaKrola[i];
         int pozBijacego = figury[krolID]->Pole();
 
-        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        int tmpBitego;
         tmpBitego = pola[pozBitego];
         pola[pozBitego] = pola[pozBijacego];
         pola[pozBijacego] = -1;
@@ -377,7 +377,7 @@ bool Silnik::sprawdz_czy_pat()
 
     }
     QVector<int> tmp;
-    for(int i = 0;i<64;i++)
+    for(int i = 0;i<64;i++)  //sprawdzzam czy dla dla innych ffigur mozna zrobic  ruch, jesli tak to nie ma pata
     {
         if(pola[i]==-1)continue;
             if(figury[pola[i]]->typ!=TKrol && figury[pola[i]]->strona==aktualnyGracz)
