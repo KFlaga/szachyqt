@@ -27,6 +27,7 @@ private:
     void Promocja(int strona, int dokad);
     bool Sprawdz_czy_szach();
     bool Sprawdz_czy_mat();
+    bool sprawdz_czy_pat();
 public:
     Silnik();
     ~Silnik();
