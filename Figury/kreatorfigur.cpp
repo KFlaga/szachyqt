@@ -21,11 +21,11 @@ Figura* KreatorFigur::StworzFigure(int pole, int kolor)
     {
         fig = new Goniec(kolor, pole);
     }
-    else if( pole == 3 || pole == 60 )
+    else if( pole == 3 || pole == 59 )
     {
         fig = new Hetman(kolor, pole);
     }
-    else if( pole == 4 || pole == 59 )
+    else if( pole == 4 || pole == 60 )
     {
         fig = new Krol(kolor, pole);
     }

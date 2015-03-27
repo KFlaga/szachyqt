@@ -1,6 +1,6 @@
 #include "silnik.h"
 #include <QVector>
-
+#include <QDebug>
 Silnik::Silnik()
 {
     kreator =  new KreatorFigur();

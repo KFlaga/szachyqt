@@ -39,7 +39,7 @@ QVector<int> Hetman::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 
     tX = x;
     tY = y+1;
-    while( tY < 7 && pola[Pole(tX,tY)] == -1 ) // dodajemy w dol az do konca / pionka
+    while( tY <= 7 && pola[Pole(tX,tY)] == -1 ) // dodajemy w dol az do konca / pionka
     {
         ruchy.push_back(Pole(tX,tY));
         tY++;

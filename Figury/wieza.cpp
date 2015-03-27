@@ -1,5 +1,5 @@
 #include "wieza.h"
-
+#include <QDebug>
 Wieza::Wieza(int strona, int pole)
 {
     UstawPole(pole);
@@ -15,7 +15,6 @@ Wieza::Wieza(int strona, int pole)
 QVector<int> Wieza::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 {
     ruchy.clear();
-    int p;
     int tX = x+1;
     int tY = y;
 
@@ -38,7 +37,7 @@ QVector<int> Wieza::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 
     tX = x;
     tY = y+1;
-    while( tY < 7 && pola[Pole(tX,tY)] == -1 ) // dodajemy w dol az do konca / pionka
+    while( tY <= 7 && pola[Pole(tX,tY)] == -1 ) // dodajemy w dol az do konca / pionka
     {
         ruchy.push_back(Pole(tX,tY));
         tY++;
