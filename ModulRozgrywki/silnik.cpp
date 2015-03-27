@@ -112,7 +112,7 @@ void Silnik::PoleWcisniete(int nrPola)
 // Narazie bicie i ruch wygladaja analogicznie, ale pewnie sie to zmieni
 void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
 {
-    int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+    int tmpBitego;
     tmpBitego = pola[pozBitego];
     pola[pozBitego] = pola[pozBijacego];
     pola[pozBijacego] = -1;
@@ -290,14 +290,11 @@ bool Silnik::Sprawdz_czy_szach()
             tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
             if(tmp.contains(figury[krolID]->Pole()))
             {
-                ilu_szachujacych++;
+                return true;
             }
         }
 
     }
-       //jeśli przynajmniej 1 figura przeciwnika ma króla na celowniku to jest szach
-    if(ilu_szachujacych>0)
-        return true;
     return false;
 }
 
@@ -315,13 +312,13 @@ bool Silnik::Sprawdz_czy_mat()
     }
     QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
 
-    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla krola, jak przy każdym ruchu jest szach to mamy mata
     {
 
         int pozBitego = dostepneRuchyDlaKrola[i];
         int pozBijacego = figury[krolID]->Pole();
 
-        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        int tmpBitego;
         tmpBitego = pola[pozBitego];
         pola[pozBitego] = pola[pozBijacego];
         pola[pozBijacego] = -1;
@@ -354,13 +351,13 @@ bool Silnik::sprawdz_czy_pat()
     }
     QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
 
-    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla krola, jak moze sie ruszyc to nie ma pata
     {
 
         int pozBitego = dostepneRuchyDlaKrola[i];
         int pozBijacego = figury[krolID]->Pole();
 
-        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        int tmpBitego;
         tmpBitego = pola[pozBitego];
         pola[pozBitego] = pola[pozBijacego];
         pola[pozBijacego] = -1;
@@ -376,7 +373,7 @@ bool Silnik::sprawdz_czy_pat()
         if(!czySzach)return false;
 
     }
-    QVector<int> tmp;
+    QVector<int> tmp; //jestli krol nie moze sie ruszyc to sprawdzam  czy inne figury moga sie ruszyc
     for(int i = 0;i<64;i++)
     {
         if(pola[i]==-1)continue;
