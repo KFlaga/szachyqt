@@ -15,6 +15,9 @@ Silnik::Silnik()
     goniecButton = msgBox->addButton("Goniec", QMessageBox::ActionRole);
     skoczekButton = msgBox->addButton("Skoczek", QMessageBox::ActionRole);
     wiezaButton = msgBox->addButton("Wieza", QMessageBox::ActionRole);
+
+
+    czy_koniec = false;
 }
 
 Silnik::~Silnik()
@@ -49,6 +52,7 @@ void Silnik::NowaGra(Opcje* opts)
 
 void Silnik::PoleWcisniete(int nrPola)
 {
+    if(czy_koniec)return;
     static QVector<int> zaznaczonePola;
     if( zaznaczonePole == nrPola ) // Odznaczamy
     {
@@ -149,6 +153,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     {
         if(Sprawdz_czy_mat())
         {
+            czy_koniec = true;
             emit WykonanoRuch(2);
         }
         else
@@ -156,6 +161,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     }
     else if(sprawdz_czy_pat())
     {
+        czy_koniec = true;
         emit WykonanoRuch(3);
     }
     else
