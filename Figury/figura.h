@@ -21,6 +21,7 @@ public:
         y = Y(pole);
     }
     virtual QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury) = 0;
+    QVector<int> WezDostepneRuchy() { return ruchy; }
 
     int x,y;
     int strona;
@@ -28,6 +29,7 @@ public:
     TypFigury typ;
     QVector<int> ruchy;
     bool ruszylSie;
+    bool aktywna;
 };
 
 #endif // FIGURA_H

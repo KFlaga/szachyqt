@@ -193,6 +193,35 @@ QString OknoGry::przelicz_czas(int t)
     return tmp;
 }
 
+void OknoGry::ZbitoKrola(int czyj)
+{
+    QString msg;
+    if( czyj == 0 )
+        msg = "Zwyczieza gracz czarny";
+    else
+        msg = "Zwycieza gracz bialy";
+
+    QMessageBox* winMb = new QMessageBox(this);
+    winMb->setText(msg);
+    winMb->setInformativeText("Czy zagrac ponownie");
+    winMb->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    int res = winMb->exec();
+
+    if( res == QMessageBox::Yes )
+        emit WybranoPonownaGre();
+    else
+        emit ZakonczonoRozgrywke();
+}
+
+void OknoGry::RuchSzachujeSiebie()
+{
+    QString msg = "Niedozwolony ruch : prowadzi do szacha";
+    QMessageBox* winMb = new QMessageBox(this);
+    winMb->setText(msg);
+    winMb->setStandardButtons(QMessageBox::Ok);
+    winMb->exec();
+}
+
 void OknoGry::closeEvent(QCloseEvent *)
 {
     qApp->closeAllWindows();

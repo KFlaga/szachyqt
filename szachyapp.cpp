@@ -1,5 +1,5 @@
 #include "szachyapp.h"
-
+#include <QApplication>
 
 SzachyApp::SzachyApp()
 {
@@ -59,9 +59,25 @@ void SzachyApp::wybranoOpcje()
     connect(oknoGry->WezPlansze(), SIGNAL(WcisnietoPole(int)), (QObject*)silnik, SLOT(PoleWcisniete(int)));
     connect((QObject*)silnik, SIGNAL(WykonanoRuch()), oknoGry, SLOT(WykonanoRuch()));
 
+    connect(oknoGry, SIGNAL(WybranoPonownaGre()), this, SLOT(ponownaGra()));
+    connect(oknoGry, SIGNAL(ZakonczonoRozgrywke()), this, SLOT(koniecGry()));
+    connect((QObject*)silnik, SIGNAL(KrolZbity(int)), oknoGry, SLOT(ZbitoKrola(int)));
+    connect((QObject*)silnik, SIGNAL(RuchSzachujeSiebie()), oknoGry, SLOT(RuchSzachujeSiebie()));
+
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);
 
     oknoOpcji->hide();
     oknoGry->show();
+}
+
+void SzachyApp::ponownaGra()
+{
+    oknoGry->NowaGra(opts);
+    silnik->NowaGra(opts);
+}
+
+void SzachyApp::koniecGry()
+{
+    qApp->closeAllWindows();
 }

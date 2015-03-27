@@ -33,6 +33,8 @@ private slots:
     void noweOpcje();
     void stareOpcje();
     void zalogowano();
+    void ponownaGra();
+    void koniecGry();
 
 private:
     void wybranoOpcje();

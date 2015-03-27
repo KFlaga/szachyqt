@@ -33,6 +33,7 @@ Figura* KreatorFigur::StwórzFigurę(int pole, int kolor)
     {
         fig = new Pionek(kolor, pole);
     }
+    fig->aktywna = true;
     return fig;
 }
 

@@ -38,9 +38,12 @@ private:
 
 public slots:
     void WykonanoRuch();
+    void ZbitoKrola(int czyj);
+    void RuchSzachujeSiebie();
 
 signals:
-
+    void WybranoPonownaGre();
+    void ZakonczonoRozgrywke();
 
 private slots:
     void closeEvent(QCloseEvent *);

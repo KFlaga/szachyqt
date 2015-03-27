@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     szachyapp.cpp \
     ModulRozgrywki/silnik.cpp \
     Figury/kreatorfigur.cpp \
-    ModulRozgrywki/plansza.cpp
+    ModulRozgrywki/plansza.cpp \
+    Figury/figura.cpp
 
 HEADERS  += oknologowania.h \
     oknoopcji.h \
