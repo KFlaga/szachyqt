@@ -157,16 +157,19 @@ void OknoGry::WykonanoRuch(int i)
         {
             tura = 1;
             wiadomoscTura->setText("Szach mat! Wygrywaja biale");
+            czy_koniec = true;
         }
         else
         {
             tura = 0;
             wiadomoscTura->setText("Szach mat! Wygrywaja czarne");
+            czy_koniec = true;
         }
     }
     else if(i==3)
     {
         wiadomoscTura->setText("Pat! Remis");
+        czy_koniec = true;
     }
 
 }
