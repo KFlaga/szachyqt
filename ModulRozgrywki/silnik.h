@@ -29,7 +29,6 @@ private:
     bool Sprawdz_czy_mat();
     bool sprawdz_czy_pat();
     void jesli_roszada_to_wykonaj(int dokad);
-    bool czy_koniec;
 public:
     Silnik();
     ~Silnik();
