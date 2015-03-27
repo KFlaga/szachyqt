@@ -151,7 +151,7 @@ void OknoGry::WykonanoRuch(int i)
     }
 
 
-    if(i==2)
+    else if(i==2)
     {
         if( tura == 0 )
         {
@@ -163,6 +163,10 @@ void OknoGry::WykonanoRuch(int i)
             tura = 0;
             wiadomoscTura->setText("Szach mat! Wygrywaja czarne");
         }
+    }
+    else if(i==3)
+    {
+        wiadomoscTura->setText("Pat! Remis");
     }
 
 }

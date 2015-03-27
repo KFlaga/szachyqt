@@ -154,6 +154,10 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
         else
         emit WykonanoRuch(1);
     }
+    else if(sprawdz_czy_pat())
+    {
+        emit WykonanoRuch(3);
+    }
     else
     emit WykonanoRuch(0);
 }
@@ -198,6 +202,10 @@ void Silnik::RuszPionek(int skad, int dokad)
         }
         else
         emit WykonanoRuch(1);
+    }
+    else if(sprawdz_czy_pat())
+    {
+        emit WykonanoRuch(3);
     }
     else
     emit WykonanoRuch(0);
@@ -313,6 +321,55 @@ bool Silnik::Sprawdz_czy_mat()
     return true;
 }
 
+//nie mozna wykonać żadnego ruchu
+bool Silnik::sprawdz_czy_pat()
+{
+    int krolID;
+    //szukam naszego króla
+    for(int i = 0;i<figury.size();i++)
+    {
+        if(figury[i]->typ==TKrol && figury[i]->strona==aktualnyGracz)
+        {
+            krolID = i;
+        }
+    }
+    QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
+
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    {
+
+        int pozBitego = dostepneRuchyDlaKrola[i];
+        int pozBijacego = figury[krolID]->Pole();
+
+        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        tmpBitego = pola[pozBitego];
+        pola[pozBitego] = pola[pozBijacego];
+        pola[pozBijacego] = -1;
+        figury[pola[pozBitego]]->UstawPole(pozBitego);
+
+        bool czySzach = Sprawdz_czy_szach();
+
+        pola[pozBijacego] = pola[pozBitego];
+        pola[pozBitego] = tmpBitego;
+        figury[pola[pozBijacego]]->UstawPole(pozBijacego);
+
+
+        if(!czySzach)return false;
+
+    }
+    qDebug()<<"TETS";
+    QVector<int> tmp;
+    for(int i = 0;i<64;i++)
+    {
+        if(pola[i]==-1)continue;
+            if(figury[pola[i]]->typ!=TKrol && figury[pola[i]]->strona==aktualnyGracz)
+            {
+                tmp = figury[pola[i]]->dostepneRuchy(pola,&figury);
+                if(tmp.size()>0)return false;
+            }
+    }
+    return true;
+}
 
 
 
