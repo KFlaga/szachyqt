@@ -45,3 +45,6 @@ QVector<int> Skoczek::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 
     return ruchy;
 }
+
+
+

@@ -34,3 +34,7 @@ QVector<int> Krol::dostepneRuchy(int *pola, QVector<Figura *> *figury)
 
     return ruchy;
 }
+
+
+
+

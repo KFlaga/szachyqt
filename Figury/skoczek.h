@@ -8,6 +8,7 @@ public:
     Skoczek(int strona, int pole);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
+
 };
 
 #endif // SKOCZEK_H

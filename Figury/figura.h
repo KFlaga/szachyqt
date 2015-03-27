@@ -22,11 +22,13 @@ public:
     }
     virtual QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury) = 0;
 
+
     int x,y;
     int strona;
     QIcon ikona;
     TypFigury typ;
     QVector<int> ruchy;
+    QVector<int> polaSzachowane;
     bool ruszylSie;
 };
 

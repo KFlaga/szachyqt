@@ -8,6 +8,7 @@ public:
     Krol(int strona, int pole);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
+
 };
 
 #endif // KROL_H

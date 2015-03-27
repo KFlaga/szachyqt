@@ -25,6 +25,8 @@ private:
     void ZbijPionek(int pozBijacego, int pozBitego);
     void RuszPionek(int skad, int dokad);
     void Promocja(int strona, int dokad);
+    bool Sprawdz_czy_szach();
+    bool Sprawdz_czy_mat();
 public:
     Silnik();
     ~Silnik();
@@ -38,7 +40,7 @@ signals:
     void PodswietlicPola(QVector<int> pola);
     void UsunietoFigureZPola(int nrPola);
     void DodanoFigureNaPole(int nrPola, QIcon* figura);
-    void WykonanoRuch();
+    void WykonanoRuch(int);
 };
 
 #endif // SILNIK_H

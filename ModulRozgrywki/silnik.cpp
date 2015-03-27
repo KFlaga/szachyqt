@@ -112,9 +112,18 @@ void Silnik::PoleWcisniete(int nrPola)
 // Narazie bicie i ruch wygladaja analogicznie, ale pewnie sie to zmieni
 void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
 {
+    int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+    tmpBitego = pola[pozBitego];
     pola[pozBitego] = pola[pozBijacego];
     pola[pozBijacego] = -1;
     figury[pola[pozBitego]]->UstawPole(pozBitego);
+    if(Sprawdz_czy_szach()) //jesli nasz ruch powoduje szacha na naszym krolu nie pozwalam na taki ruch
+    {
+        pola[pozBijacego] = pola[pozBitego];
+        pola[pozBitego] = tmpBitego;
+        figury[pola[pozBijacego]]->UstawPole(pozBijacego);
+        return;
+    }
 
     emit UsunietoFigureZPola(pozBitego);
     emit UsunietoFigureZPola(pozBijacego);
@@ -127,14 +136,26 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
 
     }
 
-    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==1 &&  pozBitego > 56) //jesli czaarny pionek doszedl do konca planszy
+    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==1 &&  pozBitego > 55) //jesli czaarny pionek doszedl do konca planszy
     {
         Promocja(1,pozBitego);
     }
 
 
     aktualnyGracz = -aktualnyGracz + 1; // zmienia 0 na 1 i 1 na 0
-    emit WykonanoRuch();
+
+
+    if(Sprawdz_czy_szach())
+    {
+        if(Sprawdz_czy_mat())
+        {
+            emit WykonanoRuch(2);
+        }
+        else
+        emit WykonanoRuch(1);
+    }
+    else
+    emit WykonanoRuch(0);
 }
 
 void Silnik::RuszPionek(int skad, int dokad)
@@ -142,6 +163,14 @@ void Silnik::RuszPionek(int skad, int dokad)
     pola[dokad] = pola[skad];
     pola[skad] = -1;
     figury[pola[dokad]]->UstawPole(dokad);
+
+    if(Sprawdz_czy_szach()) //jesli nasz ruch powoduje szacha na naszym krolu nie pozwalam na taki ruch
+    {
+        pola[skad] = pola[dokad];
+        pola[dokad] = -1;
+        figury[pola[skad]]->UstawPole(skad);
+        return;
+    }
 
     emit UsunietoFigureZPola(skad);
     emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
@@ -153,13 +182,25 @@ void Silnik::RuszPionek(int skad, int dokad)
 
     }
 
-    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 56) //jesli czaarny pionek doszedl do konca planszy
+    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 55) //jesli czaarny pionek doszedl do konca planszy
     {
         Promocja(1,dokad);
     }
 
     aktualnyGracz = -aktualnyGracz + 1;
-    emit WykonanoRuch();
+
+
+    if(Sprawdz_czy_szach())
+    {
+        if(Sprawdz_czy_mat())
+        {
+            emit WykonanoRuch(2);
+        }
+        else
+        emit WykonanoRuch(1);
+    }
+    else
+    emit WykonanoRuch(0);
 }
 
 
@@ -195,3 +236,83 @@ void Silnik::Promocja(int strona,int dokad)
         emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
     }
 }
+
+
+
+
+bool Silnik::Sprawdz_czy_szach()
+{
+    int krolID;
+    //szukam naszego króla
+    for(int i = 0;i<figury.size();i++)
+    {
+        if(figury[i]->typ==TKrol && figury[i]->strona==aktualnyGracz)
+        {
+            krolID = i;
+        }
+    }
+
+    int ilu_szachujacych=0;
+
+    for(int i = 0;i<64;i++)
+    {
+        if(pola[i]==-1)continue;
+        QVector<int> tmp;
+        if(figury[pola[i]]->strona == 1 - aktualnyGracz)
+        {
+            tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
+            if(tmp.contains(figury[krolID]->Pole()))
+            {
+                ilu_szachujacych++;
+            }
+        }
+
+    }
+       //jeśli przynajmniej 1 figura przeciwnika ma króla na celowniku to jest szach
+    if(ilu_szachujacych>0)
+        return true;
+    return false;
+}
+
+
+bool Silnik::Sprawdz_czy_mat()
+{
+    int krolID;
+    //szukam naszego króla
+    for(int i = 0;i<figury.size();i++)
+    {
+        if(figury[i]->typ==TKrol && figury[i]->strona==aktualnyGracz)
+        {
+            krolID = i;
+        }
+    }
+    QVector<int> dostepneRuchyDlaKrola = figury[krolID]->dostepneRuchy(pola,&figury);
+
+    for(int i = 0;i<dostepneRuchyDlaKrola.size();i++)  //wykonuję wirtualnie wszystkie możliwe ruchy dla, jak przy każdym ruchu jest szach to mamy mata
+    {
+
+        int pozBitego = dostepneRuchyDlaKrola[i];
+        int pozBijacego = figury[krolID]->Pole();
+
+        int tmpBitego; //potrzebne, jeśli będziemy musli wykonać  powrót na  wypadek gdyby rych spowodował szacha na naszym królu
+        tmpBitego = pola[pozBitego];
+        pola[pozBitego] = pola[pozBijacego];
+        pola[pozBijacego] = -1;
+        figury[pola[pozBitego]]->UstawPole(pozBitego);
+
+        bool czySzach = Sprawdz_czy_szach();
+
+        pola[pozBijacego] = pola[pozBitego];
+        pola[pozBitego] = tmpBitego;
+        figury[pola[pozBijacego]]->UstawPole(pozBijacego);
+
+
+        if(!czySzach)return false;
+
+    }
+    return true;
+}
+
+
+
+

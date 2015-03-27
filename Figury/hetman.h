@@ -8,6 +8,7 @@ public:
     Hetman(int strona, int pole);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
+
 };
 
 #endif // HETMAN_H

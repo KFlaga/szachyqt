@@ -121,18 +121,50 @@ Plansza* OknoGry::WezPlansze()
     return plansza;
 }
 
-void OknoGry::WykonanoRuch()
+void OknoGry::WykonanoRuch(int i)
 {
-    if( tura == 0 )
+    if(i==0)
     {
-        tura = 1;
-        wiadomoscTura->setText("Ruch czarnych");
+        if( tura == 0 )
+        {
+            tura = 1;
+            wiadomoscTura->setText("Ruch czarnych");
+        }
+        else
+        {
+            tura = 0;
+            wiadomoscTura->setText("Ruch bialych");
+        }
     }
-    else
+    else  if(i==1)
     {
-        tura = 0;
-        wiadomoscTura->setText("Ruch bialych");
+        if( tura == 0 )
+        {
+            tura = 1;
+            wiadomoscTura->setText("Szach! Ruch czarnych");
+        }
+        else
+        {
+            tura = 0;
+            wiadomoscTura->setText("Szach! Ruch bialych");
+        }
     }
+
+
+    if(i==2)
+    {
+        if( tura == 0 )
+        {
+            tura = 1;
+            wiadomoscTura->setText("Szach mat! Wygrywaja biale");
+        }
+        else
+        {
+            tura = 0;
+            wiadomoscTura->setText("Szach mat! Wygrywaja czarne");
+        }
+    }
+
 }
 
 void OknoGry::timeout() //do odliczania pozsotałego czasu

@@ -56,3 +56,7 @@ QVector<int> Pionek::dostepneRuchy(int* plansza, QVector<Figura*>* figury)
 }
 
 // W dalszej wersji trzebaby dodac takie tematy jak czy po ruchu bedzie szach
+
+
+
+

@@ -37,7 +37,7 @@ private:
     void inicjalizujRamke();
 
 public slots:
-    void WykonanoRuch();
+    void WykonanoRuch(int i);
 
 signals:
 

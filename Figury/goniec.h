@@ -8,6 +8,7 @@ public:
     Goniec(int strona, int pole);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
+
 };
 
 #endif // GONIEC_H
