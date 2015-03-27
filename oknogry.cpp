@@ -28,15 +28,15 @@ OknoGry::OknoGry(QWidget *parent) :
 
 void OknoGry::inicjalizujUI()
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout = new QVBoxLayout();
+
     this->centralWidget()->setLayout(mainLayout);
 
     QHBoxLayout *czasLayout=new QHBoxLayout();
     mainLayout->addLayout(czasLayout);
 
     wiadomoscTura = new QLabel("Zaczynają biale");
-    wiadomoscTura->setFixedWidth(450);
+  //  wiadomoscTura->setFixedWidth(00);
     wiadomoscTura->setAlignment(Qt::AlignHCenter);
     QFont f;
     f.setBold(true);
@@ -55,9 +55,8 @@ void OknoGry::inicjalizujUI()
 void OknoGry::inicjalizujRamke()
 {
     QGridLayout *ramka = new QGridLayout();
-    ((QVBoxLayout*)this->centralWidget()->layout())->addLayout(ramka);
+    mainLayout->addLayout(ramka);
     ramka->setSpacing(0);
-
     int size = 50; // rozmiar pol ramki
     // Ustawienie szarych rogow planszy
     QLabel *rog;
@@ -75,7 +74,7 @@ void OknoGry::inicjalizujRamke()
     for(int i=0;i<8;i++)
     {
         ramka->setRowMinimumHeight(i+1,size);
-        QString litera = (char)('A'+i);
+        QString litera = (QChar)('A'+i);
 
         //dodanie liter wokół planszy
         QLabel *l1 = new QLabel("<b>"+litera+"</b>");
@@ -105,9 +104,10 @@ void OknoGry::inicjalizujRamke()
         ramka->addWidget(l3,i+1,0);
         ramka->addWidget(l4,i+1,9);
     }
-    // niech sie ramka z plansza nie rozszerzaja, a plansza zajmuje 8x8 komorek
+   // niech sie ramka z plansza nie rozszerzaja, a plansza zajmuje 8x8 komorek
     ramka->setSizeConstraint(QLayout::SetFixedSize);
     ramka->addWidget(plansza,1,1,8,8);
+    mainLayout->addWidget(wiadomoscTura);
 }
 
 OknoGry::~OknoGry()
@@ -196,4 +196,9 @@ QString OknoGry::przelicz_czas(int t)
 void OknoGry::closeEvent(QCloseEvent *)
 {
     qApp->closeAllWindows();
+}
+
+void OknoGry::on_actionNowa_Gra_triggered()
+{
+
 }

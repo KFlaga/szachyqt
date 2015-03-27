@@ -20,7 +20,7 @@ void Silnik::NowaGra(Opcje* opts)
     // potem od konca, czyli dol-prawo, w prawa strone dla bialych
     for(int i = 0; i < 16; i++)
     {
-        Figura* fig = kreator->StwórzFigurę(i,1);
+        Figura* fig = kreator->StworzFigure(i,1);
         figury.push_back(fig);
         pola[i] = i;
         emit DodanoFigureNaPole(i,&(fig->ikona));
@@ -28,7 +28,7 @@ void Silnik::NowaGra(Opcje* opts)
 
     for(int i = 16; i < 32; i++)
     {
-        Figura* fig = kreator->StwórzFigurę(63-i+16,0);
+        Figura* fig = kreator->StworzFigure(63-i+16,0);
         figury.push_back(fig);
         pola[63-i+16] = i;
         emit DodanoFigureNaPole(63-i+16,&(fig->ikona));

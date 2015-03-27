@@ -22,7 +22,7 @@ private:
 public:
     KreatorFigur();
 
-    Figura* StwórzFigurę(int pole, int kolor);
+    Figura* StworzFigure(int pole, int kolor);
 };
 
 #endif // KREATORFIGUR_H

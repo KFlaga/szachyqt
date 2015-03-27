@@ -2,10 +2,12 @@
 
 #include <QGridLayout>
 #include <QButtonGroup>
-
+#include   <QDebug>
 Plansza::Plansza(QWidget *parent) : QWidget(parent)
 {
     QGridLayout* mainLayout = new QGridLayout(this);
+    mainLayout->setSpacing(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     int size = 50;
     QButtonGroup *bg = new QButtonGroup();
     pola = new QPushButton*[64];
@@ -20,14 +22,13 @@ Plansza::Plansza(QWidget *parent) : QWidget(parent)
             pola[i]->setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)");
         else
             pola[i]->setStyleSheet("background-color: rgb(100, 100, 100); color: rgb(255, 255, 255)");
-        mainLayout->addWidget(pola[i],i/8+1,i%8+1);
+        mainLayout->addWidget(pola[i],i/8,i%8);
         bg->addButton(pola[i],i);
     }
     connect(bg,SIGNAL(buttonClicked(int)),this,SLOT(wcisnijPole(int)));
 
     iconEmpty = new QIcon();
-
-    this->setLayout(mainLayout);
+    //this->setLayout(mainLayout);
 }
 
 void Plansza::wcisnijPole(int nrPola)

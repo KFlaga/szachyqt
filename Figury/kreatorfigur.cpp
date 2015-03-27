@@ -6,7 +6,7 @@ KreatorFigur::KreatorFigur()
 }
 
 
-Figura* KreatorFigur::StwórzFigurę(int pole, int kolor)
+Figura* KreatorFigur::StworzFigure(int pole, int kolor)
 {
     Figura* fig;
     if( pole == 0 || pole == 7 || pole == 56 || pole == 63 )

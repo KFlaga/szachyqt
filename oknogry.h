@@ -46,6 +46,8 @@ private slots:
     void closeEvent(QCloseEvent *);
     void timeout();
 
+    void on_actionNowa_Gra_triggered();
+
 private:
     Ui::OknoGry *ui;
     Plansza *plansza;
@@ -56,6 +58,7 @@ private:
     int max_czas_biale;
     int max_czas_czarne;
     QString przelicz_czas(int t);
+    QVBoxLayout *mainLayout;
 };
 
 #endif // OKNOGRY_H
