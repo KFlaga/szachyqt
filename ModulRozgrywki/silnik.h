@@ -6,6 +6,7 @@
 #include "Figury/kreatorfigur.h"
 #include "Figury/figura.h"
 #include "opcje.h"
+#include <QMessageBox>
 
 class Silnik : QObject
 {
@@ -17,9 +18,13 @@ private:
     int zaznaczonePole;
     int aktualnyGracz;
 
+    QMessageBox *msgBox;   //okno z wyborem figury przy promowaniu pionka
+    QPushButton *hetmanButton,*goniecButton,*skoczekButton,*wiezaButton;
+
     void SprawdzRuchy(int pozPionka, QVector<int> ruchy);
     void ZbijPionek(int pozBijacego, int pozBitego);
     void RuszPionek(int skad, int dokad);
+    void Promocja(int strona, int dokad);
 public:
     Silnik();
     ~Silnik();

@@ -1,11 +1,20 @@
 #include "silnik.h"
 #include <QVector>
+#include "Figury/figura.h"
 #include <QDebug>
+#include <QPushButton>
 Silnik::Silnik()
 {
     kreator =  new KreatorFigur();
     for(int i = 0; i < 64; i++)
         pola[i] = -1;
+
+
+    msgBox=new QMessageBox(QMessageBox::Question,"Promocja pionka","Wybierz figurę:");      //przygotowanie okna z promocją
+    hetmanButton = msgBox->addButton("Hetman",QMessageBox::ActionRole);
+    goniecButton = msgBox->addButton("Goniec", QMessageBox::ActionRole);
+    skoczekButton = msgBox->addButton("Skoczek", QMessageBox::ActionRole);
+    wiezaButton = msgBox->addButton("Wieza", QMessageBox::ActionRole);
 }
 
 Silnik::~Silnik()
@@ -111,6 +120,19 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     emit UsunietoFigureZPola(pozBijacego);
     emit DodanoFigureNaPole(pozBitego, &(figury[pola[pozBitego]]->ikona));
 
+
+    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==0 && pozBitego < 8) //jesli bialy pionek doszedl do konca planszy
+    {
+       Promocja(0,pozBitego);
+
+    }
+
+    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==1 &&  pozBitego > 56) //jesli czaarny pionek doszedl do konca planszy
+    {
+        Promocja(1,pozBitego);
+    }
+
+
     aktualnyGracz = -aktualnyGracz + 1; // zmienia 0 na 1 i 1 na 0
     emit WykonanoRuch();
 }
@@ -124,6 +146,52 @@ void Silnik::RuszPionek(int skad, int dokad)
     emit UsunietoFigureZPola(skad);
     emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
 
+
+    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==0 && dokad < 8) //jesli bialy pionek doszedl do konca planszy
+    {
+       Promocja(0,dokad);
+
+    }
+
+    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 56) //jesli czaarny pionek doszedl do konca planszy
+    {
+        Promocja(1,dokad);
+    }
+
     aktualnyGracz = -aktualnyGracz + 1;
     emit WykonanoRuch();
+}
+
+
+void Silnik::Promocja(int strona,int dokad)
+{
+    msgBox->exec();
+    if(msgBox->clickedButton() == hetmanButton)
+    {
+        emit UsunietoFigureZPola(dokad);
+        Figura* fig = new Hetman(strona,dokad);
+        figury[pola[dokad]]=fig;
+        emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
+    }
+    else if (msgBox->clickedButton() == goniecButton)
+    {
+        emit UsunietoFigureZPola(dokad);
+        Figura* fig = new Goniec(strona,dokad);
+        figury[pola[dokad]]=fig;
+        emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
+    }
+    else if (msgBox->clickedButton() == skoczekButton)
+    {
+        emit UsunietoFigureZPola(dokad);
+        Figura* fig = new Skoczek(strona,dokad);
+        figury[pola[dokad]]=fig;
+        emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
+    }
+    else if (msgBox->clickedButton() == wiezaButton)
+    {
+        emit UsunietoFigureZPola(dokad);
+        Figura* fig = new Wieza(strona,dokad);
+        figury[pola[dokad]]=fig;
+        emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
+    }
 }

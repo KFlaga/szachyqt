@@ -8,6 +8,7 @@ public:
     Pionek(int strona, int pole);
 
     QVector<int> dostepneRuchy(int* pola, QVector<Figura*>* figury);
+    bool promocja_pionka(int id);
 };
 
 #endif // PIONEK_H
