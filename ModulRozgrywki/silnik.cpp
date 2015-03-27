@@ -180,6 +180,7 @@ void Silnik::RuszPionek(int skad, int dokad)
     emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
 
 
+    //jesli zaznaczana figura byl  pionek sprawdzamy czy doszedl do konca  planszy
     if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==0 && dokad < 8) //jesli bialy pionek doszedl do konca planszy
     {
        Promocja(0,dokad);
@@ -189,6 +190,24 @@ void Silnik::RuszPionek(int skad, int dokad)
     if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 55) //jesli czaarny pionek doszedl do konca planszy
     {
         Promocja(1,dokad);
+    }
+
+    //jesli zaznaczona figura byla wieza trzeba zapisac, ze sie ruszyla  (wiedza potrzebna do roszady)
+    if(figury[pola[dokad]]->typ == TWieza)
+    {
+        figury[pola[dokad]]->ruszylSie=true;
+    }
+
+
+
+    //jesli zaznaczona figura byl krol to muusimy sprawdzic czy rucuhem byla roszada
+    if(figury[pola[dokad]]->typ==TKrol)
+    {
+        if(figury[pola[dokad]]->ruszylSie==false)
+        {
+            jesli_roszada_to_wykonaj(dokad);
+        }
+        figury[pola[dokad]]->ruszylSie=true;
     }
 
     aktualnyGracz = -aktualnyGracz + 1;
@@ -357,7 +376,6 @@ bool Silnik::sprawdz_czy_pat()
         if(!czySzach)return false;
 
     }
-    qDebug()<<"TETS";
     QVector<int> tmp;
     for(int i = 0;i<64;i++)
     {
@@ -372,4 +390,39 @@ bool Silnik::sprawdz_czy_pat()
 }
 
 
+void Silnik::jesli_roszada_to_wykonaj(int dokad)
+{
+    if(dokad == 2)
+    {
+            pola[3] = pola[0];
+            pola[0] = -1;
+            figury[pola[3]]->UstawPole(3);
+            emit UsunietoFigureZPola(0);
+            emit DodanoFigureNaPole(3, &(figury[pola[3]]->ikona));
+    }
+    else if(dokad ==  6)
+    {
+            pola[5] = pola[7];
+            pola[7] = -1;
+            figury[pola[5]]->UstawPole(5);
+            emit UsunietoFigureZPola(7);
+            emit DodanoFigureNaPole(5, &(figury[pola[5]]->ikona));
+    }
+    else if(dokad == 58)
+    {
+            pola[59] = pola[56];
+            pola[56] = -1;
+            figury[pola[59]]->UstawPole(59);
+            emit UsunietoFigureZPola(56);
+            emit DodanoFigureNaPole(59, &(figury[pola[59]]->ikona));
+    }
+    else if(dokad == 62)
+    {
+            pola[61] = pola[63];
+            pola[63] = -1;
+            figury[pola[61]]->UstawPole(61);
+            emit UsunietoFigureZPola(63);
+            emit DodanoFigureNaPole(61, &(figury[pola[61]]->ikona));
+    }
+}
 
