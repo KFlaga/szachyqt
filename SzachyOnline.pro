@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,36 +13,48 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        oknologowania.cpp \
-    oknoopcji.cpp \
     Figury/goniec.cpp \
     Figury/hetman.cpp \
     Figury/krol.cpp \
     Figury/pionek.cpp \
     Figury/skoczek.cpp \
     Figury/wieza.cpp \
-    oknogry.cpp \
     szachyapp.cpp \
     ModulRozgrywki/silnik.cpp \
     Figury/kreatorfigur.cpp \
-    ModulRozgrywki/plansza.cpp
+    ModulRozgrywki/plansza.cpp \
+    ModulLobby/dialogopcjelokalniegracz.cpp \
+    ModulLobby/dialogopcjelokalniesi.cpp \
+    ModulLobby/oknolobby.cpp \
+    ModulLobby/oknologowania.cpp \
+    ModulLobby/oknorejestracji.cpp \
+    ModulRozgrywki/oknogry.cpp
 
-HEADERS  += oknologowania.h \
-    oknoopcji.h \
-    Figury/figura.h \
+
+HEADERS  += Figury/figura.h \
     Figury/goniec.h \
     Figury/hetman.h \
     Figury/krol.h \
     Figury/pionek.h \
     Figury/skoczek.h \
     Figury/wieza.h \
-    oknogry.h \
     szachyapp.h \
     ModulRozgrywki/silnik.h \
     Figury/kreatorfigur.h \
     ModulRozgrywki/plansza.h \
-    opcje.h
+    opcje.h \
+    uzytkownik.h \
+    ModulLobby/dialogopcjelokalniegracz.h \
+    ModulLobby/dialogopcjelokalniesi.h \
+    ModulLobby/oknolobby.h \
+    ModulLobby/oknologowania.h \
+    ModulLobby/oknorejestracji.h \
+    ModulRozgrywki/oknogry.h
 
-FORMS    += oknologowania.ui \
-    oknoopcji.ui \
-    oknogry.ui
+FORMS    += ModulLobby/oknorejestracji.ui \
+    ModulLobby/oknologowania.ui \
+    ModulRozgrywki/oknogry.ui \
+    ModulLobby/oknolobby.ui \
+    ModulLobby/dialogopcjelokalniesi.ui \
+    ModulLobby/dialogopcjelokalniegracz.ui
+

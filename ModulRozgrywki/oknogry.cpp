@@ -1,4 +1,4 @@
-#include "oknogry.h"
+#include "ModulRozgrywki/oknogry.h"
 #include "ui_oknogry.h"
 #include <QDebug>
 #include <QVBoxLayout>
@@ -207,7 +207,7 @@ void OknoGry::NowaGra(Opcje* opts)
     timer->stop();
     tura = 0;
     czy_koniec = false;
-    int maxCzas = (opts->MaxCzas+1)*300;
+    int maxCzas = (opts->MaxCzas)*60;
     max_czas_biale = maxCzas+1;
     max_czas_czarne = maxCzas;
 
@@ -232,9 +232,9 @@ QString OknoGry::przelicz_czas(int t)
     return tmp;
 }
 
-void OknoGry::closeEvent(QCloseEvent *)
+void OknoGry::closeEvent(QCloseEvent* )
 {
-    qApp->closeAllWindows();
+    emit zamknietoOkno(); // Moze jakis staus czy powod
 }
 
 void OknoGry::on_actionNowa_Gra_triggered()

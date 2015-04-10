@@ -2,11 +2,11 @@
 #define SZACHYAPP_H
 
 #include <QObject>
-#include "oknogry.h"
+#include "ModulRozgrywki/oknogry.h"
 #include "ModulRozgrywki/silnik.h"
-#include "oknologowania.h"
-#include "oknoopcji.h"
 #include "opcje.h"
+#include "ModulLobby/oknolobby.h"
+#include "uzytkownik.h"
 
 class SzachyApp : QObject
 {
@@ -15,10 +15,9 @@ private:
     //static SzachyApp* instance;
 
     OknoGry* oknoGry;
-    OknoLogowania* oknoLogowania;
-    OknoOpcji* oknoOpcji;
     Silnik* silnik;
-    Opcje* opts;
+    Uzytkownik* biezacyUzytkownik;
+    OknoLobby* lobby;
 
 public:
     SzachyApp();
@@ -27,15 +26,12 @@ public:
     //static SzachyApp* sApp();
 
     void Run();
-    Opcje* WezOpcje() { return opts; }
 
 private slots:
-    void noweOpcje();
-    void stareOpcje();
-    void zalogowano();
+    void zalogowano(Uzytkownik*);
+    void koniecGry();
+    void graLokalnie(Opcje*);
 
-private:
-    void wybranoOpcje();
 };
 
 #endif // SZACHYAPP_H

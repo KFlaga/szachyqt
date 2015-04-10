@@ -40,7 +40,7 @@ public slots:
     void WykonanoRuch(int i);
 
 signals:
-
+    void zamknietoOkno();
 
 private slots:
     void closeEvent(QCloseEvent *);
