@@ -8,8 +8,9 @@ SzachyApp::SzachyApp()
 
 SzachyApp::~SzachyApp()
 {
-    delete silnik;
-    delete oknoGry;
+    //Zakomentowałem bo usuwanie jest juz robione w slocie koniecGry(), po zakonczeniu partii
+    //delete silnik;
+    //delete oknoGry;
 }
 
 void SzachyApp::Run()
@@ -38,7 +39,6 @@ void SzachyApp::graLokalnie(Opcje* opts)
     connect(oknoGry->WezPlansze(), SIGNAL(WcisnietoPole(int)), (QObject*)silnik, SLOT(PoleWcisniete(int)));
     connect((QObject*)silnik, SIGNAL(WykonanoRuch(int)), oknoGry, SLOT(WykonanoRuch(int)));
     connect(oknoGry, SIGNAL(zamknietoOkno()), this, SLOT(koniecGry()));
-
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);
 
