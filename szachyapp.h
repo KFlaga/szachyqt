@@ -17,6 +17,7 @@ private:
     OknoGry* oknoGry;
     Silnik* silnik;
     Uzytkownik* biezacyUzytkownik;
+    Uzytkownik* przeciwnik;
     OknoLobby* lobby;
 
 public:
@@ -28,7 +29,7 @@ public:
     void Run();
 
 private slots:
-    void zalogowano(Uzytkownik*);
+    void zalogowano();
     void koniecGry();
     void graLokalnie(Opcje*);
 

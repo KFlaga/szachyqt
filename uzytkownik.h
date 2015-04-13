@@ -18,6 +18,7 @@ public:
     int ranking; // jakis system rankingowy wprowadzic
     bool czy_gosc;
     bool czy_zalogowany;
+    int status; // wolny, w grze itp
 };
 
 #endif // UZYTKOWNIK_H

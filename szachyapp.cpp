@@ -3,28 +3,35 @@
 
 SzachyApp::SzachyApp()
 {
-
+    biezacyUzytkownik = new Uzytkownik();
+    przeciwnik = new Uzytkownik();
 }
 
 SzachyApp::~SzachyApp()
 {
-    //Zakomentowałem bo usuwanie jest juz robione w slocie koniecGry(), po zakonczeniu partii
-    //delete silnik;
-    //delete oknoGry;
+    /*
+    if( silnik )
+        delete silnik;
+    if( oknoGry )
+        delete oknoGry;
+    if( lobby )
+        delete lobby;
+        */
 }
 
 void SzachyApp::Run()
 {
     lobby = new OknoLobby();
+    lobby->ustawUzytkownika(biezacyUzytkownik);
     qRegisterMetaType<Opcje>("Opcje");
     connect(lobby, SIGNAL(graLokalnie(Opcje*)), this, SLOT(graLokalnie(Opcje*)));
-    connect(lobby, SIGNAL(sygZalogowano(Uzytkownik*)), this, SLOT(zalogowano(Uzytkownik*)));
+    connect(lobby, SIGNAL(sygZalogowano()), this, SLOT(zalogowano()));
     lobby->show();
 }
 
-void SzachyApp::zalogowano(Uzytkownik* uzyt)
+void SzachyApp::zalogowano()
 {
-    biezacyUzytkownik = uzyt;
+
 }
 
 void SzachyApp::graLokalnie(Opcje* opts)
@@ -39,6 +46,7 @@ void SzachyApp::graLokalnie(Opcje* opts)
     connect(oknoGry->WezPlansze(), SIGNAL(WcisnietoPole(int)), (QObject*)silnik, SLOT(PoleWcisniete(int)));
     connect((QObject*)silnik, SIGNAL(WykonanoRuch(int)), oknoGry, SLOT(WykonanoRuch(int)));
     connect(oknoGry, SIGNAL(zamknietoOkno()), this, SLOT(koniecGry()));
+
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);
 

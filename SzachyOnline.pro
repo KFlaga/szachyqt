@@ -28,7 +28,12 @@ SOURCES += main.cpp\
     ModulLobby/oknolobby.cpp \
     ModulLobby/oknologowania.cpp \
     ModulLobby/oknorejestracji.cpp \
-    ModulRozgrywki/oknogry.cpp
+    ModulRozgrywki/oknogry.cpp \
+    ModulLobby/dialogpodajnickgracza.cpp \
+    ModulLobby/dialogotrzymanozaproszenie.cpp \
+    ModulLobby/dialogczekajnaodpowiedz.cpp \
+    ModulLobby/popupoczekiwanienaserwer.cpp \
+    ModulLobby/komunikatorlobbyserwer.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -49,12 +54,22 @@ HEADERS  += Figury/figura.h \
     ModulLobby/oknolobby.h \
     ModulLobby/oknologowania.h \
     ModulLobby/oknorejestracji.h \
-    ModulRozgrywki/oknogry.h
+    ModulRozgrywki/oknogry.h \
+    ModulLobby/dialogpodajnickgracza.h \
+    ModulLobby/dialogotrzymanozaproszenie.h \
+    ModulLobby/dialogczekajnaodpowiedz.h \
+    ModulLobby/popupoczekiwanienaserwer.h \
+    ModulLobby/komunikatorlobbyserwer.h \
+    ModulLobby/obrotowylabel.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
     ModulRozgrywki/oknogry.ui \
     ModulLobby/oknolobby.ui \
     ModulLobby/dialogopcjelokalniesi.ui \
-    ModulLobby/dialogopcjelokalniegracz.ui
+    ModulLobby/dialogopcjelokalniegracz.ui \
+    ModulLobby/dialogpodajnickgracza.ui \
+    ModulLobby/dialogotrzymanozaproszenie.ui \
+    ModulLobby/dialogczekajnaodpowiedz.ui \
+    ModulLobby/popupoczekiwanienaserwer.ui
 
