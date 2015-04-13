@@ -18,12 +18,12 @@ OknoLogowania::~OknoLogowania()
 
 void OknoLogowania::on_buttonLogin_clicked()
 {
-    Uzytkownik* uzyt = sprobujZalogowac();
-    if( uzyt->id < 0 ) // nie znalazlo uzytkownika
+    sprobujZalogowac();
+    if( uzytkownik->id < 0 ) // nie znalazlo uzytkownika
     {
         ui->labelZleDane->show();
     }
-    else if( uzyt->czy_zalogowany == true )
+    else if( uzytkownik->czy_zalogowany == true )
     {
        QMessageBox* mbZalogowany = new QMessageBox(this);
        mbZalogowany->setText("Użytkownik o podanym loginie i haśle jest już zalogowany");
@@ -34,22 +34,21 @@ void OknoLogowania::on_buttonLogin_clicked()
     }
     else
     {
-        uzyt->czy_zalogowany = true;
-        emit zalogowano(uzyt);
+        uzytkownik->czy_zalogowany = true;
+        emit zalogowano();
+        close();
     }
 }
 
-Uzytkownik* OknoLogowania::sprobujZalogowac()
+void OknoLogowania::sprobujZalogowac()
 {
     // Wyslij zapytanie - sygnal do szachyApp, a z tamtad do modulu netowego
     // narazie testowy
-    Uzytkownik* uzyt = new Uzytkownik();
-    uzyt->czy_zalogowany = false;
-    uzyt->id = 1;
-    uzyt->nick = "Test";
-    uzyt->czy_gosc = false;
-    uzyt->ranking = 100;
-    return uzyt;
+    uzytkownik->czy_zalogowany = false;
+    uzytkownik->id = 1;
+    uzytkownik->nick = "test_" + ui->leLogin->text();
+    uzytkownik->czy_gosc = false;
+    uzytkownik->ranking = 100;
 }
 
 void OknoLogowania::on_buttonRegister_clicked()

@@ -3,13 +3,17 @@
 #include "ModulLobby/oknologowania.h"
 #include "ModulLobby/dialogopcjelokalniegracz.h"
 #include "ModulLobby/dialogopcjelokalniesi.h"
+#include "ModulLobby/dialogpodajnickgracza.h"
+#include <QMessageBox>
 
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::OknoLobby)
 {
     ui->setupUi(this);
-
+    czy_zalogowano = false;
+    this->statusBar()->showMessage("Nie ma połączenia z serwerem");
+    komunikator = new KomunikatorLobbySerwer(this);
 }
 
 OknoLobby::~OknoLobby()
@@ -40,6 +44,8 @@ void OknoLobby::wyloguj()
     // Choć trzeba rozważyć możliwość zgubienia wiadmości
     // bądź chwilowego rozłączenia, tak więc może jednak
     // czekać na potwierdzenie bądź timeout
+    czy_zalogowano = false;
+    aktualizujInterfejs();
 }
 
 void OknoLobby::zaloguj()
@@ -48,15 +54,16 @@ void OknoLobby::zaloguj()
     // oczekiwanie na otrzymanie sygnału, ze zalogowana bądź nie
     // opcja -> uruchomienie zalogowania stąd
     OknoLogowania* oknoLog = new OknoLogowania(this);
-    qRegisterMetaType<Uzytkownik>("Uzytkownik");
-    connect(oknoLog, SIGNAL(zalogowano(Uzytkownik*)), this, SLOT(zalogowano(Uzytkownik*)));
+    oknoLog->ustawUzytkownika(biezacyUzytkownik);
+    connect(oknoLog, SIGNAL(zalogowano()), this, SLOT(zalogowano()));
     oknoLog->exec();
 }
 
-void OknoLobby::zalogowano(Uzytkownik* uzyt)
+void OknoLobby::zalogowano()
 {
-    biezacyUzytkownik = uzyt;
-    emit sygZalogowano(uzyt);
+    czy_zalogowano = true;
+    aktualizujInterfejs();
+    emit sygZalogowano();
 }
 
 void OknoLobby::zagrajLokalnieSI()
@@ -99,6 +106,7 @@ void OknoLobby::szukajGracza()
     // Po wyszukaniu gracza pyta obu o zgodę i ustalenie czasu rozgrywki -> tu
     // opcja jest taka, że widzimy propozycję 2 gracza, a on naszą i jak obaj dadzą taką samą
     // to gramy - trochę dziwne rozwiązanie ale nie mam pomysłu jak to rozwiązać inaczej
+    wyslijWiadomosc();
 }
 
 void OknoLobby::zaprosGracza()
@@ -106,9 +114,91 @@ void OknoLobby::zaprosGracza()
     // Pojawia się dialog z wpisaniem nicku gracza do zaproszenia
     // Gracz otrzymuje zaproszenie -> tak więc trzea dodać system
     // otrzymywania zaproszeń
-    // Zapraszanie z listy zalogowanch będzie odbywało się poprzez
-    // kliknięcie prawym na listę i zaproś bądź też
-    // pod listą damy dodatkowy przycisk
+
+    DialogPodajNickGracza* dialogNick = new DialogPodajNickGracza(this);
+    int result = dialogNick->exec();
+    if( result == QDialog::Accepted )
+    {
+        // znajdz gracza
+        if( false ) // if( znalazlo gracza )
+        {
+            if( false ) // if( jest w grze )
+            {
+                // powiodom ze w grze
+            }
+            // wyslij zaproszenie
+        }
+        else
+        {
+            QMessageBox* mbNieZnalazlo = new QMessageBox(this);
+            mbNieZnalazlo->setWindowTitle("Niepowodzenie");
+            mbNieZnalazlo->setText("Nie znaleziono gracza o podanym pseudonimie");
+            mbNieZnalazlo->setStandardButtons(QMessageBox::Ok);
+            mbNieZnalazlo->exec();
+        }
+    }
+}
+
+void OknoLobby::otrzymanoZaproszenie(Uzytkownik* nadawca)
+{
+    // stworzyc nowy dialog
+
+    // Opcje: anulowanie zaproszenia i odrzucenie zaproszenia
+}
+
+void OknoLobby::wyslijWiadomosc()
+{
+    KomunikatorLobbySerwer::WynikWyslania res = komunikator->wyslijWiadomosc();
+    if( res == KomunikatorLobbySerwer::PrzekroczonoCzas ) // podzielic to na przekroczenie i na anulowanie
+    {
+        QMessageBox mb(this);
+        mb.setText("Przekroczono czas oczekiwania na odpowiedź serwera");
+        mb.setWindowTitle(" ");
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.exec();
+    }
+    // Wiadmosci poniezej w celach informacyjnych dla nas
+    else if( res == KomunikatorLobbySerwer::Anulowano )
+    {
+        this->statusBar()->showMessage("Anulowano probę komunikacji z serwerem", 1000);
+    }
+    else if( res == KomunikatorLobbySerwer::Zajety )
+    {
+        this->statusBar()->showMessage("Komunikator jest zajety, 1000");
+    }
+    else
+    {
+        this->statusBar()->showMessage("Pomyślnie skomunikowano z serwerem, 1000");
+    }
+
+}
+
+void OknoLobby::aktualizujInterfejs()
+{
+    if(czy_zalogowano == false)
+    {
+        ui->teGrajInternet->setEnabled(false);
+        ui->teProfil->setEnabled(false);
+        ui->buttonSzukaj->setEnabled(false);
+        ui->buttonZapros->setEnabled(false);
+        ui->tePseudonimInfo->setEnabled(false);
+        ui->teRankingInfo->setEnabled(false);
+        ui->tePseudonim->setEnabled(false);
+        ui->teRanking->setEnabled(false);
+        ui->tePseudonim->setText("nie zalogowano");
+        ui->teRanking->setText("nie zalogowano");
+        return;
+    }
+    ui->teGrajInternet->setEnabled(true);
+    ui->teProfil->setEnabled(true);
+    ui->buttonSzukaj->setEnabled(true);
+    ui->buttonZapros->setEnabled(true);
+    ui->tePseudonimInfo->setEnabled(true);
+    ui->teRankingInfo->setEnabled(true);
+    ui->tePseudonim->setEnabled(true);
+    ui->teRanking->setEnabled(true);
+    ui->tePseudonim->setText(biezacyUzytkownik->nick);
+    ui->teRanking->setText(QString::number(biezacyUzytkownik->ranking));
 }
 
 // OPCJA ZACHOWANIA ROZGRYWKI I JEJ KONTYNUACJA

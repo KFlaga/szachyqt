@@ -19,8 +19,13 @@ public:
     explicit OknoLogowania(QWidget *parent = 0);
     ~OknoLogowania();
 
+    void ustawUzytkownika(Uzytkownik* u)
+    {
+        uzytkownik = u;
+    }
+
 private:
-    Uzytkownik *sprobujZalogowac();
+    void sprobujZalogowac();
 
 private slots:
     void on_buttonLogin_clicked();
@@ -29,12 +34,12 @@ private slots:
     void on_leLogin_textChanged(const QString &nLogin);
 
 signals:
-    void zalogowano(Uzytkownik*);
+    void zalogowano();
 
 private:
     Ui::OknoLogowania *ui;
     OknoRejestracji* oknoRejestracji;
-
+    Uzytkownik* uzytkownik;
 };
 
 #endif // OKNOLOGOWANIA_H

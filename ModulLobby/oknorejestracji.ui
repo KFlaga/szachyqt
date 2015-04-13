@@ -69,8 +69,11 @@
    </item>
    <item row="10" column="2" colspan="3">
     <widget class="QLineEdit" name="leNick">
+     <property name="text">
+      <string/>
+     </property>
      <property name="maxLength">
-      <number>32</number>
+      <number>20</number>
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>
