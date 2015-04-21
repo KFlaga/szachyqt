@@ -20,6 +20,7 @@ signals:
     void odebranoNickiUserow(QStringList s);
     void showOkno(QString n);
     void odebranoZaproszenie(QString);
+    void odebranoOdpowiedz(QString odp);
 
 private slots:
     void connected();
@@ -32,7 +33,7 @@ private slots:
 public slots:
     void wyslijZaproszenie(QString przeciwnik);
     void stworzPojedynek(QString przeciwnik);
-    void odmow();
+    void odmow(QString przeciwnik);
     void wyslijRuch(QString ru);
 private:
     QString nick;
