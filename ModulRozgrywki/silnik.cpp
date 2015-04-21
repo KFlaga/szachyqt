@@ -423,6 +423,8 @@ bool Silnik::Sprawdz_czy_szach()
 
 //Bedzie trzeba jeszcze dodać możliwość zbicia figury, jesli jest tylko jeden szchujacy lub mozliwosc ustawienie figury pomiedzy
 // Przy dwoch figurach szachujacych na pewno mamy mata
+
+//Trzeba bedzie dodac sprawdzanie, czy przy warunku bicia mozna je wykonac, tzn figura szachuja moze byc chroniona przed inna i wtedy bicie nie jest możliwe
 bool Silnik::Sprawdz_czy_mat()
 {
     //jesli jesst wieccej niz jeden szachujacy to na pewno jest mat
