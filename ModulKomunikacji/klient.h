@@ -18,6 +18,9 @@ public:
 signals:
     void odebranoRuch(QString s);
     void odebranoNickiUserow(QStringList s);
+    void showOkno(QString n);
+    void odebranoZaproszenie(QString);
+
 private slots:
     void connected();
     void disconnected();
@@ -26,7 +29,11 @@ private slots:
     void polacz();
     void rozlacz();
 
+public slots:
+    void wyslijZaproszenie(QString przeciwnik);
     void stworzPojedynek(QString przeciwnik);
+    void odmow();
+    void wyslijRuch(QString ru);
 private:
     QString nick;
 };

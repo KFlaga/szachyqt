@@ -1,9 +1,22 @@
 #include "klient.h"
-
+#include <QMessageBox>
+#include <QPushButton>
 /*
- * Zalożenie jest takie, że tworzmy obiekt przesyłając do konstruktora jako
+ * Zalożenie jest takie, że tworzmy obiekt Klient przesyłając do konstruktora jako
  * argument nick, ktory bedzie pobrany z bazy danych
  * Wysylanie i odbieranie danych będzie opierać się na podłączeniu odpowiednich slotów i sygnałów
+ *
+ * Zaraz po stworzeniu obiektu do serwera wysylany jest nick gracza
+ * Zaraz po utworzeniu obiektu należy podłączyć odpowiednie sygnały do  slotów:
+ * odebranoNickiUserow, odebranoRuch, odebranoZaproszenie
+ * Nicki są odbierane w postaci listy QStringList
+ *
+ * Wysylanie zaproszenia: wywołujemy metodę wyslijZaproszenie przesylajac jako argument nick przeciwnika
+ * Odbieranie zaproszenia: po odbraniu zaproszenia nalezy wyslac odpowiednia odpowiedź - zgoda / brak zgody
+ * Aktualnie nie ma informacji czy przeciwnik akceptował / odrzucił zaproszzenie.
+ * Po prostu jesli akceptuje to jest nazwiązywane połączenie bez żaddnej dodatkowej informacji
+ * Zgoda:Wysylamy - wywołujemy stworzPojedynek  i jako argument dajemy nasz nick
+ * Brak zgody - wywolujemy metodę odmow
  */
 
 
@@ -49,11 +62,35 @@ void Klient::rozlacz()
     socket->close();
 }
 
-void Klient::stworzPojedynek(QString przeciwnik)
+void Klient::wyslijZaproszenie(QString przeciwnik)
 {
-    QString t = "pojedynek:"+przeciwnik;
+    QString t = "zaproszenie:"+przeciwnik;
     const char* data = t.toStdString().c_str();
     socket->write(data);
+    socket->flush();
+}
+
+/*
+ * Wysylanie Zaproszenia uzytkownikowi
+*/
+void Klient::stworzPojedynek(QString przeciwnik)
+{
+    QString t = "pojedynek:"+przeciwnik+"-"+nick;
+    const char* data = t.toStdString().c_str();
+    socket->write(data);
+    socket->flush();
+}
+
+void Klient::odmow()
+{
+    socket->write("pojedynek:false");
+    socket->flush();
+}
+
+void Klient::wyslijRuch(QString ru)
+{
+    QString data = "move:"+ru;
+    socket->write(data.toStdString().c_str());
     socket->flush();
 }
 
@@ -79,10 +116,17 @@ void Klient::readyRead()
         QStringList list = data.split(" ");
         emit odebranoNickiUserow(list);
     }
+
+    else if(data.startsWith("OtrzymanoZaproszenie:"))
+    {
+        emit odebranoZaproszenie(data.mid(21));
+    }
+
     else if(data.startsWith("move:"))
     {
          data = data.mid(5);
          emit odebranoRuch(data);
     }
 }
+
 
