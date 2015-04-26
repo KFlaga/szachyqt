@@ -32,10 +32,9 @@ public:
 
 public:
     QString nick;
+    int czas;
     bool czyZaproszenieWyslane;
-    bool czyZgoda;
     QString powodNiepowodzenia; // np. zajety gracz - moze byc tez w formie enuma
-    // int czas;
 };
 
 #endif // WIADOMOSCZAPROSZENIE_H

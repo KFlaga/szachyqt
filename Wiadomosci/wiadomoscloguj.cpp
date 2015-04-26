@@ -36,12 +36,15 @@ void WiadomoscLoguj::interpretujWiadomosc(QString &tresc)
     tresc = tresc.mid(6);
     QStringList dane = tresc.split('-');
     if( dane[0] == "true" )
+    {
         czyDaneOk = true;
-    nick = dane[1];
-    ranking = dane[2].toInt();
-    if( dane[3] == "false" )
-        czy_zalogowany = false;
-
+        nick = dane[1];
+        ranking = dane[2].toInt();
+        if( dane[3] == "false" )
+            czy_zalogowany = false;
+    }
+    else
+        czyDaneOk = false;
     poprawnieOdebrane = true;
 }
 

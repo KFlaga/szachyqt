@@ -18,7 +18,7 @@ public:
     ~KomunikatorLobbySerwer();
 
     WynikWyslania wyslijWiadomosc(Wiadomosc* msg);
-    WynikWyslania wyslijWiadomoscZeZwrotem(Wiadomosc* msg);
+    WynikWyslania wyslijWiadomoscZeZwrotem(Wiadomosc* msg, QString popupTekst = "");
 
     void ustawCzasOczekiwania(int ms) { timeout = ms; }
 

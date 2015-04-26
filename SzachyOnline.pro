@@ -29,7 +29,6 @@ SOURCES += main.cpp\
     ModulLobby/oknologowania.cpp \
     ModulLobby/oknorejestracji.cpp \
     ModulRozgrywki/oknogry.cpp \
-    ModulLobby/dialogpodajnickgracza.cpp \
     ModulLobby/dialogotrzymanozaproszenie.cpp \
     ModulLobby/dialogczekajnaodpowiedz.cpp \
     ModulLobby/popupoczekiwanienaserwer.cpp \
@@ -37,7 +36,10 @@ SOURCES += main.cpp\
     ModulKomunikacji/klient.cpp \
     Wiadomosci/wiadomoscloguj.cpp \
     Wiadomosci/wiadomoscrejestruj.cpp \
-    Wiadomosci/wiadomoscwyloguj.cpp
+    Wiadomosci/wiadomoscwyloguj.cpp \
+    ModulLobby/dialogwyslijzaproszenie.cpp \
+    Wiadomosci/wiadomoscodpowiedznazaproszenie.cpp \
+    Wiadomosci/wiadomosczaproszenie.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -59,7 +61,6 @@ HEADERS  += Figury/figura.h \
     ModulLobby/oknologowania.h \
     ModulLobby/oknorejestracji.h \
     ModulRozgrywki/oknogry.h \
-    ModulLobby/dialogpodajnickgracza.h \
     ModulLobby/dialogotrzymanozaproszenie.h \
     ModulLobby/dialogczekajnaodpowiedz.h \
     ModulLobby/popupoczekiwanienaserwer.h \
@@ -70,7 +71,10 @@ HEADERS  += Figury/figura.h \
     Wiadomosci/wiadomosc.h \
     Wiadomosci/wiadomoscloguj.h \
     Wiadomosci/wiadomoscrejestruj.h \
-    Wiadomosci/wiadomoscwyloguj.h
+    Wiadomosci/wiadomoscwyloguj.h \
+    ModulLobby/dialogwyslijzaproszenie.h \
+    Wiadomosci/wiadomoscodpowiedznazaproszenie.h \
+    Wiadomosci/wiadomosczaproszenie.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
@@ -78,8 +82,8 @@ FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknolobby.ui \
     ModulLobby/dialogopcjelokalniesi.ui \
     ModulLobby/dialogopcjelokalniegracz.ui \
-    ModulLobby/dialogpodajnickgracza.ui \
     ModulLobby/dialogotrzymanozaproszenie.ui \
     ModulLobby/dialogczekajnaodpowiedz.ui \
-    ModulLobby/popupoczekiwanienaserwer.ui
+    ModulLobby/popupoczekiwanienaserwer.ui \
+    ModulLobby/dialogwyslijzaproszenie.ui
 

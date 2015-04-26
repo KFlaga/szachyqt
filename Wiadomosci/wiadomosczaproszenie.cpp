@@ -1,8 +1,9 @@
 #include "wiadomosczaproszenie.h"
+#include <QStringList>
 
 WiadomoscZaproszenie::WiadomoscZaproszenie()
 {
-
+    czyZaproszenieWyslane = false;
 }
 
 WiadomoscZaproszenie::~WiadomoscZaproszenie()
@@ -10,32 +11,31 @@ WiadomoscZaproszenie::~WiadomoscZaproszenie()
 
 }
 
-// format: invite:nick
+// format: invite:nick-czas
 QString WiadomoscZaproszenie::stworzWiadomosc()
 {
     QString tresc;
-    tresc = "invite:";
+    tresc = "zaproszenie:";
     tresc.append(nick);
+    tresc.append('-');
+    tresc.append(QString::number(czas));
     return tresc;
 }
 
-// format: invite:czyWyslane-powod-czyZgoda
+// format: invite:czyWyslane-powodJakNie
 void WiadomoscZaproszenie::interpretujWiadomosc(QString& tresc)
 {
-    if( !tresc.startsWith("invite:"))
+    if( !tresc.startsWith("zaproszenie:"))
     {
         poprawnieOdebrane = false;
         return;
     }
     czyZaproszenieWyslane = false;
-    czyZgoda = false;
     tresc = tresc.mid(7);
     QStringList dane = tresc.split('-');
     if( dane[0] == "true" )
     {
-        czyWyslane = true;
-        if(dane[2] == "true" )
-            czyZgoda = true;
+        czyZaproszenieWyslane = true;
     }
     else
     {

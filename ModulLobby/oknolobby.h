@@ -28,12 +28,12 @@ public:
     void podlaczLacze(Klient* lacze)
     {
         connect(komunikator, SIGNAL(nadajWiadomosc(QString*,IKomunikator*)),
-                lacze, SLOT(wysliWiadomosc(QString*,IKomunikator*)));
+                lacze, SLOT(wyslijWiadomosc(QString*,IKomunikator*)));
     }
 
 private:
     void aktualizujInterfejs();
-    void wyslijWiadomosc(Wiadomosc* wiadomosc);
+    void wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst = "");
     void otrzymanoZaproszenie(Uzytkownik*);
 
 private slots:

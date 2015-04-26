@@ -11,7 +11,7 @@ Klient::Klient() : QObject()
     polacz();
 }
 
-void Klient::wysliWiadomosc(QString *text, IKomunikator* kom)
+void Klient::wyslijWiadomosc(QString *text, IKomunikator* kom)
 {
     komunikatory.append(kom);
     // Na koncu wiadomosci dodajemy ID komunikatora
@@ -26,7 +26,7 @@ void Klient::wysliWiadomosc(QString *text, IKomunikator* kom)
     socket->flush();
 }
 
-void Klient::wysliWiadomosc(QString *text, int id)
+void Klient::wyslijWiadomosc(QString *text, int id)
 {
     text->append(":");
     text->append(QString::number(id));
@@ -79,7 +79,11 @@ void Klient::readyRead()
     for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
     {
         if( (*it)->wezID() == id )
+        {
             (*it)->odbierzWiadomosc(&data);
+            komunikatory.erase(it);
+            break;
+        }
     }
 }
 

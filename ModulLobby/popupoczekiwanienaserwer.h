@@ -19,6 +19,7 @@ public:
     ~PopupOczekiwanieNaSerwer();
 
     int exec();
+    void ustawTekst(QString text = "Oczekiwanie na odpowiedź\n        serwera");
 
 private:
     Ui::PopupOczekiwanieNaSerwer *ui;

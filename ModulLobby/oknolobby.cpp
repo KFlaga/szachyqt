@@ -3,9 +3,11 @@
 #include "ModulLobby/oknologowania.h"
 #include "ModulLobby/dialogopcjelokalniegracz.h"
 #include "ModulLobby/dialogopcjelokalniesi.h"
-#include "ModulLobby/dialogpodajnickgracza.h"
+#include "ModulLobby/dialogwyslijzaproszenie.h"
 #include <QMessageBox>
 #include "Wiadomosci/wiadomoscwyloguj.h"
+#include "Wiadomosci/wiadomosczaproszenie.h"
+#include "Wiadomosci/wiadomoscodpowiedznazaproszenie.h"
 
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
@@ -38,16 +40,15 @@ void OknoLobby::closeEvent(QCloseEvent * ce)
 
 void OknoLobby::wyloguj()
 {
-    wyslijWiadomosc(new WiadomoscWyloguj());
+    WiadomoscWyloguj* wiadomosc = new WiadomoscWyloguj();
+    wyslijWiadomosc(wiadomosc);
     czy_zalogowano = false;
     aktualizujInterfejs();
+    delete wiadomosc;
 }
 
 void OknoLobby::zaloguj()
 {
-    // emisja sygnału, ze żądanie zalogowania
-    // oczekiwanie na otrzymanie sygnału, ze zalogowana bądź nie
-    // opcja -> uruchomienie zalogowania stąd
     OknoLogowania* oknoLog = new OknoLogowania(this, komunikator);
     oknoLog->ustawUzytkownika(biezacyUzytkownik);
     connect(oknoLog, SIGNAL(zalogowano()), this, SLOT(zalogowano()));
@@ -106,31 +107,46 @@ void OknoLobby::szukajGracza()
 
 void OknoLobby::zaprosGracza()
 {
-    // Pojawia się dialog z wpisaniem nicku gracza do zaproszenia
-    // Gracz otrzymuje zaproszenie -> tak więc trzea dodać system
-    // otrzymywania zaproszeń
-
-    DialogPodajNickGracza* dialogNick = new DialogPodajNickGracza(this);
-    int result = dialogNick->exec();
+    DialogWyslijZaproszenie* dialogZaproszenie = new DialogWyslijZaproszenie(this);
+    int result = dialogZaproszenie->exec();
     if( result == QDialog::Accepted )
     {
-        // znajdz gracza
-        if( false ) // if( znalazlo gracza )
+        WiadomoscZaproszenie* zaproszenie = new WiadomoscZaproszenie();
+        zaproszenie->nick = dialogZaproszenie->wezNick();
+        zaproszenie->czas = dialogZaproszenie->wezCzas();
+        wyslijWiadomosc(zaproszenie);
+
+        if( zaproszenie->czyZaproszenieWyslane )
         {
-            if( false ) // if( jest w grze )
+            WiadomoscOdpowiedzNaZaproszenie* odpowiedz = new WiadomoscOdpowiedzNaZaproszenie();
+            komunikator->ustawCzasOczekiwania(40000); // w tym 30 sek na zgode gracza
+            wyslijWiadomosc(odpowiedz, "Oczekiwanie na odpowiedz\n         gracza");
+            if( odpowiedz->czyZgoda )
             {
-                // powiodom ze w grze
+                // i tutaj inicjalizacja pojedynku
             }
-            // wyslij zaproszenie
+            else if( odpowiedz->czyPoprawnieOdebrane() )
+            {
+                QMessageBox* mbNiezgoda = new QMessageBox(this);
+                mbNiezgoda->setWindowTitle("Odmowa");
+                mbNiezgoda->setText("Gracz odmówił gry");
+                mbNiezgoda->setStandardButtons(QMessageBox::Ok);
+                mbNiezgoda->exec();
+                delete mbNiezgoda;
+            }
+            delete odpowiedz;
         }
         else
         {
             QMessageBox* mbNieZnalazlo = new QMessageBox(this);
             mbNieZnalazlo->setWindowTitle("Niepowodzenie");
-            mbNieZnalazlo->setText("Nie znaleziono gracza o podanym pseudonimie");
+            mbNieZnalazlo->setText("Nie wyslano zaproszenia: " + zaproszenie->powodNiepowodzenia);
             mbNieZnalazlo->setStandardButtons(QMessageBox::Ok);
             mbNieZnalazlo->exec();
+            delete mbNieZnalazlo;
         }
+
+        delete zaproszenie;
     }
 }
 
@@ -141,10 +157,11 @@ void OknoLobby::otrzymanoZaproszenie(Uzytkownik* nadawca)
     // Opcje: anulowanie zaproszenia i odrzucenie zaproszenia
 }
 
-void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc)
+void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
 {
-    KomunikatorLobbySerwer::WynikWyslania res = komunikator->wyslijWiadomosc(wiadomosc);
-    if( res == KomunikatorLobbySerwer::PrzekroczonoCzas ) // podzielic to na przekroczenie i na anulowanie
+    KomunikatorLobbySerwer::WynikWyslania res =
+            komunikator->wyslijWiadomoscZeZwrotem(wiadomosc,popupTekst);
+    if( res == KomunikatorLobbySerwer::PrzekroczonoCzas )
     {
         QMessageBox mb(this);
         mb.setText("Przekroczono czas oczekiwania na odpowiedź serwera");
@@ -159,11 +176,11 @@ void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc)
     }
     else if( res == KomunikatorLobbySerwer::Zajety )
     {
-        this->statusBar()->showMessage("Komunikator jest zajety, 1000");
+        this->statusBar()->showMessage("Komunikator jest zajety", 1000);
     }
     else
     {
-        this->statusBar()->showMessage("Pomyślnie skomunikowano z serwerem, 1000");
+        this->statusBar()->showMessage("Pomyślnie skomunikowano z serwerem", 1000);
     }
 
 }

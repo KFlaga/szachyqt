@@ -42,8 +42,12 @@ void KomunikatorLobbySerwer::odebranoOdpowiedz()
     oczekiwanie->accept();
 }
 
-KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZwrotem(Wiadomosc *msg)
+KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZwrotem(Wiadomosc *msg,
+                                                                                       QString popupTekst)
 {
+    if(popupTekst != "")
+        oczekiwanie->ustawTekst(popupTekst);
+
     wyslijWiadomosc(msg);
     status = WynikWyslania::Niepowodzenie;
 
@@ -60,6 +64,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZ
         status = WynikWyslania::Anulowano;
 
     anuluj();
+    oczekiwanie->ustawTekst();
 
     return status;
 }

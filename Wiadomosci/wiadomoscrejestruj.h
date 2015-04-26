@@ -17,7 +17,6 @@ public:
     QString haslo;
     QString nick;
     bool loginOK;
-    bool hasloOK;
     bool nickOK;
 };
 

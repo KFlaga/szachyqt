@@ -31,3 +31,8 @@ int PopupOczekiwanieNaSerwer::exec()
     timer->stop();
     return res;
 }
+
+void PopupOczekiwanieNaSerwer::ustawTekst(QString text )
+{
+    ui->teOczekiwanie->setPlainText(text);
+}

@@ -19,7 +19,7 @@ private:
 
 public slots:
     void wyslijWiadomosc(QString* tresc, IKomunikator* kom);
-    void wyslijWiadomosc(QString *tresc);
+    void wyslijWiadomosc(QString *tresc, int id);
     void polacz();
     void rozlacz();
 
