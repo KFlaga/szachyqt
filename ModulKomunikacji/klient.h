@@ -18,7 +18,8 @@ private:
     int pobierzID(QString& dane);
 
 public slots:
-    void wysliWiadomosc(QString* tresc, IKomunikator* kom);
+    void wyslijWiadomosc(QString* tresc, IKomunikator* kom);
+    void wyslijWiadomosc(QString *tresc);
     void polacz();
     void rozlacz();
 

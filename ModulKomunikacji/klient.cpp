@@ -26,6 +26,15 @@ void Klient::wysliWiadomosc(QString *text, IKomunikator* kom)
     socket->flush();
 }
 
+void Klient::wysliWiadomosc(QString *text, int id)
+{
+    text->append(":");
+    text->append(QString::number(id));
+    const char* data = text->toStdString().c_str();
+    socket->write(data);
+    socket->flush();
+}
+
 void Klient::polacz()
 {
     //Łączenie...;
