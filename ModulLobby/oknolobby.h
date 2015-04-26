@@ -5,6 +5,8 @@
 #include "uzytkownik.h"
 #include "opcje.h"
 #include "komunikatorlobbyserwer.h"
+#include "ModulKomunikacji/klient.h"
+#include "Wiadomosci/wiadomosc.h"
 
 namespace Ui {
 class OknoLobby;
@@ -23,11 +25,15 @@ public:
         biezacyUzytkownik = u;
     }
 
+    void podlaczLacze(Klient* lacze)
+    {
+        connect(komunikator, SIGNAL(nadajWiadomosc(QString*,IKomunikator*)),
+                lacze, SLOT(wysliWiadomosc(QString*,IKomunikator*)));
+    }
+
 private:
     void aktualizujInterfejs();
-    void wyslijWiadomosc();
-
-public slots:
+    void wyslijWiadomosc(Wiadomosc* wiadomosc);
     void otrzymanoZaproszenie(Uzytkownik*);
 
 private slots:

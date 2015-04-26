@@ -9,23 +9,18 @@ SzachyApp::SzachyApp()
 
 SzachyApp::~SzachyApp()
 {
-    /*
-    if( silnik )
-        delete silnik;
-    if( oknoGry )
-        delete oknoGry;
-    if( lobby )
-        delete lobby;
-        */
+
 }
 
 void SzachyApp::Run()
 {
+    lacze = new Klient();
     lobby = new OknoLobby();
     lobby->ustawUzytkownika(biezacyUzytkownik);
     qRegisterMetaType<Opcje>("Opcje");
     connect(lobby, SIGNAL(graLokalnie(Opcje*)), this, SLOT(graLokalnie(Opcje*)));
     connect(lobby, SIGNAL(sygZalogowano()), this, SLOT(zalogowano()));
+    lobby->podlaczLacze(lacze);
     lobby->show();
 }
 

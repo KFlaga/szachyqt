@@ -1,24 +1,51 @@
 #include "komunikatorlobbyserwer.h"
 
-KomunikatorLobbySerwer::KomunikatorLobbySerwer(QWidget *_parent) : QObject((QObject*)_parent)
+KomunikatorLobbySerwer::KomunikatorLobbySerwer(QWidget *parent) : IKomunikator((QObject*)parent)
 {
-    parent = _parent;
     oczekiwanie  = new PopupOczekiwanieNaSerwer(parent);
     oczekiwanie->setWindowModality(Qt::WindowModal);
     timer = new QTimer(this);
     timeout = 5000;
     zajety = false;
+    connect(this, SIGNAL(odebranoWiadomosc()),
+            this, SLOT(odebranoOdpowiedz()));
 }
 
 KomunikatorLobbySerwer::~KomunikatorLobbySerwer()
 {
-
+    delete timer;
+    delete oczekiwanie;
 }
 
-KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc()
+KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc(Wiadomosc* msg)
 {
+    status = WynikWyslania::Powodzenie;
+
     if(zajety)
         return WynikWyslania::Zajety;
+
+    ustawWiadomosc(msg);
+    emit nadajWiadomosc(stworzWiadomosc(), (IKomunikator*)this);
+
+    return status;
+}
+
+void KomunikatorLobbySerwer::przekroczonyCzasOczekiwania()
+{
+    status = WynikWyslania::PrzekroczonoCzas;
+    oczekiwanie->accept();
+}
+
+void KomunikatorLobbySerwer::odebranoOdpowiedz()
+{
+    status = WynikWyslania::Powodzenie;
+    oczekiwanie->accept();
+}
+
+KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZwrotem(Wiadomosc *msg)
+{
+    wyslijWiadomosc(msg);
+    status = WynikWyslania::Niepowodzenie;
 
     zajety = true;
     timer->setSingleShot(true);
@@ -32,23 +59,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc()
     if( res == QDialog::Rejected )
         status = WynikWyslania::Anulowano;
 
+    anuluj();
+
     return status;
-}
-
-void KomunikatorLobbySerwer::przekroczonyCzasOczekiwania()
-{
-    status = WynikWyslania::PrzekroczonoCzas;
-    oczekiwanie->accept();
-}
-
-void KomunikatorLobbySerwer::otrzymanoWiadomosc()
-{
-    status = WynikWyslania::Powodzenie;
-    oczekiwanie->accept();
-}
-
-KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZwrotem()
-{
-   return wyslijWiadomosc();
-   // po wyslaniu bedzie jeszcze czekalo na odpowiedz
 }

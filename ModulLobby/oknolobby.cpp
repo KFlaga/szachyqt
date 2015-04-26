@@ -5,6 +5,7 @@
 #include "ModulLobby/dialogopcjelokalniesi.h"
 #include "ModulLobby/dialogpodajnickgracza.h"
 #include <QMessageBox>
+#include "Wiadomosci/wiadomoscwyloguj.h"
 
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
@@ -37,13 +38,7 @@ void OknoLobby::closeEvent(QCloseEvent * ce)
 
 void OknoLobby::wyloguj()
 {
-    // Żadanie o wylogowanie
-    // właście nie żądanie, a jedynie komunikat
-    // jeśli serwer nie otrzyma go, to znaczy, że
-    // nie ma połączenia, czyli z automatu wyloguje
-    // Choć trzeba rozważyć możliwość zgubienia wiadmości
-    // bądź chwilowego rozłączenia, tak więc może jednak
-    // czekać na potwierdzenie bądź timeout
+    wyslijWiadomosc(new WiadomoscWyloguj());
     czy_zalogowano = false;
     aktualizujInterfejs();
 }
@@ -53,7 +48,7 @@ void OknoLobby::zaloguj()
     // emisja sygnału, ze żądanie zalogowania
     // oczekiwanie na otrzymanie sygnału, ze zalogowana bądź nie
     // opcja -> uruchomienie zalogowania stąd
-    OknoLogowania* oknoLog = new OknoLogowania(this);
+    OknoLogowania* oknoLog = new OknoLogowania(this, komunikator);
     oknoLog->ustawUzytkownika(biezacyUzytkownik);
     connect(oknoLog, SIGNAL(zalogowano()), this, SLOT(zalogowano()));
     oknoLog->exec();
@@ -106,7 +101,7 @@ void OknoLobby::szukajGracza()
     // Po wyszukaniu gracza pyta obu o zgodę i ustalenie czasu rozgrywki -> tu
     // opcja jest taka, że widzimy propozycję 2 gracza, a on naszą i jak obaj dadzą taką samą
     // to gramy - trochę dziwne rozwiązanie ale nie mam pomysłu jak to rozwiązać inaczej
-    wyslijWiadomosc();
+    //wyslijWiadomosc();
 }
 
 void OknoLobby::zaprosGracza()
@@ -146,9 +141,9 @@ void OknoLobby::otrzymanoZaproszenie(Uzytkownik* nadawca)
     // Opcje: anulowanie zaproszenia i odrzucenie zaproszenia
 }
 
-void OknoLobby::wyslijWiadomosc()
+void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc)
 {
-    KomunikatorLobbySerwer::WynikWyslania res = komunikator->wyslijWiadomosc();
+    KomunikatorLobbySerwer::WynikWyslania res = komunikator->wyslijWiadomosc(wiadomosc);
     if( res == KomunikatorLobbySerwer::PrzekroczonoCzas ) // podzielic to na przekroczenie i na anulowanie
     {
         QMessageBox mb(this);

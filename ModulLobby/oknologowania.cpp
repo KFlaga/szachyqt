@@ -1,14 +1,15 @@
 #include "ModulLobby/oknologowania.h"
 #include "ui_oknologowania.h"
-#include <QtTest/QSignalSpy>
 #include <QMessageBox>
 
-OknoLogowania::OknoLogowania(QWidget *parent) :
+OknoLogowania::OknoLogowania(QWidget *parent, KomunikatorLobbySerwer* kom) :
     QDialog(parent),
     ui(new Ui::OknoLogowania)
 {
     ui->setupUi(this);
     ui->labelZleDane->hide();
+    wiadomosc = new WiadomoscLoguj();
+    komunikator = kom;
 }
 
 OknoLogowania::~OknoLogowania()
@@ -18,12 +19,18 @@ OknoLogowania::~OknoLogowania()
 
 void OknoLogowania::on_buttonLogin_clicked()
 {
-    sprobujZalogowac();
-    if( uzytkownik->id < 0 ) // nie znalazlo uzytkownika
+    if( !sprawdzPola() )
+        return;
+    if( !sprobujZalogowac() )
+        return;
+    if( wiadomosc->czyDaneOk == false ) // nie znalazlo uzytkownika
     {
+        ui->labelZleDane->setText("Podano zły login lub hasło");
         ui->labelZleDane->show();
+        return;
     }
-    else if( uzytkownik->czy_zalogowany == true )
+    ustawDaneUzytkownika();
+    if( uzytkownik->czy_zalogowany == true )
     {
        QMessageBox* mbZalogowany = new QMessageBox(this);
        mbZalogowany->setText("Użytkownik o podanym loginie i haśle jest już zalogowany");
@@ -35,25 +42,66 @@ void OknoLogowania::on_buttonLogin_clicked()
     else
     {
         uzytkownik->czy_zalogowany = true;
-        emit zalogowano();
         close();
     }
 }
 
-void OknoLogowania::sprobujZalogowac()
+bool OknoLogowania::sprobujZalogowac()
 {
-    // Wyslij zapytanie - sygnal do szachyApp, a z tamtad do modulu netowego
-    // narazie testowy
-    uzytkownik->czy_zalogowany = false;
-    uzytkownik->id = 1;
-    uzytkownik->nick = "test_" + ui->leLogin->text();
-    uzytkownik->czy_gosc = false;
-    uzytkownik->ranking = 100;
+    wiadomosc->czyDaneOk = false;
+    wiadomosc->login = ui->leLogin->text();
+    wiadomosc->haslo = ui->leHaslo->text();
+    KomunikatorLobbySerwer::WynikWyslania status = komunikator->wyslijWiadomoscZeZwrotem(wiadomosc);
+    // powinno wrocic dopiero po wiadomosci zwrotnej
+    if( status == KomunikatorLobbySerwer::Powodzenie )
+        return true;
+
+    QMessageBox* mbBlad = new QMessageBox(this);
+    mbBlad->setText("Przekroczono czas oczekiwania na odpowiedz serwera");
+    mbBlad->setStandardButtons(QMessageBox::Ok);
+    mbBlad->setWindowTitle("Blad");
+    if ( status == KomunikatorLobbySerwer::PrzekroczonoCzas )
+        mbBlad->setText("Przekroczono czas oczekiwania na odpowiedz serwera");
+    else
+        mbBlad->setText("Niepowodzenie logowania");
+
+    mbBlad->exec();
+    delete mbBlad;
+
+    return false;
+}
+
+bool OknoLogowania::sprawdzPola()
+{
+    QRegExp reserved("[-:,]");
+    if(ui->leHaslo->text().count() == 0 ||
+       ui->leLogin->text().count() == 0 )
+    {
+        ui->labelZleDane->setText("Należy wypełnić wszystkie pola");
+    }
+    else if(ui->leHaslo->text().contains(reserved) ||
+            ui->leLogin->text().contains(reserved) )
+    {
+        ui->labelZleDane->setText("Nie można uzywać znaków: '-',':',','");
+    }
+    else
+        return true;
+
+    ui->labelZleDane->show();
+    return false;
+}
+
+void OknoLogowania::ustawDaneUzytkownika()
+{
+    uzytkownik->nick = wiadomosc->nick;
+    uzytkownik->ranking = wiadomosc->ranking;
+    uzytkownik->czy_zalogowany = wiadomosc->czy_zalogowany;
+    uzytkownik->status = wiadomosc->status;
 }
 
 void OknoLogowania::on_buttonRegister_clicked()
 {
-    oknoRejestracji = new OknoRejestracji(this);
+    oknoRejestracji = new OknoRejestracji(this, komunikator);
     oknoRejestracji->exec();
     delete oknoRejestracji;
 }

@@ -7,24 +7,22 @@
 #include "opcje.h"
 #include "ModulLobby/oknolobby.h"
 #include "uzytkownik.h"
+#include "ModulKomunikacji/klient.h"
 
-class SzachyApp : QObject
+class SzachyApp : public QObject
 {
     Q_OBJECT
 private:
-    //static SzachyApp* instance;
-
     OknoGry* oknoGry;
     Silnik* silnik;
     Uzytkownik* biezacyUzytkownik;
     Uzytkownik* przeciwnik;
     OknoLobby* lobby;
+    Klient* lacze;
 
 public:
     SzachyApp();
     ~SzachyApp();
-
-    //static SzachyApp* sApp();
 
     void Run();
 
@@ -32,7 +30,6 @@ private slots:
     void zalogowano();
     void koniecGry();
     void graLokalnie(Opcje*);
-
 };
 
 #endif // SZACHYAPP_H

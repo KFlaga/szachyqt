@@ -5,38 +5,36 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QString>
+#include "ikomunikator.h"
+#include <QList>
+
 class Klient : public QObject
 {
     Q_OBJECT
 public:
-    explicit Klient(QString nick, QObject *parent = 0);
-    ~Klient();
-    QTcpSocket *socket;
+    Klient();
 
-    QMap<QString,QTcpSocket*> map;
+private:
+    int pobierzID(QString& dane);
+
+public slots:
+    void wysliWiadomosc(QString* tresc, IKomunikator* kom);
+    void polacz();
+    void rozlacz();
 
 signals:
     void odebranoRuch(QString s);
-    void odebranoNickiUserow(QStringList s);
-    void showOkno(QString n);
-    void odebranoZaproszenie(QString);
-    void odebranoOdpowiedz(QString odp);
 
 private slots:
     void connected();
     void disconnected();
     void readyRead();
-    void write(QString text);
-    void polacz();
-    void rozlacz();
 
-public slots:
-    void wyslijZaproszenie(QString przeciwnik);
-    void stworzPojedynek(QString przeciwnik);
-    void odmow(QString przeciwnik);
-    void wyslijRuch(QString ru);
+
 private:
-    QString nick;
+    QTcpSocket *socket;
+    // QMap<QString,QTcpSocket*> map;
+    QList<IKomunikator*> komunikatory;
 };
 
 #endif // KLIENT_H

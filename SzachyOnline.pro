@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui testlib network
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -34,7 +34,10 @@ SOURCES += main.cpp\
     ModulLobby/dialogczekajnaodpowiedz.cpp \
     ModulLobby/popupoczekiwanienaserwer.cpp \
     ModulLobby/komunikatorlobbyserwer.cpp \
-    ModulKomunikacji/klient.cpp
+    ModulKomunikacji/klient.cpp \
+    Wiadomosci/wiadomoscloguj.cpp \
+    Wiadomosci/wiadomoscrejestruj.cpp \
+    Wiadomosci/wiadomoscwyloguj.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -62,7 +65,12 @@ HEADERS  += Figury/figura.h \
     ModulLobby/popupoczekiwanienaserwer.h \
     ModulLobby/komunikatorlobbyserwer.h \
     ModulLobby/obrotowylabel.h \
-    ModulKomunikacji/klient.h
+    ModulKomunikacji/klient.h \
+    ModulKomunikacji/ikomunikator.h \
+    Wiadomosci/wiadomosc.h \
+    Wiadomosci/wiadomoscloguj.h \
+    Wiadomosci/wiadomoscrejestruj.h \
+    Wiadomosci/wiadomoscwyloguj.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
