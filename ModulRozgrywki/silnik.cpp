@@ -451,6 +451,23 @@ bool Silnik::Sprawdz_czy_mat()
              tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
              if(tmp.contains(indexy_szachujacych[0]))
              {
+                 if(figury[pola[i]]->typ == TKrol)
+                 {
+                     int pozBitego = indexy_szachujacych[0];
+                     int pozBijacego = figury[pola[i]]->Pole();
+                     int tmpBitego;
+                     tmpBitego = pola[pozBitego];
+                     pola[pozBitego] = figury[pola[i]]->Pole();
+                     pola[pozBijacego] = -1;
+                     figury[pola[pozBitego]]->UstawPole(pozBitego);
+
+                     bool pom = Sprawdz_czy_szach();
+
+                     pola[pozBijacego] = pola[pozBitego];
+                     pola[pozBitego] = tmpBitego;
+                     figury[pola[pozBijacego]]->UstawPole(pozBijacego);
+                     return  pom;
+                 }
                  return false;
 
              }
@@ -550,6 +567,7 @@ bool Silnik::Sprawdz_czy_mat()
              QVector<int> tmp;
              if(figury[pola[i]]->strona == aktualnyGracz)
              {
+                 if(figury[pola[i]]->typ==TKrol)continue;
                  tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
                  for(int o = 0 ; o < ind_pomiedzy.size();o++)
                  {
