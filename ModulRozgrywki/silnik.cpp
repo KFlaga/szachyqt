@@ -37,44 +37,44 @@ void Silnik::NowaGra(Opcje* opts)
     // Stworz pionki i dla kazdego emituj sygnal
     // Kolejnosc dodawania -> od zera, czyli gora-lewo, dla czarnych
     // potem od konca, czyli dol-prawo, w prawa strone dla bialych
-        gra_z_kompem = false;
-        for(int i = 0; i < 16; i++)
-        {
-            Figura* fig = kreator->StworzFigure(i,1);
-            figury.push_back(fig);
-            pola[i] = i;
-            emit DodanoFigureNaPole(i,&(fig->ikona));
-        }
+    gra_z_kompem = false;
+    for(int i = 0; i < 16; i++)
+    {
+        Figura* fig = kreator->StworzFigure(i,1);
+        figury.push_back(fig);
+        pola[i] = i;
+        emit DodanoFigureNaPole(i,&(fig->ikona));
+    }
 
-        for(int i = 16; i < 32; i++)
-        {
-            Figura* fig = kreator->StworzFigure(63-i+16,0);
-            figury.push_back(fig);
-            pola[63-i+16] = i;
-            emit DodanoFigureNaPole(63-i+16,&(fig->ikona));
-        }
+    for(int i = 16; i < 32; i++)
+    {
+        Figura* fig = kreator->StworzFigure(63-i+16,0);
+        figury.push_back(fig);
+        pola[63-i+16] = i;
+        emit DodanoFigureNaPole(63-i+16,&(fig->ikona));
+    }
 
-        zaznaczonePole = -1;
-        aktualnyGracz = 0;
+    zaznaczonePole = -1;
+    aktualnyGracz = 0;
 
-        if(opts->CzyGraAI==true)
-        {
-            int lvl = opts->PoziomTrudnosci;
-            p = new QProcess();
-            connect(p,SIGNAL(readyRead()),this,SLOT(read()));
-            gra_z_kompem = true;
-            p->start("br/Brutus_7_02b_x64.exe");
-            if(lvl==0){
-                QByteArray ba=QString("sd 1\n").toLatin1();         //ustawiam poziom trudności, przeszukiwanie max 1 wgłąb
-                p->write(ba);
-            }else if(lvl==1){
-                QByteArray ba=QString("sd 5\n").toLatin1();         //----------------------------------------------5------
-                p->write(ba);
-            }else{
-                QByteArray ba=QString("st 3\n").toLatin1();         //--------------------------, przeszukiwanie max 3 sek
-                p->write(ba);
-            }
+    if(opts->CzyGraAI==true)
+    {
+        int lvl = opts->PoziomTrudnosci;
+        p = new QProcess();
+        connect(p,SIGNAL(readyRead()),this,SLOT(read()));
+        gra_z_kompem = true;
+        p->start("br/Brutus_7_02b_x64.exe");
+        if(lvl==0){
+            QByteArray ba=QString("sd 1\n").toLatin1();         //ustawiam poziom trudności, przeszukiwanie max 1 wgłąb
+            p->write(ba);
+        }else if(lvl==1){
+            QByteArray ba=QString("sd 5\n").toLatin1();         //----------------------------------------------5------
+            p->write(ba);
+        }else{
+            QByteArray ba=QString("st 3\n").toLatin1();         //--------------------------, przeszukiwanie max 3 sek
+            p->write(ba);
         }
+    }
 }
 
 void Silnik::PoleWcisniete(int nrPola)
@@ -148,14 +148,14 @@ void Silnik::RuchAI(int nrPolaStartowego, int nrPolaDocelowego) //zasada dzialan
     if(czy_koniec)return; //jesli koniec partii to nie pozwalam na ruuch
 
 
-            if( pola[nrPolaDocelowego] != -1 )
-            {
-                ZbijPionek(nrPolaStartowego, nrPolaDocelowego); // arg: atakujacy / atakowany
-            }
-            else
-            {
-                RuszPionek(nrPolaStartowego, nrPolaDocelowego);
-            }
+    if( pola[nrPolaDocelowego] != -1 )
+    {
+        ZbijPionek(nrPolaStartowego, nrPolaDocelowego); // arg: atakujacy / atakowany
+    }
+    else
+    {
+        RuszPionek(nrPolaStartowego, nrPolaDocelowego);
+    }
 }
 
 
@@ -182,17 +182,17 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     emit DodanoFigureNaPole(pozBitego, &(figury[pola[pozBitego]]->ikona));
 
 
-        nasza_promocja="";
-        if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==0 && pozBitego < 8) //jesli bialy pionek doszedl do konca planszy
-        {
-           Promocja(0,pozBitego);
+    nasza_promocja="";
+    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==0 && pozBitego < 8) //jesli bialy pionek doszedl do konca planszy
+    {
+        Promocja(0,pozBitego);
 
-        }
+    }
 
-        if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==1 &&  pozBitego > 55) //jesli czaarny pionek doszedl do konca planszy
-        {
-            Promocja(1,pozBitego);
-        }
+    if(figury[pola[pozBitego]]->typ==TPionek && figury[pola[pozBitego]]->strona==1 &&  pozBitego > 55) //jesli czaarny pionek doszedl do konca planszy
+    {
+        Promocja(1,pozBitego);
+    }
 
 
 
@@ -208,7 +208,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
             emit WykonanoRuch(2);
         }
         else
-        emit WykonanoRuch(1);
+            emit WykonanoRuch(1);
     }
     else if(sprawdz_czy_pat())
     {
@@ -216,7 +216,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
         emit WykonanoRuch(3);
     }
     else
-    emit WykonanoRuch(0);
+        emit WykonanoRuch(0);
 
 
     //jesli gramy z AI to musimy wysłać  ruch do Brutusa
@@ -246,18 +246,18 @@ void Silnik::RuszPionek(int skad, int dokad)
 
 
 
-         nasza_promocja="";
-        //jesli zaznaczana figura byl  pionek sprawdzamy czy doszedl do konca  planszy
-        if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==0 && dokad < 8) //jesli bialy pionek doszedl do konca planszy
-        {
-           Promocja(0,dokad);
+    nasza_promocja="";
+    //jesli zaznaczana figura byl  pionek sprawdzamy czy doszedl do konca  planszy
+    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==0 && dokad < 8) //jesli bialy pionek doszedl do konca planszy
+    {
+        Promocja(0,dokad);
 
-        }
+    }
 
-        if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 55) //jesli czaarny pionek doszedl do konca planszy
-        {
-            Promocja(1,dokad);
-        }
+    if(figury[pola[dokad]]->typ==TPionek && figury[pola[dokad]]->strona==1 &&  dokad > 55) //jesli czaarny pionek doszedl do konca planszy
+    {
+        Promocja(1,dokad);
+    }
 
     //jesli zaznaczona figura byla wieza trzeba zapisac, ze sie ruszyla  (wiedza potrzebna do roszady)
     if(figury[pola[dokad]]->typ == TWieza)
@@ -290,7 +290,7 @@ void Silnik::RuszPionek(int skad, int dokad)
             emit WykonanoRuch(2);
         }
         else
-        emit WykonanoRuch(1);
+            emit WykonanoRuch(1);
     }
     else if(sprawdz_czy_pat())
     {
@@ -298,7 +298,7 @@ void Silnik::RuszPionek(int skad, int dokad)
         emit WykonanoRuch(3);
     }
     else
-    emit WykonanoRuch(0);
+        emit WykonanoRuch(0);
 
 
     //jesli gramy z AI to musimy wysłać  ruch do Brutusa
@@ -415,16 +415,13 @@ bool Silnik::Sprawdz_czy_szach()
 
     }
 
-        if(ilu_szachujacych>0)return true;
-                else
-                return false;
-       // return false;
+    if(ilu_szachujacych>0)return true;
+    else
+        return false;
+    // return false;
 }
 
-//Bedzie trzeba jeszcze dodać możliwość zbicia figury, jesli jest tylko jeden szchujacy lub mozliwosc ustawienie figury pomiedzy
-// Przy dwoch figurach szachujacych na pewno mamy mata
 
-//Trzeba bedzie dodac sprawdzanie, czy przy warunku bicia mozna je wykonac, tzn figura szachuja moze byc chroniona przed inna i wtedy bicie nie jest możliwe
 bool Silnik::Sprawdz_czy_mat()
 {
     //jesli jesst wieccej niz jeden szachujacy to na pewno jest mat
@@ -441,148 +438,148 @@ bool Silnik::Sprawdz_czy_mat()
     }
 
 
+
+    //jesli jakas nasza figura moze stanac pomiedzy to nie ma mata , jesli figura szchujaca jest skoczek to mozna  pominac
+    if(figury[pola[indexy_szachujacych[0]]]->typ!=TSkoczek)
+    {
+        QVector<int> ind_pomiedzy;
+        //trzeba okreslic kierunek - z ktorej strony jest atak
+
+        //poziom
+        if(figury[krolID]->y == figury[pola[indexy_szachujacych[0]]]->y)
+        {
+            if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
+            {
+                for(int i = figury[krolID]->Pole() + 1 ;i<indexy_szachujacych[0];i++)
+                {
+                    ind_pomiedzy.append(i);
+                }
+            }
+            else
+            {
+                for(int i = figury[krolID]->Pole() - 1 ;i>indexy_szachujacych[0];i--)
+                {
+                    ind_pomiedzy.append(i);
+                }
+            }
+        }
+
+        //pion
+
+        else if(figury[krolID]->x == figury[pola[indexy_szachujacych[0]]]->x)
+        {
+            if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
+            {
+                for(int i = figury[krolID]->Pole() + 8 ;i<indexy_szachujacych[0];i=i+8)
+                {
+                    ind_pomiedzy.append(i);
+                }
+            }
+            else
+            {
+                for(int i = figury[krolID]->Pole() - 8 ;i>indexy_szachujacych[0];i=i-8)
+                {
+                    ind_pomiedzy.append(i);
+                }
+            }
+
+        }
+
+        //jak nie pion ani poziom to pola pomiedzy sa po skosie
+
+        else
+        {
+            QVector<int> pom;
+            if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
+            {
+                int i;
+                for(i = figury[krolID]->Pole() + 9 ;i<indexy_szachujacych[0];i=i+9)
+                {
+                    pom.append(i);
+                }
+                if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
+
+
+                for(i = figury[krolID]->Pole() + 7 ;i<indexy_szachujacych[0];i=i+7)
+                {
+                    pom.append(i);
+                }
+                if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
+            }
+            else
+            {
+                int i;
+                for(i = figury[krolID]->Pole() - 9 ;i>indexy_szachujacych[0];i=i-9)
+                {
+                    pom.append(i);
+                }
+                if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
+
+
+                for(i = figury[krolID]->Pole() - 7 ;i>indexy_szachujacych[0];i=i-7)
+                {
+                    pom.append(i);
+                }
+                if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
+            }
+        }
+
+
+        for(int i = 0;i<64;i++)
+        {
+            if(pola[i]==-1)continue;
+            QVector<int> tmp;
+            if(figury[pola[i]]->strona == aktualnyGracz)
+            {
+                if(figury[pola[i]]->typ==TKrol)continue;
+                tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
+                for(int o = 0 ; o < ind_pomiedzy.size();o++)
+                {
+                    if(tmp.contains(ind_pomiedzy[o]))
+                    {
+                        return false;
+
+                    }
+                }
+            }
+        }
+
+    }
+
     //jesli jakas nasza  figura figura moze zbic, nie ma mata
-     for(int i = 0;i<64;i++)
-     {
-         if(pola[i]==-1)continue;
-         QVector<int> tmp;
-         if(figury[pola[i]]->strona == aktualnyGracz)
-         {
-             tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
-             if(tmp.contains(indexy_szachujacych[0]))
-             {
-                 if(figury[pola[i]]->typ == TKrol)
-                 {
-                     int pozBitego = indexy_szachujacych[0];
-                     int pozBijacego = figury[pola[i]]->Pole();
-                     int tmpBitego;
-                     tmpBitego = pola[pozBitego];
-                     pola[pozBitego] = figury[pola[i]]->Pole();
-                     pola[pozBijacego] = -1;
-                     figury[pola[pozBitego]]->UstawPole(pozBitego);
-
-                     bool pom = Sprawdz_czy_szach();
-
-                     pola[pozBijacego] = pola[pozBitego];
-                     pola[pozBitego] = tmpBitego;
-                     figury[pola[pozBijacego]]->UstawPole(pozBijacego);
-                     return  pom;
-                 }
-                 return false;
-
-             }
-         }
-     }
-
-
-//jesli jakas nasza figura moze stanac pomiedzy to nie ma mata , jesli figura szchujaca jest skoczek to mozna  pominac
-     if(figury[pola[indexy_szachujacych[0]]]->typ!=TSkoczek)
-     {
-         QVector<int> ind_pomiedzy;
-         //trzeba okreslic kierunek - z ktorej strony jest atak
-
-         //poziom
-         if(figury[krolID]->y == figury[pola[indexy_szachujacych[0]]]->y)
-         {
-             if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
-             {
-                 for(int i = figury[krolID]->Pole() + 1 ;i<indexy_szachujacych[0];i++)
-                 {
-                    ind_pomiedzy.append(i);
-                 }
-             }
-             else
-             {
-                 for(int i = figury[krolID]->Pole() - 1 ;i>indexy_szachujacych[0];i--)
-                 {
-                    ind_pomiedzy.append(i);
-                 }
-             }
-         }
-
-         //pion
-
-            else if(figury[krolID]->x == figury[pola[indexy_szachujacych[0]]]->x)
-             {
-                 if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
-                 {
-                     for(int i = figury[krolID]->Pole() + 8 ;i<indexy_szachujacych[0];i=i+8)
-                     {
-                        ind_pomiedzy.append(i);
-                     }
-                 }
-                 else
-                 {
-                     for(int i = figury[krolID]->Pole() - 8 ;i>indexy_szachujacych[0];i=i-8)
-                     {
-                        ind_pomiedzy.append(i);
-                     }
-                 }
-
-             }
-
-         //jak nie pion ani poziom to pola pomiedzy sa po skosie
-
-         else
-         {
-             QVector<int> pom;
-             if(figury[krolID]->Pole() - indexy_szachujacych[0]<0)
-             {
-                 int i;
-                 for(i = figury[krolID]->Pole() + 9 ;i<indexy_szachujacych[0];i=i+9)
-                 {
-                    pom.append(i);
-                 }
-                 if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
-
-
-                 for(i = figury[krolID]->Pole() + 7 ;i<indexy_szachujacych[0];i=i+7)
-                 {
-                    pom.append(i);
-                 }
-                 if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
-             }
-             else
-             {
-                 int i;
-                 for(i = figury[krolID]->Pole() - 9 ;i>indexy_szachujacych[0];i=i-9)
-                 {
-                    pom.append(i);
-                 }
-                 if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
-
-
-                 for(i = figury[krolID]->Pole() - 7 ;i>indexy_szachujacych[0];i=i-7)
-                 {
-                    pom.append(i);
-                 }
-                 if(i==indexy_szachujacych[0])ind_pomiedzy = pom;
-             }
-         }
-
-
-         for(int i = 0;i<64;i++)
-         {
-             if(pola[i]==-1)continue;
-             QVector<int> tmp;
-             if(figury[pola[i]]->strona == aktualnyGracz)
-             {
-                 if(figury[pola[i]]->typ==TKrol)continue;
-                 tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
-                 for(int o = 0 ; o < ind_pomiedzy.size();o++)
-                 {
-                     if(tmp.contains(ind_pomiedzy[o]))
-                     {
-                         return false;
-
-                     }
-                 }
-             }
-         }
-
-     }
-
-
+    for(int i = 0;i<64;i++)
+    {
+        if(pola[i]==-1)continue;
+        QVector<int> tmp;
+        if(figury[pola[i]]->strona == aktualnyGracz)
+        {
+            tmp = figury[pola[i]]->dostepneRuchy(pola, &figury);
+            if(tmp.contains(indexy_szachujacych[0]))
+            {
+                if(figury[pola[i]]->typ == TKrol)
+                {
+                    int pozBitego = indexy_szachujacych[0];
+                    int pozBijacego = figury[pola[i]]->Pole();
+                    int tmpBitego = pola[pozBitego];
+                    pola[pozBitego] = pola[pozBijacego];
+                    pola[pozBijacego] = -1;
+                    figury[pola[pozBitego]]->UstawPole(pozBitego);
+                    bool pom = Sprawdz_czy_szach();
+                    pola[pozBijacego] = pola[pozBitego];
+                    pola[pozBitego] = tmpBitego;
+                    figury[pola[pozBijacego]]->UstawPole(pozBijacego);
+                    if(pom == false)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
 
 
     //jesli krol moze uniec to nie ma mata
@@ -651,11 +648,11 @@ bool Silnik::sprawdz_czy_pat()
     for(int i = 0;i<64;i++)
     {
         if(pola[i]==-1)continue;
-            if(figury[pola[i]]->typ!=TKrol && figury[pola[i]]->strona==aktualnyGracz)
-            {
-                tmp = figury[pola[i]]->dostepneRuchy(pola,&figury);
-                if(tmp.size()>0)return false;
-            }
+        if(figury[pola[i]]->typ!=TKrol && figury[pola[i]]->strona==aktualnyGracz)
+        {
+            tmp = figury[pola[i]]->dostepneRuchy(pola,&figury);
+            if(tmp.size()>0)return false;
+        }
     }
     return true;
 }
@@ -665,35 +662,35 @@ void Silnik::jesli_roszada_to_wykonaj(int dokad)
 {
     if(dokad == 2)
     {
-            pola[3] = pola[0];
-            pola[0] = -1;
-            figury[pola[3]]->UstawPole(3);
-            emit UsunietoFigureZPola(0);
-            emit DodanoFigureNaPole(3, &(figury[pola[3]]->ikona));
+        pola[3] = pola[0];
+        pola[0] = -1;
+        figury[pola[3]]->UstawPole(3);
+        emit UsunietoFigureZPola(0);
+        emit DodanoFigureNaPole(3, &(figury[pola[3]]->ikona));
     }
     else if(dokad ==  6)
     {
-            pola[5] = pola[7];
-            pola[7] = -1;
-            figury[pola[5]]->UstawPole(5);
-            emit UsunietoFigureZPola(7);
-            emit DodanoFigureNaPole(5, &(figury[pola[5]]->ikona));
+        pola[5] = pola[7];
+        pola[7] = -1;
+        figury[pola[5]]->UstawPole(5);
+        emit UsunietoFigureZPola(7);
+        emit DodanoFigureNaPole(5, &(figury[pola[5]]->ikona));
     }
     else if(dokad == 58)
     {
-            pola[59] = pola[56];
-            pola[56] = -1;
-            figury[pola[59]]->UstawPole(59);
-            emit UsunietoFigureZPola(56);
-            emit DodanoFigureNaPole(59, &(figury[pola[59]]->ikona));
+        pola[59] = pola[56];
+        pola[56] = -1;
+        figury[pola[59]]->UstawPole(59);
+        emit UsunietoFigureZPola(56);
+        emit DodanoFigureNaPole(59, &(figury[pola[59]]->ikona));
     }
     else if(dokad == 62)
     {
-            pola[61] = pola[63];
-            pola[63] = -1;
-            figury[pola[61]]->UstawPole(61);
-            emit UsunietoFigureZPola(63);
-            emit DodanoFigureNaPole(61, &(figury[pola[61]]->ikona));
+        pola[61] = pola[63];
+        pola[63] = -1;
+        figury[pola[61]]->UstawPole(61);
+        emit UsunietoFigureZPola(63);
+        emit DodanoFigureNaPole(61, &(figury[pola[61]]->ikona));
     }
 }
 
@@ -783,61 +780,61 @@ void Silnik::wyslij(int id_1, int id_2, QString promocja)
 
 void Silnik::read()  //metoda uruchamiana gdy komputer coś zwraca do konsoli
 {
-  if(p==NULL) return;
-  promocja="";
-  zwrot+=p->readAllStandardOutput();              //czytamy co proces wysyła
-  //qDebug()<<zwrot;
-  if(!czy_koniec && zwrot.lastIndexOf("move ")!=-1 && zwrot.lastIndexOf("move ")+10<zwrot.length() && sprawdz_czy_ruch(zwrot.mid(zwrot.lastIndexOf("move ")+5,5)) )
-  {
-      QString ruch=zwrot.mid(zwrot.lastIndexOf("move ")+5,5);
+    if(p==NULL) return;
+    promocja="";
+    zwrot+=p->readAllStandardOutput();              //czytamy co proces wysyła
+    //qDebug()<<zwrot;
+    if(!czy_koniec && zwrot.lastIndexOf("move ")!=-1 && zwrot.lastIndexOf("move ")+10<zwrot.length() && sprawdz_czy_ruch(zwrot.mid(zwrot.lastIndexOf("move ")+5,5)) )
+    {
+        QString ruch=zwrot.mid(zwrot.lastIndexOf("move ")+5,5);
 
-      //wycinam konkretny ruch i zamieniam na liczbowy
+        //wycinam konkretny ruch i zamieniam na liczbowy
         int id_1=0;
 
-      QChar id_11=ruch.at(0);
-      if(id_11=='a')
-          id_1=0;
-      else if(id_11=='b')
-          id_1=1;
-      else if(id_11=='c')
-          id_1=2;
-      else if(id_11=='d')
-          id_1=3;
-      else if(id_11=='e')
-          id_1=4;
-      else if(id_11=='f')
-          id_1=5;
-      else if(id_11=='g')
-          id_1=6;
-      else if(id_11=='h')
-          id_1=7;
-      id_1=id_1+(8-ruch.mid(1,1).toInt())*8;
+        QChar id_11=ruch.at(0);
+        if(id_11=='a')
+            id_1=0;
+        else if(id_11=='b')
+            id_1=1;
+        else if(id_11=='c')
+            id_1=2;
+        else if(id_11=='d')
+            id_1=3;
+        else if(id_11=='e')
+            id_1=4;
+        else if(id_11=='f')
+            id_1=5;
+        else if(id_11=='g')
+            id_1=6;
+        else if(id_11=='h')
+            id_1=7;
+        id_1=id_1+(8-ruch.mid(1,1).toInt())*8;
 
-      int id_2=0;
+        int id_2=0;
 
-      id_11=ruch.at(2);
-      if(id_11=='a')
-          id_2=0;
-      else if(id_11=='b')
-          id_2=1;
-      else if(id_11=='c')
-          id_2=2;
-      else if(id_11=='d')
-          id_2=3;
-      else if(id_11=='e')
-          id_2=4;
-      else if(id_11=='f')
-          id_2=5;
-      else if(id_11=='g')
-          id_2=6;
-      else if(id_11=='h')
-          id_2=7;
-      id_2=id_2+(8-ruch.mid(3,1).toInt())*8;
+        id_11=ruch.at(2);
+        if(id_11=='a')
+            id_2=0;
+        else if(id_11=='b')
+            id_2=1;
+        else if(id_11=='c')
+            id_2=2;
+        else if(id_11=='d')
+            id_2=3;
+        else if(id_11=='e')
+            id_2=4;
+        else if(id_11=='f')
+            id_2=5;
+        else if(id_11=='g')
+            id_2=6;
+        else if(id_11=='h')
+            id_2=7;
+        id_2=id_2+(8-ruch.mid(3,1).toInt())*8;
 
-      promocja=ruch.mid(4,1);
-      zwrot="";
-      RuchAI(id_1, id_2); //skad - dokad
+        promocja=ruch.mid(4,1);
+        zwrot="";
+        RuchAI(id_1, id_2); //skad - dokad
 
-  }
+    }
 }
 

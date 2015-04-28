@@ -19,10 +19,10 @@ KomunikatorLobbySerwer::~KomunikatorLobbySerwer()
 
 KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc(Wiadomosc* msg)
 {
-    status = WynikWyslania::Powodzenie;
+    status = Powodzenie;
 
     if(zajety)
-        return WynikWyslania::Zajety;
+        return Zajety;
 
     ustawWiadomosc(msg);
     emit nadajWiadomosc(stworzWiadomosc(), (IKomunikator*)this);
@@ -32,13 +32,13 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc(Wi
 
 void KomunikatorLobbySerwer::przekroczonyCzasOczekiwania()
 {
-    status = WynikWyslania::PrzekroczonoCzas;
+    status = PrzekroczonoCzas;
     oczekiwanie->accept();
 }
 
 void KomunikatorLobbySerwer::odebranoOdpowiedz()
 {
-    status = WynikWyslania::Powodzenie;
+    status = Powodzenie;
     oczekiwanie->accept();
 }
 
@@ -49,7 +49,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZ
         oczekiwanie->ustawTekst(popupTekst);
 
     wyslijWiadomosc(msg);
-    status = WynikWyslania::Niepowodzenie;
+    status = Niepowodzenie;
 
     zajety = true;
     timer->setSingleShot(true);
@@ -61,7 +61,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZ
     zajety = false;
 
     if( res == QDialog::Rejected )
-        status = WynikWyslania::Anulowano;
+        status = Anulowano;
 
     anuluj();
     oczekiwanie->ustawTekst();
