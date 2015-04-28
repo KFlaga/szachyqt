@@ -25,16 +25,20 @@ public:
         biezacyUzytkownik = u;
     }
 
-    void podlaczLacze(Klient* lacze)
-    {
-        connect(komunikator, SIGNAL(nadajWiadomosc(QString*,IKomunikator*)),
-                lacze, SLOT(wyslijWiadomosc(QString*,IKomunikator*)));
-    }
+    void podlaczLacze(Klient* lacze);
+
+    void ustawStatus(const QString &status, int czas);
+
+public slots:
+    void poloczonoZSerwerem();
+    void rozloczonoZSerwerem();
+    void nieMoznaPolaczycZSerwerem(int);
 
 private:
     void aktualizujInterfejs();
     void wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst = "");
     void otrzymanoZaproszenie(Uzytkownik*);
+    void wyswietlInformacje(const QString& tytul, const QString& info);
 
 private slots:
     void wyloguj();
@@ -55,6 +59,8 @@ private:
     Uzytkownik* biezacyUzytkownik;
     bool czy_zalogowano;
     KomunikatorLobbySerwer* komunikator;
+
+    bool czyJestPoloczenie;
 };
 
 #endif // OKNOLOBBY_H

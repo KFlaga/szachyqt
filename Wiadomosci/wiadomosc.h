@@ -16,7 +16,7 @@ public:
         return "Pusta";
     }
 
-    virtual void interpretujWiadomosc(QString& tresc)
+    virtual void interpretujWiadomosc(QString&)
     {
 
     }

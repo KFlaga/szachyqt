@@ -8,11 +8,22 @@ Klient::Klient() : QObject()
     connect(socket,SIGNAL(connected()),this,SLOT(connected()));
     connect(socket,SIGNAL(disconnected()),this,SLOT(disconnected()));
     connect(socket,SIGNAL(readyRead()),this,SLOT(readyRead()));
-    polacz();
+  //  polacz();
+
+    timerCzekajNaPolaczenie = new QTimer(this);
+    timerCzekajNaPolaczenie->setInterval(5000);
+    timerCzekajNaPolaczenie->setSingleShot(true);
+    timerCzekajNaPolaczenie->setTimerType(Qt::CoarseTimer);
+    connect(timerCzekajNaPolaczenie, SIGNAL(timeout()),
+           this,SLOT(polacz()));
 }
 
 void Klient::wyslijWiadomosc(QString *text, IKomunikator* kom)
 {
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        return;
+    }
     komunikatory.append(kom);
     // Na koncu wiadomosci dodajemy ID komunikatora
     // Jesli w przyszlosci bedziemy wysylac wiadomosci z
@@ -28,6 +39,10 @@ void Klient::wyslijWiadomosc(QString *text, IKomunikator* kom)
 
 void Klient::wyslijWiadomosc(QString *text, int id)
 {
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        return;
+    }
     text->append(":");
     text->append(QString::number(id));
     const char* data = text->toStdString().c_str();
@@ -37,17 +52,15 @@ void Klient::wyslijWiadomosc(QString *text, int id)
 
 void Klient::polacz()
 {
-    //Łączenie...;
-    socket->connectToHost("127.0.0.1",2222);
+    // do ew. zmiany na bardziej szczegółowe sprawdzenie
+    // stanu oraz powodu niepołączenia
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        socket->close();
+        socket->connectToHost("127.0.0.1",2222);
+        timerCzekajNaPolaczenie->start();
+    }
 
-    if(!socket->waitForConnected(5000))
-    {
-        //Brak poloczenia
-    }
-    else
-    {
-        //Poloczono;
-    }
 }
 
 void Klient::rozlacz()
@@ -57,15 +70,21 @@ void Klient::rozlacz()
 
 void Klient::connected()
 {
-    //QString t = "nick:"+nick;
-    //const char* data = t.toStdString().c_str();
-   // socket->write(data);
-   // socket->flush();
+    timerCzekajNaPolaczenie->stop();
+    emit poloczono();
 }
 
 void Klient::disconnected()
 {
-    //Rozlaczono
+    timerCzekajNaPolaczenie->start();
+    emit rozloczono();
+}
+
+inline bool Klient::czyPoloczony()
+{
+    if( socket->state() == QTcpSocket::ConnectedState )
+        return true;
+    return false;
 }
 
 void Klient::readyRead()
@@ -73,7 +92,7 @@ void Klient::readyRead()
     QString data = socket->readAll();
     int id = pobierzID(data);
 
-    if( id <= 100 ); // wiadomosci 'systemowe' - moze sie przyda
+    if( id <= 100 ) {} // wiadomosci 'systemowe' - moze sie przyda
 
     // znajdz id
     for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
@@ -100,5 +119,5 @@ inline int Klient::pobierzID(QString& data)
         dit--;
     }
     data = data.left(data.count() - ncount);
-    return data.toInt();
+    return id_s.toInt();
 }

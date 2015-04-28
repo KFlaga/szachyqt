@@ -108,13 +108,13 @@ bool OknoRejestracji::sprobujZarejestrowac()
         delete mbBlad;
         return false;
     }
-    if( wiadomosc->loginOK ) // czy istnieje juz taki login
+    if( !wiadomosc->loginOK ) // czy istnieje juz taki login
     {
         ui->labelLoginError->setVisible(true);
         ui->labelLoginError->setText("Istnieje juz taki login");
         czyDobrze = false;
     }
-    if( wiadomosc->nickOK ) // czy istnieje juz taki nick
+    if( !wiadomosc->nickOK ) // czy istnieje juz taki nick
     {
         ui->labelNickError->setVisible(true);
         ui->labelNickError->setText("Istnieje juz taki pseudonim");

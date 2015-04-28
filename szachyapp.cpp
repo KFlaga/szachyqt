@@ -14,13 +14,22 @@ SzachyApp::~SzachyApp()
 
 void SzachyApp::Run()
 {
-    lacze = new Klient();
     lobby = new OknoLobby();
+    lacze = new Klient();
+    connect(lacze,SIGNAL(poloczono()), this, SLOT(poloczonoZSerwerem()));
+    connect(lacze,SIGNAL(rozloczono()), this, SLOT(rozloczonoZSerwerem()));
+    connect(lacze,SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(niepowodzeniePoloczeniaZSerwerem(int)));
+
+    lobby->podlaczLacze(lacze);
+    lacze->polacz();
+
     lobby->ustawUzytkownika(biezacyUzytkownik);
+
     qRegisterMetaType<Opcje>("Opcje");
     connect(lobby, SIGNAL(graLokalnie(Opcje*)), this, SLOT(graLokalnie(Opcje*)));
     connect(lobby, SIGNAL(sygZalogowano()), this, SLOT(zalogowano()));
-    lobby->podlaczLacze(lacze);
+
+
     lobby->show();
 }
 
@@ -57,4 +66,19 @@ void SzachyApp::koniecGry()
 
     delete oknoGry;
     delete silnik;
+}
+
+void SzachyApp::poloczonoZSerwerem()
+{
+
+}
+
+void SzachyApp::rozloczonoZSerwerem()
+{
+
+}
+
+void SzachyApp::niepowodzeniePoloczeniaZSerwerem(int)
+{
+
 }

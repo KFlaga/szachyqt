@@ -7,12 +7,15 @@
 #include <QString>
 #include "ikomunikator.h"
 #include <QList>
+#include <QTimer>
 
 class Klient : public QObject
 {
     Q_OBJECT
 public:
     Klient();
+
+    bool czyPoloczony();
 
 private:
     int pobierzID(QString& dane);
@@ -31,11 +34,16 @@ private slots:
     void disconnected();
     void readyRead();
 
+signals:
+    void rozloczono();
+    void poloczono();
+    void niepowodzeniePoloczenia(int);
 
 private:
     QTcpSocket *socket;
     // QMap<QString,QTcpSocket*> map;
     QList<IKomunikator*> komunikatory;
+    QTimer* timerCzekajNaPolaczenie;
 };
 
 #endif // KLIENT_H

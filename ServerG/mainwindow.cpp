@@ -50,6 +50,16 @@ void MainWindow::on_pushButton_2_clicked()
     l->setText(tr("Serwer wyłączony"));
     ui->pushButton->setDisabled(false);
     ui->pushButton_2->setDisabled(true);
+
+    QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+    while( klient != poloczenia.end() )
+    {
+       klient.key()->close();
+       if( klient.value() != NULL )
+           klient.value()->czyZalogowany = false;
+       poloczenia.remove(klient.key());
+       klient++;
+    }
 }
 
 void MainWindow::on_pushButton_3_clicked()
@@ -71,8 +81,15 @@ void MainWindow::newConnection()
 
 void MainWindow::removeClient()
 {
-    QTcpSocket *tt = (QTcpSocket*)sender();
-    poloczenia.remove(tt);
+    QTcpSocket *nadawca = (QTcpSocket*)sender();
+    QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.find(nadawca);
+    if( klient.value() != NULL)
+    {
+        klient.value()->czyZalogowany = false;
+        ui->logger->append("Rozloczono: " + klient.value()->nick);
+    }
+    poloczenia.erase(klient);
+
     ile--;
     ui->lineEdit->setText(QString::number(ile));
     sendUsersList();
@@ -159,8 +176,7 @@ void MainWindow::readyRead()
 
             // Zalogowanie - przypisanie nowego uzytkownika do socketa
             logujacy->czyZalogowany = true;
-            QMap<QTcpSocket*,Uzytkownik*>::iterator polaczenie = poloczenia.find(nadawca);
-            polaczenie.value() = logujacy;
+            poloczenia.find(nadawca).value() = logujacy;
             ui->logger->append("Zalogowano: " + logujacy->nick);
         }
         odpowiedz.append(":");
@@ -170,8 +186,10 @@ void MainWindow::readyRead()
     }
     else if(data.startsWith("logout:"))
     {
-        QMap<QTcpSocket*,Uzytkownik*>::iterator polaczenie = poloczenia.find(nadawca);
-        polaczenie.value() = NULL;
+        QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.find(nadawca);
+        ui->logger->append("Wylogowano: " + klient.value()->nick);
+        klient.value()->czyZalogowany = false;
+        klient.value() = NULL;
     }
 /*
     //jesi jest pojedynek:nick-nick to oznacza to nawe polaczenie miedzy userami

@@ -42,6 +42,7 @@ void OknoLogowania::on_buttonLogin_clicked()
     else
     {
         uzytkownik->czy_zalogowany = true;
+        emit zalogowano();
         close();
     }
 }
@@ -105,10 +106,3 @@ void OknoLogowania::on_buttonRegister_clicked()
     oknoRejestracji->exec();
     delete oknoRejestracji;
 }
-
-
-void OknoLogowania::on_leHaslo_textChanged(const QString &arg1)
-{}
-
-void OknoLogowania::on_leLogin_textChanged(const QString &arg1)
-{}

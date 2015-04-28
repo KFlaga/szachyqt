@@ -8,6 +8,7 @@
 #include "ModulLobby/oknolobby.h"
 #include "uzytkownik.h"
 #include "ModulKomunikacji/klient.h"
+#include <QTimer>
 
 class SzachyApp : public QObject
 {
@@ -30,6 +31,9 @@ private slots:
     void zalogowano();
     void koniecGry();
     void graLokalnie(Opcje*);
+    void poloczonoZSerwerem();
+    void rozloczonoZSerwerem();
+    void niepowodzeniePoloczeniaZSerwerem(int);
 };
 
 #endif // SZACHYAPP_H

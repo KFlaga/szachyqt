@@ -26,25 +26,19 @@ OknoLobby::~OknoLobby()
 
 void OknoLobby::closeEvent(QCloseEvent * ce)
 {
-    // Trzebaby upewnic sie, ze wyloguje poprawnie
-    // Przy czym tu spostrzerzenie odrazu, ze
-    // na serwerze trzeba będzie reagować nie tylko na
-    // żądanie wylogowania, ale także wylogowowyać
-    // w razie zerwania połączenia
-    // I tu kolejna myśl - przy zerwaniu połączenia podczas gry
-    // dawać wiadomość i próbować wznowić połączenie, a przy timeoucie
-    // wylogowac i opuść grę na kliencie i serwerze, przy czym
-    // trezba rozważyć możliwość wznowienia gry później
     qApp->closeAllWindows();
 }
 
 void OknoLobby::wyloguj()
 {
-    WiadomoscWyloguj* wiadomosc = new WiadomoscWyloguj();
-    wyslijWiadomosc(wiadomosc);
+    if( czyJestPoloczenie == true )
+    {
+        WiadomoscWyloguj* wiadomosc = new WiadomoscWyloguj();
+        komunikator->wyslijWiadomosc(wiadomosc);
+    }
+
     czy_zalogowano = false;
     aktualizujInterfejs();
-    delete wiadomosc;
 }
 
 void OknoLobby::zaloguj()
@@ -53,6 +47,7 @@ void OknoLobby::zaloguj()
     oknoLog->ustawUzytkownika(biezacyUzytkownik);
     connect(oknoLog, SIGNAL(zalogowano()), this, SLOT(zalogowano()));
     oknoLog->exec();
+    delete oknoLog;
 }
 
 void OknoLobby::zalogowano()
@@ -107,6 +102,12 @@ void OknoLobby::szukajGracza()
 
 void OknoLobby::zaprosGracza()
 {
+    if( czyJestPoloczenie == false )
+    {
+        wyswietlInformacje("Brak Połączenia", "Nie ma połączenia z serwerem");
+        return;
+    }
+
     DialogWyslijZaproszenie* dialogZaproszenie = new DialogWyslijZaproszenie(this);
     int result = dialogZaproszenie->exec();
     if( result == QDialog::Accepted )
@@ -127,23 +128,14 @@ void OknoLobby::zaprosGracza()
             }
             else if( odpowiedz->czyPoprawnieOdebrane() )
             {
-                QMessageBox* mbNiezgoda = new QMessageBox(this);
-                mbNiezgoda->setWindowTitle("Odmowa");
-                mbNiezgoda->setText("Gracz odmówił gry");
-                mbNiezgoda->setStandardButtons(QMessageBox::Ok);
-                mbNiezgoda->exec();
-                delete mbNiezgoda;
+                wyswietlInformacje("Odmowa", "Gracz odmówił gry");
             }
             delete odpowiedz;
         }
-        else
+        else if( zaproszenie->czyPoprawnieOdebrane() )
         {
-            QMessageBox* mbNieZnalazlo = new QMessageBox(this);
-            mbNieZnalazlo->setWindowTitle("Niepowodzenie");
-            mbNieZnalazlo->setText("Nie wyslano zaproszenia: " + zaproszenie->powodNiepowodzenia);
-            mbNieZnalazlo->setStandardButtons(QMessageBox::Ok);
-            mbNieZnalazlo->exec();
-            delete mbNieZnalazlo;
+            wyswietlInformacje("Niepowodzenie", "Nie wyslano zaproszenia: "
+                                + zaproszenie->powodNiepowodzenia);
         }
 
         delete zaproszenie;
@@ -163,11 +155,7 @@ void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
             komunikator->wyslijWiadomoscZeZwrotem(wiadomosc,popupTekst);
     if( res == KomunikatorLobbySerwer::PrzekroczonoCzas )
     {
-        QMessageBox mb(this);
-        mb.setText("Przekroczono czas oczekiwania na odpowiedź serwera");
-        mb.setWindowTitle(" ");
-        mb.setStandardButtons(QMessageBox::Ok);
-        mb.exec();
+        wyswietlInformacje("Brak Odpowiedzi", "Przekroczono czas oczekiwania na odpowiedź serwera");
     }
     // Wiadmosci poniezej w celach informacyjnych dla nas
     else if( res == KomunikatorLobbySerwer::Anulowano )
@@ -182,7 +170,41 @@ void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
     {
         this->statusBar()->showMessage("Pomyślnie skomunikowano z serwerem", 1000);
     }
+}
 
+void OknoLobby::wyswietlInformacje(const QString &tytul, const QString &info)
+{
+    QMessageBox mb(this);
+    mb.setText(info);
+    mb.setWindowTitle(tytul);
+    mb.setStandardButtons(QMessageBox::Ok);
+    mb.exec();
+}
+
+void OknoLobby::podlaczLacze(Klient *lacze)
+{
+    connect(komunikator, SIGNAL(nadajWiadomosc(QString*,IKomunikator*)),
+            lacze, SLOT(wyslijWiadomosc(QString*,IKomunikator*)));
+    connect(lacze, SIGNAL(poloczono()), this, SLOT(poloczonoZSerwerem()));
+    connect(lacze, SIGNAL(rozloczono()), this, SLOT(rozloczonoZSerwerem()));
+    connect(lacze,SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(nieMoznaPolaczycZSerwerem(int)));
+}
+
+void OknoLobby::poloczonoZSerwerem()
+{
+    ui->statusbar->showMessage("Połączono z serwerem", 5000);
+    czyJestPoloczenie = true;
+}
+
+void OknoLobby::rozloczonoZSerwerem()
+{
+    ui->statusbar->showMessage("Rozłączono z serwerem", 5000);
+    czyJestPoloczenie = false;
+}
+
+void OknoLobby::nieMoznaPolaczycZSerwerem(int)
+{
+    ui->statusbar->showMessage("Nie można nawiązać połączenia z serwerem", 5000);
 }
 
 void OknoLobby::aktualizujInterfejs()
@@ -211,6 +233,11 @@ void OknoLobby::aktualizujInterfejs()
     ui->teRanking->setEnabled(true);
     ui->tePseudonim->setText(biezacyUzytkownik->nick);
     ui->teRanking->setText(QString::number(biezacyUzytkownik->ranking));
+}
+
+void OknoLobby::ustawStatus(const QString &status, int czas)
+{
+    ui->statusbar->showMessage(status, czas);
 }
 
 // OPCJA ZACHOWANIA ROZGRYWKI I JEJ KONTYNUACJA
