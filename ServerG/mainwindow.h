@@ -38,6 +38,8 @@ private slots:
     void newConnection();
     void removeClient();
     void readyRead();
+    void socketError(QAbstractSocket::SocketError);
+    void testPoloczen();
 
 
 private:

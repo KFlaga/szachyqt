@@ -50,16 +50,6 @@ void MainWindow::on_pushButton_2_clicked()
     l->setText(tr("Serwer wyłączony"));
     ui->pushButton->setDisabled(false);
     ui->pushButton_2->setDisabled(true);
-
-    QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
-    while( klient != poloczenia.end() )
-    {
-       klient.key()->close();
-       if( klient.value() != NULL )
-           klient.value()->czyZalogowany = false;
-       poloczenia.remove(klient.key());
-       klient++;
-    }
 }
 
 void MainWindow::on_pushButton_3_clicked()
@@ -75,6 +65,7 @@ void MainWindow::newConnection()
     poloczenia.insert(s,NULL);
     connect(s,SIGNAL(readyRead()),this,SLOT(readyRead()));
     connect(s, SIGNAL(disconnected()), this, SLOT(removeClient()));
+    connect(s,SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
     ile++;
     ui->lineEdit->setText(QString::number(ile));
 }
@@ -86,6 +77,7 @@ void MainWindow::removeClient()
     if( klient.value() != NULL)
     {
         klient.value()->czyZalogowany = false;
+        klient.key()->abort();
         ui->logger->append("Rozloczono: " + klient.value()->nick);
     }
     poloczenia.erase(klient);
@@ -191,55 +183,85 @@ void MainWindow::readyRead()
         klient.value()->czyZalogowany = false;
         klient.value() = NULL;
     }
-/*
-    //jesi jest pojedynek:nick-nick to oznacza to nawe polaczenie miedzy userami
-    else if(data.startsWith("pojedynek:"))
-    {
-        data = data.mid(10);
-        if(data=="false")return;
-        QStringList q = data.split("-");
-        QString A = q[0];
-        QString B = q[1];
-        QTcpSocket *AA;
-        QTcpSocket *BB;
-
-        foreach(QTcpSocket *nam,users.keys())
-        {
-            if(users[nam] == A)
-            {
-                AA = nam;
-            }
-            else if(users[nam] == B)
-            {
-                BB=nam;
-            }
-        }
-        if(q[2]!="")
-        {
-            AA->write(QString("Odp:false-"+users[BB]).toStdString().c_str());
-            return;
-        }
-        AA->write(QString("Odp:true-"+users[BB]).toStdString().c_str());
-        Pojedynek *poj = new Pojedynek(AA,BB);
-        pojedynki.push_back(poj);
-    }*/
-
-    /*
     else if(data.startsWith("zaproszenie:"))
     {
         data = data.mid(12);
-        foreach(QTcpSocket *nam,users.keys())
+        QString odpowiedz = "zaproszenie:";
+        // nick-czas
+        QStringList daneZapr = data.split('-');
+        // wyszukaj uzytkownika o podanym nicku wśród połączonych
+        QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+        while( klient != poloczenia.end() )
         {
-            if(users[nam] == data)
+           if( klient.value() != NULL && klient.value()->nick == daneZapr[0] )
+           {
+                 // + if( status = wolny )
+               odpowiedz.append("true-ok");
+               ui->logger->append("Wysylanie zaproszenia");
+               klient.key()->write(QByteArray::fromStdString( QString("otrzymanozapr:" +
+                                    poloczenia.find(nadawca).value()->nick
+                                    + '-' + daneZapr[1] +":90").toStdString()));
+               break;
+           }
+           klient++;
+        }
+        if( klient == poloczenia.end() ) // nie znalazlo uzytkownika
+        {
+            odpowiedz.append("false-Użytkownik niezalogowany");
+        }
+        odpowiedz.append(":");
+        odpowiedz.append(QString::number(id));
+        ui->logger->append("Odpowiedz: " + odpowiedz);
+        nadawca->write(QByteArray::fromStdString(odpowiedz.toStdString()));
+    }
+    else if(data.startsWith("zapro_odp:"))
+    {
+        data = data.mid(10);
+        QStringList daneOdp = data.split('-');
+        if(daneOdp[2] == "true")
+        {
+            // wyslij do obu wiadomosc o pojedynku
+            QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+            while( klient != poloczenia.end() )
             {
-                QString o = "OtrzymanoZaproszenie:"+users[tt];qDebug()<<o;
-                nam->write(o.toStdString().c_str());
-                break;
+               if( klient.value() != NULL && klient.value()->nick == daneOdp[0] )
+               {
+                   QString odp = QString("pojedynek:" + poloczenia.find(nadawca).value()->nick
+                                         + '-' + daneOdp[1] + ":90");
+                   klient.key()->write(QByteArray::fromStdString(odp.toStdString()));
+                   break;
+               }
+               klient++;
+            }
+            if( klient != poloczenia.end() )
+            {
+                QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[1] + ":90");
+                ui->logger->append("Pojedynek: " + daneOdp[0] + "-" + poloczenia.find(nadawca).value()->nick);
+                nadawca->write(QByteArray::fromStdString(odp.toStdString()));
+                // W TYM MIEJSCU ZACZYNAMY POJEDYNEK
+            }
+            else
+            {
+                // w miedzy czasie sie wylogowal
+                nadawca->write("anulujpojedynek:Wylogowany:90"); // mozna dodac powod
+            }
+        }
+        else
+        {
+            // wyslij do nadawcy pojedynku wiadomosc o odrzuceniu zaproszenia
+            QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+            while( klient != poloczenia.end() )
+            {
+               if( klient.value() != NULL && klient.value()->nick == daneOdp[0] )
+               {
+                   ui->logger->append("Wysylanie odmowy");
+                   klient.key()->write("odmowa::90");
+                   break;
+               }
+               klient++;
             }
         }
     }
-    */
-
     //oznacza ruch
     //move:id1-id2-prom
     /*
@@ -262,6 +284,11 @@ void MainWindow::readyRead()
 
     else
         nadawca->write("empty::100");
+}
+
+void MainWindow::socketError(QAbstractSocket::SocketError)
+{
+    ui->logger->append("Blad: " + ((QTcpSocket*)sender())->errorString());
 }
 
 
@@ -320,4 +347,15 @@ int MainWindow::pobierzID(QString& data)
     }
     data = data.left(data.count() - ncount);
     return id_s.toInt();
+}
+
+void MainWindow::testPoloczen()
+{
+    QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+    while( klient != poloczenia.end() )
+    {
+       klient.key()->write("test::90");
+       klient.key()->flush();
+       klient++;
+    }
 }
