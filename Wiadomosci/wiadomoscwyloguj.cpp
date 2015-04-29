@@ -12,12 +12,12 @@ WiadomoscWyloguj::~WiadomoscWyloguj()
 
 QString WiadomoscWyloguj::stworzWiadomosc()
 {
-    return "logout:";
+    QString tresc = "logout:";
+    return tresc;
 }
 
 void WiadomoscWyloguj::interpretujWiadomosc(QString &tresc)
 {
-
-
+    poprawnieOdebrane = true;
 }
 

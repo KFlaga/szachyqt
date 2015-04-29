@@ -16,9 +16,20 @@ Klient::Klient() : QObject()
     timerCzekajNaPolaczenie->setTimerType(Qt::CoarseTimer);
     connect(timerCzekajNaPolaczenie, SIGNAL(timeout()),
            this,SLOT(polacz()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(socketError(QAbstractSocket::SocketError)));
+
+    log = new Logger();
+    log->show();
 }
 
-void Klient::wyslijWiadomosc(QString *text, IKomunikator* kom)
+Klient::~Klient()
+{
+    socket->close();
+    socket->deleteLater();
+}
+
+void Klient::wyslijWiadomosc(const QString& text, IKomunikator* kom)
 {
     if( socket->state() != QTcpSocket::ConnectedState )
     {
@@ -30,24 +41,28 @@ void Klient::wyslijWiadomosc(QString *text, IKomunikator* kom)
     // roznych miejsc programu, mozliwe, ze bedzie wiecej niz
     // jeden komunikator oczekujacy, wiec ID potrzebne]
     // by zwrocic odpowiedz do odpowiedniego nadawcy
-    text->append(":");
-    text->append(QString::number(kom->wezID()));
-    const char* data = text->toStdString().c_str();
-    socket->write(data);
+    QString tmp = text;
+    socket->write( QByteArray::fromStdString(tmp.append(':').
+                                             append(QString::number(kom->wezID()))
+                                             .toStdString()) );
     socket->flush();
+    log->dodajLog("Wyslano wiadomosc (kom): ");
+    log->dodajLog(text + ':' + kom->wezID());
 }
 
-void Klient::wyslijWiadomosc(QString *text, int id)
+void Klient::wyslijWiadomosc(const QString &text, int id)
 {
     if( socket->state() != QTcpSocket::ConnectedState )
     {
         return;
     }
-    text->append(":");
-    text->append(QString::number(id));
-    const char* data = text->toStdString().c_str();
-    socket->write(data);
+    QString tmp = text;
+    socket->write( QByteArray::fromStdString(tmp.append(':').
+                                             append(QString::number(id))
+                                             .toStdString()) );
     socket->flush();
+    log->dodajLog("Wyslano wiadomosc: ");
+    log->dodajLog(text);
 }
 
 void Klient::polacz()
@@ -59,8 +74,8 @@ void Klient::polacz()
         socket->close();
         socket->connectToHost("127.0.0.1",2222);
         timerCzekajNaPolaczenie->start();
+        log->dodajLog("Laczenie");
     }
-
 }
 
 void Klient::rozlacz()
@@ -71,12 +86,14 @@ void Klient::rozlacz()
 void Klient::connected()
 {
     timerCzekajNaPolaczenie->stop();
+    log->dodajLog("Poloczono");
     emit poloczono();
 }
 
 void Klient::disconnected()
 {
     timerCzekajNaPolaczenie->start();
+    log->dodajLog("Rozlaczono");
     emit rozloczono();
 }
 
@@ -90,9 +107,15 @@ inline bool Klient::czyPoloczony()
 void Klient::readyRead()
 {
     QString data = socket->readAll();
+    log->dodajLog("Otrzymano wiadomosc: " + data);
     int id = pobierzID(data);
 
-    if( id <= 100 ) {} // wiadomosci 'systemowe' - moze sie przyda
+    if( id < 100 ) // 100 = pusta wiadomosc
+    {
+        // Dla mniejszych od 100 przesyłamy to dalej
+        odbierzWiadomoscWewnatrz(data);
+        return;
+    }
 
     // znajdz id
     for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
@@ -106,7 +129,7 @@ void Klient::readyRead()
     }
 }
 
-inline int Klient::pobierzID(QString& data)
+int Klient::pobierzID(QString& data)
 {
     QString id_s;
     int ncount = 1;
@@ -120,4 +143,41 @@ inline int Klient::pobierzID(QString& data)
     }
     data = data.left(data.count() - ncount);
     return id_s.toInt();
+}
+
+void Klient::odbierzWiadomoscWewnatrz(QString& dane)
+{
+    if( dane.startsWith("otrzymanozapr:") )
+    {
+        emit otrzymanoZaproszenie(dane.mid(14));
+    }
+    else if( dane.startsWith("pojedynek:") )
+    {
+        emit zacznijPojedynek(dane.mid(10));
+    }
+    else if( dane.startsWith("odmowa:") )
+    {
+        emit odmowaPojedynku(dane.mid(7));
+    }
+    else if( dane.startsWith("anulujpojedynek:"))
+    {
+        emit anulujPojedynek(dane.mid(16));
+    }
+    else if( dane.startsWith("ruch:") )
+    {
+        //emit otrzymanoRuch(dane.mid(5));
+    }
+    else if( dane.startsWith("koniecpojedynku:"))
+    {
+        emit zakonczonoPojedynek(dane.mid(16));
+    }
+    else if( dane.startsWith("test:"))
+    {
+        log->dodajLog("TEST");
+    }
+}
+
+void Klient::socketError(QAbstractSocket::SocketError e)
+{
+    log->dodajLog("Blad: " + socket->errorString());
 }

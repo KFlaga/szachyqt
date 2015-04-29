@@ -15,6 +15,9 @@ public:
     explicit DialogOtrzymanoZaproszenie(QWidget *parent = 0);
     ~DialogOtrzymanoZaproszenie();
 
+    void ustawNick(const QString& nick);
+    void ustawCzas(const QString& czas);
+
 private:
     Ui::DialogOtrzymanoZaproszenie *ui;
 };

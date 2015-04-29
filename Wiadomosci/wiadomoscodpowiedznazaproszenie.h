@@ -14,6 +14,8 @@ public:
 
 public:
     bool czyZgoda;
+    QString nick;
+    QString czas;
 };
 
 #endif // WIADOMOSCODPOWIEDZNAZAPROSZENIE_H

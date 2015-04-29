@@ -27,7 +27,7 @@ private slots:
     void odebranoOdpowiedz();
 
 signals:
-    void nadajWiadomosc(QString*, IKomunikator*);
+    void nadajWiadomosc(QString, IKomunikator*);
 
 private:
     PopupOczekiwanieNaSerwer* oczekiwanie;

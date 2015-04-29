@@ -31,7 +31,7 @@ void WiadomoscZaproszenie::interpretujWiadomosc(QString& tresc)
         return;
     }
     czyZaproszenieWyslane = false;
-    tresc = tresc.mid(7);
+    tresc = tresc.mid(12);
     QStringList dane = tresc.split('-');
     if( dane[0] == "true" )
     {

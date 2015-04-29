@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>60</y>
+     <y>70</y>
      <width>141</width>
      <height>21</height>
     </rect>
@@ -94,7 +94,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>60</y>
+     <y>70</y>
      <width>61</width>
      <height>22</height>
     </rect>
@@ -112,6 +112,56 @@
     <number>5</number>
    </property>
   </widget>
+  <widget class="QLabel" name="labelBlad">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>50</y>
+     <width>181</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>170</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>170</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>120</red>
+         <green>120</green>
+         <blue>120</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="text">
+    <string>Nie możesz zaprosić siebie</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>leNick</tabstop>
@@ -121,22 +171,6 @@
  </tabstops>
  <resources/>
  <connections>
-  <connection>
-   <sender>buttonZapros</sender>
-   <signal>clicked()</signal>
-   <receiver>DialogWyslijZaproszenie</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>284</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>246</x>
-     <y>38</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>buttonAnuluj</sender>
    <signal>clicked()</signal>
@@ -177,7 +211,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>197</x>
-     <y>68</y>
+     <y>78</y>
     </hint>
     <hint type="destinationlabel">
      <x>181</x>
@@ -185,9 +219,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>leNick</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>labelBlad</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>166</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonZapros</sender>
+   <signal>clicked()</signal>
+   <receiver>DialogWyslijZaproszenie</receiver>
+   <slot>sprawdzPoprawnosc()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>269</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>zmienNick(QString)</slot>
   <slot>zmienCzas(int)</slot>
+  <slot>sprawdzPoprawnosc()</slot>
  </slots>
 </ui>

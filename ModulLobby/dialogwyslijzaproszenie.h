@@ -15,6 +15,11 @@ public:
     explicit DialogWyslijZaproszenie(QWidget *parent = 0);
     ~DialogWyslijZaproszenie();
 
+    void ustawWlasnyNick(const QString& nick)
+    {
+        wlasnyNick = nick;
+    }
+
     QString wezNick()
     {
         return nick;
@@ -34,11 +39,13 @@ private slots:
     {
         nick = nnick;
     }
+    void sprawdzPoprawnosc();
 
 private:
     Ui::DialogWyslijZaproszenie *ui;
     int czas;
     QString nick;
+    QString wlasnyNick;
 };
 
 #endif // DIALOGWYSLIJZAPROSZENIE_H

@@ -9,7 +9,8 @@ SzachyApp::SzachyApp()
 
 SzachyApp::~SzachyApp()
 {
-
+    if( lacze != NULL)
+        delete lacze;
 }
 
 void SzachyApp::Run()

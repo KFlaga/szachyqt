@@ -40,11 +40,11 @@ public slots:
         emit odebranoWiadomosc();
     }
 
-    QString* stworzWiadomosc()
+    QString& stworzWiadomosc()
     {
         anulowano = false;
         dane = wiadomosc->stworzWiadomosc();
-        return &dane;
+        return dane;
     }
 
     void anuluj() { anulowano = true; }

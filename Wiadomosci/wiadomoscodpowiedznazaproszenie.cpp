@@ -10,28 +10,23 @@ WiadomoscOdpowiedzNaZaproszenie::~WiadomoscOdpowiedzNaZaproszenie()
 
 }
 
-// format: zapro_zwrot:
+// format: zapro_zwrot:nickZapraszajacego-czyZgoda
 QString WiadomoscOdpowiedzNaZaproszenie::stworzWiadomosc()
 {
     QString tresc;
-    tresc = "zapro_zwrot:";
+    tresc = "zapro_odp:";
+    tresc.append(nick);
+    tresc.append('-');
+    tresc.append(czas);
+    tresc.append('-');
+    if( czyZgoda == true )
+        tresc.append("true");
+    else
+        tresc.append("false");
     return tresc;
 }
 
-// format: zapro_zwrot:czyZgoda
-void WiadomoscOdpowiedzNaZaproszenie::interpretujWiadomosc(QString& tresc)
+void WiadomoscOdpowiedzNaZaproszenie::interpretujWiadomosc(QString&)
 {
-    if( !tresc.startsWith("zapro_zwrot:"))
-    {
-        poprawnieOdebrane = false;
-        return;
-    }
-    czyZgoda = false;
-    tresc = tresc.mid(12);
-    if( tresc == "true" )
-    {
-        czyZgoda = true;
-    }
-
     poprawnieOdebrane = true;
 }

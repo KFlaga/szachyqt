@@ -4,10 +4,12 @@
 #include "ModulLobby/dialogopcjelokalniegracz.h"
 #include "ModulLobby/dialogopcjelokalniesi.h"
 #include "ModulLobby/dialogwyslijzaproszenie.h"
+#include "ModulLobby/dialogotrzymanozaproszenie.h"
 #include <QMessageBox>
 #include "Wiadomosci/wiadomoscwyloguj.h"
 #include "Wiadomosci/wiadomosczaproszenie.h"
 #include "Wiadomosci/wiadomoscodpowiedznazaproszenie.h"
+#include "popupoczekiwanienaserwer.h"
 
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
@@ -17,6 +19,7 @@ OknoLobby::OknoLobby(QWidget *parent) :
     czy_zalogowano = false;
     this->statusBar()->showMessage("Nie ma połączenia z serwerem");
     komunikator = new KomunikatorLobbySerwer(this);
+    czyJestPoloczenie = NULL;
 }
 
 OknoLobby::~OknoLobby()
@@ -27,6 +30,7 @@ OknoLobby::~OknoLobby()
 void OknoLobby::closeEvent(QCloseEvent * ce)
 {
     qApp->closeAllWindows();
+    qApp->exit();
 }
 
 void OknoLobby::wyloguj()
@@ -35,6 +39,7 @@ void OknoLobby::wyloguj()
     {
         WiadomoscWyloguj* wiadomosc = new WiadomoscWyloguj();
         komunikator->wyslijWiadomosc(wiadomosc);
+        delete wiadomosc;
     }
 
     czy_zalogowano = false;
@@ -119,18 +124,36 @@ void OknoLobby::zaprosGracza()
 
         if( zaproszenie->czyZaproszenieWyslane )
         {
-            WiadomoscOdpowiedzNaZaproszenie* odpowiedz = new WiadomoscOdpowiedzNaZaproszenie();
-            komunikator->ustawCzasOczekiwania(40000); // w tym 30 sek na zgode gracza
-            wyslijWiadomosc(odpowiedz, "Oczekiwanie na odpowiedz\n         gracza");
-            if( odpowiedz->czyZgoda )
+            // czekamy na ustawienie zmiennych: pojedynek lub niezgoda
+            oczekiwanieNaOdpowiedz = true;
+            zaproszenieOdrzucone = false;
+            powodzeniePojedynku = false;
+            PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
+            oczekiwanie->setWindowModality(Qt::WindowModal);
+            oczekiwanie->ustawTekst("Oczekiwanie na odpowiedź");
+            oczekiwanie->show();
+            QTimer::singleShot(40000,this, SLOT(anulujPojedynek()));
+            //wyswietlInformacje("zaproszenie wyslane", "");
+            while (oczekiwanieNaOdpowiedz)
             {
-                // i tutaj inicjalizacja pojedynku
+                 qApp->processEvents(QEventLoop::AllEvents,200);
             }
-            else if( odpowiedz->czyPoprawnieOdebrane() )
+            oczekiwanie->hide();
+            if( zaproszenieOdrzucone )
             {
-                wyswietlInformacje("Odmowa", "Gracz odmówił gry");
+                wyswietlInformacje("Odrzucono", "Odrzucono zaproszenie do gry");
             }
-            delete odpowiedz;
+            else if( powodzeniePojedynku )
+            {
+                wyswietlInformacje("","Pojedynek!");
+                // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
+                // np. brak zadan o odswiezenie listy userow
+            }
+            else
+            {
+                wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
+            }
+            delete oczekiwanie;
         }
         else if( zaproszenie->czyPoprawnieOdebrane() )
         {
@@ -142,11 +165,90 @@ void OknoLobby::zaprosGracza()
     }
 }
 
-void OknoLobby::otrzymanoZaproszenie(Uzytkownik* nadawca)
+void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
 {
-    // stworzyc nowy dialog
+    DialogOtrzymanoZaproszenie* dialogOdpowiedz = new DialogOtrzymanoZaproszenie(this);
+    QStringList dane = nadawca.split('-');
+    dialogOdpowiedz->ustawNick(dane[0]);
+    dialogOdpowiedz->ustawCzas(dane[1]);
+    WiadomoscOdpowiedzNaZaproszenie* wiadomosc = new WiadomoscOdpowiedzNaZaproszenie();
+    wiadomosc->nick = dane[0];
+    wiadomosc->czas = dane[1];
 
-    // Opcje: anulowanie zaproszenia i odrzucenie zaproszenia
+    int result = dialogOdpowiedz->exec();
+    if(result == QDialog::Accepted)
+        wiadomosc->czyZgoda = true;
+    else
+        wiadomosc->czyZgoda = false;
+
+    oczekiwanieNaOdpowiedz = true;
+    powodzeniePojedynku = false;
+    komunikator->wyslijWiadomosc(wiadomosc);
+    delete wiadomosc;
+
+    if(result == QDialog::Accepted)
+    {
+        PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
+//        oczekiwanie->setWindowModality(Qt::WindowModal);
+//        oczekiwanie->show();
+//        QTimer::singleShot(5000, this, SLOT(anulujPojedynek()));
+
+        while (oczekiwanieNaOdpowiedz)
+        {
+             qApp->processEvents(QEventLoop::AllEvents,200);
+        }
+//        oczekiwanie->hide();
+        if( powodzeniePojedynku )
+        {
+            wyswietlInformacje("","Pojedynek!");
+            // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
+            // np. brak zadan o odswiezenie listy userow
+        }
+        else
+        {
+            wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
+        }
+        delete oczekiwanie;
+    }
+    else
+        oczekiwanieNaOdpowiedz = false;
+
+}
+
+void OknoLobby::zacznijPojedynek(QString&)
+{
+    ustawStatus("IN: zacznij pojedynek", 2000);
+   oczekiwanieNaOdpowiedz = false;
+   powodzeniePojedynku = true;
+   zaproszenieOdrzucone = false;
+    // biezacyUzytkownik->status = Rozgrywka;
+}
+
+void OknoLobby::anulujPojedynek()
+{
+     ustawStatus("IN: anuluj pojedynek timeout", 2000);
+    if( oczekiwanieNaOdpowiedz == true )
+    {
+        oczekiwanieNaOdpowiedz = false;
+        powodzeniePojedynku = false;
+        zaproszenieOdrzucone = false;
+    }
+}
+
+void OknoLobby::anulujPojedynek(QString&)
+{
+     ustawStatus("IN: anuluj pojedynek", 2000);
+    oczekiwanieNaOdpowiedz = false;
+    powodzeniePojedynku = false;
+    zaproszenieOdrzucone = false;
+}
+
+void OknoLobby::odmowaPojedynku(QString&)
+{
+     ustawStatus("IN: odmowa pojedynku", 2000);
+    oczekiwanieNaOdpowiedz = false;
+    powodzeniePojedynku = false;
+    zaproszenieOdrzucone = true;
 }
 
 void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
@@ -183,11 +285,15 @@ void OknoLobby::wyswietlInformacje(const QString &tytul, const QString &info)
 
 void OknoLobby::podlaczLacze(Klient *lacze)
 {
-    connect(komunikator, SIGNAL(nadajWiadomosc(QString*,IKomunikator*)),
-            lacze, SLOT(wyslijWiadomosc(QString*,IKomunikator*)));
+    connect(komunikator, SIGNAL(nadajWiadomosc(const QString&,IKomunikator*)),
+            lacze, SLOT(wyslijWiadomosc(const QString&,IKomunikator*)));
     connect(lacze, SIGNAL(poloczono()), this, SLOT(poloczonoZSerwerem()));
     connect(lacze, SIGNAL(rozloczono()), this, SLOT(rozloczonoZSerwerem()));
-    connect(lacze,SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(nieMoznaPolaczycZSerwerem(int)));
+    connect(lacze, SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(nieMoznaPolaczycZSerwerem(int)));
+    connect(lacze, SIGNAL(otrzymanoZaproszenie(QString&)), this, SLOT(otrzymanoZaproszenie(QString&)));
+    connect(lacze, SIGNAL(zacznijPojedynek(QString&)), this, SLOT(zacznijPojedynek(QString&)));
+    connect(lacze, SIGNAL(anulujPojedynek(QString&)), this, SLOT(anulujPojedynek(QString&)));
+    connect(lacze, SIGNAL(odmowaPojedynku(QString&)), this, SLOT(odmowaPojedynku(QString&)));
 }
 
 void OknoLobby::poloczonoZSerwerem()
@@ -200,6 +306,12 @@ void OknoLobby::rozloczonoZSerwerem()
 {
     ui->statusbar->showMessage("Rozłączono z serwerem", 5000);
     czyJestPoloczenie = false;
+    czy_zalogowano = false;
+    biezacyUzytkownik->nick = "";
+    aktualizujInterfejs();
+    // Po zerwaniu poloczenia i ponownym przyworceniu sprobuk zalogowac
+    // tymi samymi danymi co ostatnio ( tak wiec trzeba trzymac dane
+    // najlepiej jako wynik logowania )
 }
 
 void OknoLobby::nieMoznaPolaczycZSerwerem(int)
@@ -211,6 +323,7 @@ void OknoLobby::aktualizujInterfejs()
 {
     if(czy_zalogowano == false)
     {
+        ui->buttonZaloguj->setEnabled(true);
         ui->teGrajInternet->setEnabled(false);
         ui->teProfil->setEnabled(false);
         ui->buttonSzukaj->setEnabled(false);
@@ -223,6 +336,7 @@ void OknoLobby::aktualizujInterfejs()
         ui->teRanking->setText("nie zalogowano");
         return;
     }
+    ui->buttonZaloguj->setEnabled(false);
     ui->teGrajInternet->setEnabled(true);
     ui->teProfil->setEnabled(true);
     ui->buttonSzukaj->setEnabled(true);

@@ -117,5 +117,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>DialogOtrzymanoZaproszenie</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>185</x>
+     <y>106</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

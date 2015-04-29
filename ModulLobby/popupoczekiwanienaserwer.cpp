@@ -6,7 +6,7 @@ PopupOczekiwanieNaSerwer::PopupOczekiwanieNaSerwer(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PopupOczekiwanieNaSerwer)
 {
-    this->setWindowFlags(Qt::Popup | Qt::Sheet);
+    this->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     ui->setupUi(this);
 
     ui->labelCzekaj->zaladujObraz("czekaj.png");

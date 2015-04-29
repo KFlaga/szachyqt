@@ -33,11 +33,16 @@ public slots:
     void poloczonoZSerwerem();
     void rozloczonoZSerwerem();
     void nieMoznaPolaczycZSerwerem(int);
+    void otrzymanoZaproszenie(QString& dane);
+    void zacznijPojedynek(QString&);
+    void anulujPojedynek();
+    void anulujPojedynek(QString& dane);
+    void odmowaPojedynku(QString&);
+
 
 private:
     void aktualizujInterfejs();
     void wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst = "");
-    void otrzymanoZaproszenie(Uzytkownik*);
     void wyswietlInformacje(const QString& tytul, const QString& info);
 
 private slots:
@@ -61,6 +66,9 @@ private:
     KomunikatorLobbySerwer* komunikator;
 
     bool czyJestPoloczenie;
+    bool oczekiwanieNaOdpowiedz;
+    bool zaproszenieOdrzucone;
+    bool powodzeniePojedynku;
 };
 
 #endif // OKNOLOBBY_H
