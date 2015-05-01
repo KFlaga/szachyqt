@@ -54,6 +54,7 @@ private slots:
     void zaloguj();
     void zalogowano();
     void closeEvent(QCloseEvent *);
+    void odpowiedzNaZaproszenie(int);
 
 signals:
     void sygZalogowano();

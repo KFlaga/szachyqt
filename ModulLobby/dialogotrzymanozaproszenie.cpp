@@ -15,10 +15,22 @@ DialogOtrzymanoZaproszenie::~DialogOtrzymanoZaproszenie()
 
 void DialogOtrzymanoZaproszenie::ustawNick(const QString &nick)
 {
+    this->nick = nick;
     ui->labelNick->setText(nick);
 }
 
 void DialogOtrzymanoZaproszenie::ustawCzas(const QString& czas)
 {
+    this->czas = czas;
     ui->labelCzas->setText("(" + czas + "min)");
+}
+
+QString DialogOtrzymanoZaproszenie::wezNick()
+{
+    return nick;
+}
+
+QString DialogOtrzymanoZaproszenie::wezCzas()
+{
+    return czas;
 }

@@ -17,9 +17,13 @@ public:
 
     void ustawNick(const QString& nick);
     void ustawCzas(const QString& czas);
+    QString wezNick();
+    QString wezCzas();
 
 private:
     Ui::DialogOtrzymanoZaproszenie *ui;
+    QString nick;
+    QString czas;
 };
 
 #endif // DIALOGOTRZYMANOZAPROSZENIE_H

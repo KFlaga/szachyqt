@@ -171,11 +171,19 @@ void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
     QStringList dane = nadawca.split('-');
     dialogOdpowiedz->ustawNick(dane[0]);
     dialogOdpowiedz->ustawCzas(dane[1]);
-    WiadomoscOdpowiedzNaZaproszenie* wiadomosc = new WiadomoscOdpowiedzNaZaproszenie();
-    wiadomosc->nick = dane[0];
-    wiadomosc->czas = dane[1];
 
-    int result = dialogOdpowiedz->exec();
+    connect(dialogOdpowiedz, SIGNAL(finished(int)), this, SLOT(odpowiedzNaZaproszenie(int)));
+    dialogOdpowiedz->open();
+}
+
+void OknoLobby::odpowiedzNaZaproszenie(int result)
+{
+    ustawStatus("IN: odpowiedzNaZaproszenie", 3000);
+    WiadomoscOdpowiedzNaZaproszenie* wiadomosc = new WiadomoscOdpowiedzNaZaproszenie();
+    wiadomosc->nick = ((DialogOtrzymanoZaproszenie*)sender())->wezNick();
+    wiadomosc->czas = ((DialogOtrzymanoZaproszenie*)sender())->wezCzas();
+    sender()->deleteLater();
+
     if(result == QDialog::Accepted)
         wiadomosc->czyZgoda = true;
     else
@@ -189,15 +197,14 @@ void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
     if(result == QDialog::Accepted)
     {
         PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
-//        oczekiwanie->setWindowModality(Qt::WindowModal);
-//        oczekiwanie->show();
-//        QTimer::singleShot(5000, this, SLOT(anulujPojedynek()));
+        oczekiwanie->open();
+        QTimer::singleShot(5000, this, SLOT(anulujPojedynek()));
 
         while (oczekiwanieNaOdpowiedz)
         {
              qApp->processEvents(QEventLoop::AllEvents,200);
         }
-//        oczekiwanie->hide();
+        oczekiwanie->close();
         if( powodzeniePojedynku )
         {
             wyswietlInformacje("","Pojedynek!");
