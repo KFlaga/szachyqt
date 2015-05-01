@@ -2,6 +2,8 @@
 #include "ui_oknologowania.h"
 #include <QMessageBox>
 
+extern QRegExp znakiZarezerwowane;
+
 OknoLogowania::OknoLogowania(QWidget *parent, KomunikatorLobbySerwer* kom) :
     QDialog(parent),
     ui(new Ui::OknoLogowania)
@@ -74,16 +76,15 @@ bool OknoLogowania::sprobujZalogowac()
 
 bool OknoLogowania::sprawdzPola()
 {
-    QRegExp reserved("[-:,]");
     if(ui->leHaslo->text().count() == 0 ||
        ui->leLogin->text().count() == 0 )
     {
         ui->labelZleDane->setText("Należy wypełnić wszystkie pola");
     }
-    else if(ui->leHaslo->text().contains(reserved) ||
-            ui->leLogin->text().contains(reserved) )
+    else if(ui->leHaslo->text().contains(znakiZarezerwowane) ||
+            ui->leLogin->text().contains(znakiZarezerwowane) )
     {
-        ui->labelZleDane->setText("Nie można uzywać znaków: '-',':',','");
+        ui->labelZleDane->setText("Nie można uzywać znaków specjalnych");
     }
     else
         return true;

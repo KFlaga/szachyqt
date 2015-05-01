@@ -48,6 +48,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZ
     if(popupTekst != "")
         oczekiwanie->ustawTekst(popupTekst);
 
+    ustawCzyZeZwrotem(true);
     wyslijWiadomosc(msg);
     status = Niepowodzenie;
 
@@ -65,6 +66,7 @@ KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZ
 
     anuluj();
     oczekiwanie->ustawTekst();
+    ustawCzyZeZwrotem(false);
 
     return status;
 }

@@ -1,14 +1,28 @@
 #include "klient.h"
 #include <QMessageBox>
-#include <QPushButton>
+#include "buforwiadomosci.h"
 
 Klient::Klient() : QObject()
 {
     socket = new QTcpSocket(this);
     connect(socket,SIGNAL(connected()),this,SLOT(connected()));
     connect(socket,SIGNAL(disconnected()),this,SLOT(disconnected()));
-    connect(socket,SIGNAL(readyRead()),this,SLOT(readyRead()));
-  //  polacz();
+    connect(socket,SIGNAL(readyRead()),this,SLOT(buforujWiadomosc()));
+
+    delim = '.';
+    BuforWiadomosci* bufor = new BuforWiadomosci(delim);
+    bufor->moveToThread(&watekBufora);
+
+    connect(&watekBufora, &QThread::finished, bufor, &QObject::deleteLater);
+    connect(this, SIGNAL(buforStart()), bufor, SLOT(start()));
+    connect(this, SIGNAL(buforStop()), bufor, SLOT(stop()));
+    connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)));
+    connect(this, SIGNAL(zakonczonoPrzetwarzanie()), bufor, SLOT(nadajKolejnaWiadomosc()));
+    connect(bufor, SIGNAL(nowaWiadomosc(QString)), this, SLOT(przetworzWiadomosc(QString)));
+    connect(bufor, SIGNAL(log(QString)), this, SLOT(dodajLog(QString)));
+
+    connect(&watekBufora, SIGNAL(started()), this, SIGNAL(buforStart()));
+    watekBufora.start();
 
     timerCzekajNaPolaczenie = new QTimer(this);
     timerCzekajNaPolaczenie->setInterval(5000);
@@ -27,6 +41,7 @@ Klient::~Klient()
 {
     socket->close();
     socket->deleteLater();
+    watekBufora.exit();
 }
 
 void Klient::wyslijWiadomosc(const QString& text, IKomunikator* kom)
@@ -35,7 +50,8 @@ void Klient::wyslijWiadomosc(const QString& text, IKomunikator* kom)
     {
         return;
     }
-    komunikatory.append(kom);
+    if( kom->zeZwrotem() )
+        komunikatory.append(kom);
     // Na koncu wiadomosci dodajemy ID komunikatora
     // Jesli w przyszlosci bedziemy wysylac wiadomosci z
     // roznych miejsc programu, mozliwe, ze bedzie wiecej niz
@@ -104,29 +120,36 @@ inline bool Klient::czyPoloczony()
     return false;
 }
 
-void Klient::readyRead()
+void Klient::buforujWiadomosc()
 {
-    QString data = socket->readAll();
+    QByteArray dane = socket->readAll();
+    emit noweDane(dane);
+    log->dodajLog("Otrzymano dane: " + QString(dane));
+}
+
+void Klient::przetworzWiadomosc(QString data)
+{
     log->dodajLog("Otrzymano wiadomosc: " + data);
     int id = pobierzID(data);
 
     if( id < 100 ) // 100 = pusta wiadomosc
     {
-        // Dla mniejszych od 100 przesyłamy to dalej
         odbierzWiadomoscWewnatrz(data);
-        return;
     }
-
-    // znajdz id
-    for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
+    else if( id > 100 )
     {
-        if( (*it)->wezID() == id )
+        for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
         {
-            (*it)->odbierzWiadomosc(&data);
-            komunikatory.erase(it);
-            break;
+            if( (*it)->wezID() == id )
+            {
+                (*it)->odbierzWiadomosc(&data);
+                komunikatory.erase(it);
+                break;
+            }
         }
     }
+
+    emit zakonczonoPrzetwarzanie();
 }
 
 int Klient::pobierzID(QString& data)
@@ -180,4 +203,9 @@ void Klient::odbierzWiadomoscWewnatrz(QString& dane)
 void Klient::socketError(QAbstractSocket::SocketError e)
 {
     log->dodajLog("Blad: " + socket->errorString());
+}
+
+void Klient::dodajLog(QString s)
+{
+    log->dodajLog(s);
 }

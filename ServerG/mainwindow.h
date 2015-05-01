@@ -52,6 +52,7 @@ private:
     QVector<Pojedynek*> pojedynki; //wektor z pojedynkami
     int ile;
     QLabel *l;
+    char delim;
 };
 
 #endif // MAINWINDOW_H

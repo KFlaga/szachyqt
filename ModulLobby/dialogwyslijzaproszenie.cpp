@@ -1,6 +1,8 @@
 #include "dialogwyslijzaproszenie.h"
 #include "ui_dialogwyslijzaproszenie.h"
 
+extern QRegExp znakiZarezerwowane;
+
 DialogWyslijZaproszenie::DialogWyslijZaproszenie(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogWyslijZaproszenie)
@@ -17,7 +19,6 @@ DialogWyslijZaproszenie::~DialogWyslijZaproszenie()
 
 void DialogWyslijZaproszenie::sprawdzPoprawnosc()
 {
-    QRegExp reserved("[-:,]");
     bool ok = true;
     if( nick == wlasnyNick )
     {
@@ -25,9 +26,9 @@ void DialogWyslijZaproszenie::sprawdzPoprawnosc()
         ui->labelBlad->show();
         ok = false;
     }
-    else if( nick.contains(reserved))
+    else if( nick.contains(znakiZarezerwowane))
     {
-        ui->labelBlad->setText("Nick nie może zawierać: - : ,");
+        ui->labelBlad->setText("Nick nie może zawierać znaków specjanych");
         ui->labelBlad->show();
         ok = false;
     }

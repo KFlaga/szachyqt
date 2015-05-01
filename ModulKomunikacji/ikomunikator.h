@@ -14,11 +14,22 @@ public:
     {
         ID = IKOM_noweID++;
         anulowano = false;
+        zwrot = false;
     }
 
     int wezID()
     {
         return ID;
+    }
+
+    bool zeZwrotem()
+    {
+        return zwrot;
+    }
+
+    void ustawCzyZeZwrotem(bool czyZwrot)
+    {
+        zwrot = czyZwrot;
     }
 
 public slots:
@@ -56,6 +67,7 @@ private:
     Wiadomosc* wiadomosc;
     QString dane;
     bool anulowano;
+    bool zwrot;
     int ID;
 };
 

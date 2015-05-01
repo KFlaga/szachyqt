@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ile = 0;
     ui->lineEdit->setText(QString::number(ile));
 
+    delim = '.';
+
     plikListaUzytkownikow.open(QFile::ReadWrite | QFile::Append);
     if( plikListaUzytkownikow.isOpen() )
         ui->logger->append("Otwarto liste uzytkownikow");
@@ -134,8 +136,9 @@ void MainWindow::readyRead()
 
         odpowiedz.append(":");
         odpowiedz.append(QString::number(id));
+        odpowiedz.append(delim);
         ui->logger->append("Odpowiedz: " + odpowiedz);
-        nadawca->write(odpowiedz.toStdString().c_str());
+        nadawca->write(QByteArray::fromStdString(odpowiedz.toStdString()));
     }
     else if(data.startsWith("login:"))
     {
@@ -173,8 +176,9 @@ void MainWindow::readyRead()
         }
         odpowiedz.append(":");
         odpowiedz.append(QString::number(id));
+        odpowiedz.append(delim);
         ui->logger->append("Odpowiedz: " + odpowiedz);
-        nadawca->write(odpowiedz.toStdString().c_str());
+        nadawca->write(QByteArray::fromStdString(odpowiedz.toStdString()));
     }
     else if(data.startsWith("logout:"))
     {
@@ -200,7 +204,7 @@ void MainWindow::readyRead()
                ui->logger->append("Wysylanie zaproszenia");
                klient.key()->write(QByteArray::fromStdString( QString("otrzymanozapr:" +
                                     poloczenia.find(nadawca).value()->nick
-                                    + '-' + daneZapr[1] +":90").toStdString()));
+                                    + '-' + daneZapr[1] +":90.").toStdString()));
                break;
            }
            klient++;
@@ -211,6 +215,7 @@ void MainWindow::readyRead()
         }
         odpowiedz.append(":");
         odpowiedz.append(QString::number(id));
+        odpowiedz.append(delim);
         ui->logger->append("Odpowiedz: " + odpowiedz);
         nadawca->write(QByteArray::fromStdString(odpowiedz.toStdString()));
     }
@@ -227,7 +232,7 @@ void MainWindow::readyRead()
                if( klient.value() != NULL && klient.value()->nick == daneOdp[0] )
                {
                    QString odp = QString("pojedynek:" + poloczenia.find(nadawca).value()->nick
-                                         + '-' + daneOdp[1] + ":90");
+                                         + '-' + daneOdp[1] + ":90.");
                    klient.key()->write(QByteArray::fromStdString(odp.toStdString()));
                    break;
                }
@@ -235,7 +240,7 @@ void MainWindow::readyRead()
             }
             if( klient != poloczenia.end() )
             {
-                QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[1] + ":90");
+                QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[1] + ":90.");
                 ui->logger->append("Pojedynek: " + daneOdp[0] + "-" + poloczenia.find(nadawca).value()->nick);
                 nadawca->write(QByteArray::fromStdString(odp.toStdString()));
                 // W TYM MIEJSCU ZACZYNAMY POJEDYNEK
@@ -243,7 +248,7 @@ void MainWindow::readyRead()
             else
             {
                 // w miedzy czasie sie wylogowal
-                nadawca->write("anulujpojedynek:Wylogowany:90"); // mozna dodac powod
+                nadawca->write("anulujpojedynek:Wylogowany:90."); // mozna dodac powod
             }
         }
         else
@@ -255,7 +260,7 @@ void MainWindow::readyRead()
                if( klient.value() != NULL && klient.value()->nick == daneOdp[0] )
                {
                    ui->logger->append("Wysylanie odmowy");
-                   klient.key()->write("odmowa::90");
+                   klient.key()->write("odmowa::90.");
                    break;
                }
                klient++;
@@ -283,7 +288,7 @@ void MainWindow::readyRead()
     }*/
 
     else
-        nadawca->write("empty::100");
+        nadawca->write("empty::100.");
 }
 
 void MainWindow::socketError(QAbstractSocket::SocketError)
@@ -354,7 +359,7 @@ void MainWindow::testPoloczen()
     QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
     while( klient != poloczenia.end() )
     {
-       klient.key()->write("test::90");
+       klient.key()->write("test::90.");
        klient.key()->flush();
        klient++;
     }

@@ -4,11 +4,11 @@
 #include <QObject>
 #include <QString>
 #include <QTcpSocket>
-#include <QString>
 #include "ikomunikator.h"
 #include <QList>
 #include <QTimer>
 #include "logger.h"
+#include <QThread>
 
 class Klient : public QObject
 {
@@ -36,12 +36,18 @@ signals:
     void zakonczonoPojedynek(QString& dane);
     void odmowaPojedynku(QString& dane);
     void anulujPojedynek(QString& dane);
+    void buforStart();
+    void buforStop();
+    void noweDane(const QByteArray&);
+    void zakonczonoPrzetwarzanie();
 
 private slots:
     void connected();
     void disconnected();
-    void readyRead();
     void socketError(QAbstractSocket::SocketError);
+    void buforujWiadomosc();
+    void przetworzWiadomosc(QString);
+    void dodajLog(QString);
 
 signals:
     void rozloczono();
@@ -50,10 +56,11 @@ signals:
 
 private:
     QTcpSocket *socket;
-    // QMap<QString,QTcpSocket*> map;
     QList<IKomunikator*> komunikatory;
     QTimer* timerCzekajNaPolaczenie;
     Logger* log;
+    char delim;
+    QThread watekBufora;
 };
 
 #endif // KLIENT_H

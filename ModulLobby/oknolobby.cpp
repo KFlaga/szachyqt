@@ -11,6 +11,8 @@
 #include "Wiadomosci/wiadomoscodpowiedznazaproszenie.h"
 #include "popupoczekiwanienaserwer.h"
 
+QRegExp znakiZarezerwowane("[,;:'\"\\\\-]");
+
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::OknoLobby)
@@ -145,7 +147,7 @@ void OknoLobby::zaprosGracza()
             }
             else if( powodzeniePojedynku )
             {
-                wyswietlInformacje("","Pojedynek!");
+                 wyswietlInformacje("","Pojedynek!");
                 // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
                 // np. brak zadan o odswiezenie listy userow
             }
@@ -207,7 +209,7 @@ void OknoLobby::odpowiedzNaZaproszenie(int result)
         oczekiwanie->close();
         if( powodzeniePojedynku )
         {
-            wyswietlInformacje("","Pojedynek!");
+             wyswietlInformacje("","Pojedynek!");
             // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
             // np. brak zadan o odswiezenie listy userow
         }

@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include "komunikatorlobbyserwer.h"
 
+extern QRegExp znakiZarezerwowane;
+
 OknoRejestracji::OknoRejestracji(QWidget *parent, KomunikatorLobbySerwer* kom) :
     QDialog(parent),
     ui(new Ui::OknoRejestracji)
@@ -46,41 +48,42 @@ void OknoRejestracji::on_buttonRegister_clicked()
 bool OknoRejestracji::sprawdzPola()
 {
     bool czyDobrze = true;
-    QRegExp reserved("[-:,]");
+    QString pustePola = "Nalezy wypelnic wszystkie pola";
+    QString zarezerwowane = "Nie można używać znaków specjanych";
     if(ui->leLogin->text().count() == 0)
     {
         ui->labelLoginError->setVisible(true);
-        ui->labelLoginError->setText("Należy wypełnić wszystkie pola");
+        ui->labelLoginError->setText(pustePola);
         czyDobrze = false;
     }
-    else if(ui->leLogin->text().contains(reserved))
+    else if(ui->leLogin->text().contains(znakiZarezerwowane))
     {
         ui->labelLoginError->setVisible(true);
-        ui->labelLoginError->setText("Nie można uzywać znaków: '-',':',','");
+        ui->labelLoginError->setText(zarezerwowane);
         czyDobrze = false;
     }
     if(ui->leHaslo->text().count() == 0)
     {
         ui->labelHasloError->setVisible(true);
-        ui->labelHasloError->setText("Należy wypełnić wszystkie pola");
+        ui->labelHasloError->setText(pustePola);
         czyDobrze = false;
     }
-    else if(ui->leHaslo->text().contains(reserved))
+    else if(ui->leHaslo->text().contains(znakiZarezerwowane))
     {
         ui->labelHasloError->setVisible(true);
-        ui->labelHasloError->setText("Nie można uzywać znaków: '-',':',','");
+        ui->labelHasloError->setText(zarezerwowane);
         czyDobrze = false;
     }
     if(ui->leNick->text().count() == 0)
     {
         ui->labelNickError->setVisible(true);
-        ui->labelNickError->setText("Należy wypełnić wszystkie pola");
+        ui->labelNickError->setText(pustePola);
         czyDobrze = false;
     }
-    else if(ui->leNick->text().contains(reserved))
+    else if(ui->leNick->text().contains(znakiZarezerwowane))
     {
         ui->labelNickError->setVisible(true);
-        ui->labelNickError->setText("Nie można uzywać znaków: '-',':',','");
+        ui->labelNickError->setText(zarezerwowane);
         czyDobrze = false;
     }
     return czyDobrze;
