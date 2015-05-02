@@ -73,7 +73,7 @@
       <string/>
      </property>
      <property name="maxLength">
-      <number>20</number>
+      <number>24</number>
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>
@@ -87,6 +87,9 @@
        <width>230</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="text">
+      <string/>
      </property>
      <property name="maxLength">
       <number>32</number>
@@ -481,7 +484,7 @@ p, li { white-space: pre-wrap; }
    <item row="4" column="2" colspan="3">
     <widget class="QLineEdit" name="leLogin">
      <property name="maxLength">
-      <number>32</number>
+      <number>24</number>
      </property>
     </widget>
    </item>

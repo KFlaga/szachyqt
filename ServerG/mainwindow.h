@@ -26,7 +26,7 @@ public:
 
 private:
     int pobierzID(QString& data);
-    void sendUsersList();
+    void wyslijListeUzytkownikow(QMap<QTcpSocket*,Uzytkownik*>::iterator nadawca, int id);
     void odczytajListeUzytkownikow();
     void zapiszUzytkownika(Uzytkownik*);
 

@@ -86,7 +86,6 @@ void MainWindow::removeClient()
 
     ile--;
     ui->lineEdit->setText(QString::number(ile));
-    sendUsersList();
 
     //trzeba bedzie jeszcze usunac Pojedynek z listy jesli uzytkownik gral i wyszedl
 }
@@ -186,6 +185,10 @@ void MainWindow::readyRead()
         ui->logger->append("Wylogowano: " + klient.value()->nick);
         klient.value()->czyZalogowany = false;
         klient.value() = NULL;
+    }
+    else if(data.startsWith("zadajlisty:"))
+    {
+        wyslijListeUzytkownikow(poloczenia.find(nadawca),id);
     }
     else if(data.startsWith("zaproszenie:"))
     {
@@ -318,24 +321,32 @@ void MainWindow::zapiszUzytkownika(Uzytkownik* nowy)
     plikListaUzytkownikow.seek(plikListaUzytkownikow.size());
     QTextStream streamUzytkownicy(&plikListaUzytkownikow);
        streamUzytkownicy << nowy->login << ' ' << nowy->haslo << ' ' <<
-               nowy->nick << ' ' << nowy->ranking << '\r\n';
+               nowy->nick << ' ' << nowy->ranking << '\n';
 }
 
-void MainWindow::sendUsersList()
+void MainWindow::wyslijListeUzytkownikow(QMap<QTcpSocket*,Uzytkownik*>::iterator nadawca, int id)
 {
-    /*
-    QStringList userList;
-    foreach(QString user, users.values())
+    QString odpowiedz = "listazwrot:";
+    int liczbaU = 0;
+    QString dane;
+    foreach(Uzytkownik* user, poloczenia.values())
     {
-         userList << user;
+         if( user != NULL && user != nadawca.value() )
+         {
+              dane.append('-'+user->nick);
+              dane.append('-'+QString::number(user->ranking));
+              dane.append("-status");
+              liczbaU++;
+         }
     }
-
-    foreach(QTcpSocket *user, users.keys())
-    {
-       user->write(QString("users:" + userList.join(" ")).toStdString().c_str());
-       user->flush();
-    }
-    */
+    odpowiedz.append(QString::number(liczbaU));
+    odpowiedz.append(dane);
+    odpowiedz.append(':');
+    odpowiedz.append(QString::number(id));
+    odpowiedz.append(delim);
+    ui->logger->append("Odpowiedz: " + odpowiedz);
+    nadawca.key()->write(QByteArray::fromStdString(odpowiedz.toStdString()));
+    nadawca.key()->flush();
 }
 
 int MainWindow::pobierzID(QString& data)

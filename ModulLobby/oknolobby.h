@@ -7,6 +7,7 @@
 #include "komunikatorlobbyserwer.h"
 #include "ModulKomunikacji/klient.h"
 #include "Wiadomosci/wiadomosc.h"
+#include <QTimer>
 
 namespace Ui {
 class OknoLobby;
@@ -29,6 +30,7 @@ public:
 
     void ustawStatus(const QString &status, int czas);
 
+    void oczekujNaOdpowiedz();
 public slots:
     void poloczonoZSerwerem();
     void rozloczonoZSerwerem();
@@ -44,17 +46,19 @@ private:
     void aktualizujInterfejs();
     void wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst = "");
     void wyswietlInformacje(const QString& tytul, const QString& info);
+    void wyslijZaproszenie(const QString& nick, int czas);
 
 private slots:
     void wyloguj();
     void zagrajLokalnieGracz();
     void zagrajLokalnieSI();
-    void zaprosGracza();
+    void zaprosGracza(QString = "");
     void szukajGracza();
     void zaloguj();
     void zalogowano();
     void closeEvent(QCloseEvent *);
     void odpowiedzNaZaproszenie(int);
+    void zadajListyUzytkownikow();
 
 signals:
     void sygZalogowano();
@@ -65,6 +69,7 @@ private:
     Uzytkownik* biezacyUzytkownik;
     bool czy_zalogowano;
     KomunikatorLobbySerwer* komunikator;
+    QTimer timerOdswiezListe;
 
     bool czyJestPoloczenie;
     bool oczekiwanieNaOdpowiedz;

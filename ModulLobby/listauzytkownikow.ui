@@ -6,48 +6,122 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>258</width>
-    <height>330</height>
+    <width>318</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="2">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="3" column="0" colspan="2">
+    <widget class="QFrame" name="frameLista">
+     <property name="minimumSize">
       <size>
-       <width>40</width>
+       <width>0</width>
        <height>20</height>
       </size>
      </property>
-    </spacer>
-   </item>
-   <item row="2" column="0">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-    </spacer>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Zaproś</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="naglowek">
+        <property name="font">
+         <font>
+          <family>Consolas</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>    Pseudonim       Ranking  Status</string>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lista">
+        <property name="font">
+         <font>
+          <family>Consolas</family>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>3</number>
+        </property>
+        <property name="midLineWidth">
+         <number>6</number>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOn</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="tabKeyNavigation">
+         <bool>true</bool>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropOverwriteMode">
+         <bool>true</bool>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="3">
+   <item row="2" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="font">
       <font>
@@ -65,60 +139,25 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="3">
-    <widget class="QTableView" name="lista">
-     <property name="contextMenuPolicy">
-      <enum>Qt::CustomContextMenu</enum>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="lineWidth">
-      <number>3</number>
-     </property>
-     <property name="midLineWidth">
-      <number>6</number>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>false</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
+  <zorder>frameLista</zorder>
+  <zorder>label</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
+   <sender>lista</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
    <receiver>ListaUzytkownikow</receiver>
-   <slot>zaprosGracza()</slot>
+   <slot>zaprosGracza(QListWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>306</y>
+     <x>43</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
-     <x>198</x>
-     <y>306</y>
+     <x>4</x>
+     <y>100</y>
     </hint>
    </hints>
   </connection>
@@ -126,6 +165,7 @@
  <slots>
   <slot>uztkownikWybrany(QModelIndex)</slot>
   <slot>podwojneKlikniecie(QModelIndex)</slot>
-  <slot>zaprosGracza()</slot>
+  <slot>zaprosGracza(QListWidgetItem*)</slot>
+  <slot>odswiez()</slot>
  </slots>
 </ui>

@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include "uzytkownik.h"
+#include <QListWidgetItem>
+#include <QVector>
 
 namespace Ui {
 class ListaUzytkownikow;
@@ -17,16 +19,16 @@ public:
     ~ListaUzytkownikow();
 
 public slots:
-    void dodajUzytkownika(Uzytkownik*);
-    void usunUzytkownika(Uzytkownik*);
+    void dodajUzytkownika(Uzytkownik&);
+    void usunUzytkownika(Uzytkownik&);
     void usunUzytkownika(QString nick);
+    void czysc();
 
 private slots:
-    void uzytkownikWybrany(QModelIndex);
-    void podwojneKlikniecie(QModelIndex);
+    void zaprosGracza(QListWidgetItem *gracz);
 
 signals:
-    void zaprosUzytkownika(QString nick);
+    void zaproszono(QString nick);
 
 private:
     Ui::ListaUzytkownikow *ui;

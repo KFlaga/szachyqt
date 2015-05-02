@@ -10,8 +10,10 @@
 #include "Wiadomosci/wiadomosczaproszenie.h"
 #include "Wiadomosci/wiadomoscodpowiedznazaproszenie.h"
 #include "popupoczekiwanienaserwer.h"
+#include "listauzytkownikow.h"
+#include "Wiadomosci/wiadomosclistauzytkownikow.h"
 
-QRegExp znakiZarezerwowane("[,;:'\"\\\\-]");
+QRegExp znakiZarezerwowane("[-,;:'\"\\\\ ]");
 
 OknoLobby::OknoLobby(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +24,20 @@ OknoLobby::OknoLobby(QWidget *parent) :
     this->statusBar()->showMessage("Nie ma połączenia z serwerem");
     komunikator = new KomunikatorLobbySerwer(this);
     czyJestPoloczenie = NULL;
+
+    Uzytkownik u;
+    u.nick = "test";
+    u.ranking = 999;
+    ui->lista->dodajUzytkownika(u);
+    ui->lista->dodajUzytkownika(u);
+
+    connect(ui->lista, SIGNAL(zaproszono(QString)), this, SLOT(zaprosGracza(QString)));
+    connect(ui->lista, SIGNAL(odswiez()), this, SLOT(zadajListyUzytkownikow()));
+
+    timerOdswiezListe.setInterval(10000);
+    timerOdswiezListe.setTimerType(Qt::VeryCoarseTimer);
+    timerOdswiezListe.setSingleShot(true);
+  //  connect(&timerOdswiezListe, SIGNAL(timeout()), this, SLOT(zadajListyUzytkownikow()));
 }
 
 OknoLobby::~OknoLobby()
@@ -61,6 +77,7 @@ void OknoLobby::zalogowano()
 {
     czy_zalogowano = true;
     aktualizujInterfejs();
+    zadajListyUzytkownikow();
     emit sygZalogowano();
 }
 
@@ -107,7 +124,7 @@ void OknoLobby::szukajGracza()
     //wyslijWiadomosc();
 }
 
-void OknoLobby::zaprosGracza()
+void OknoLobby::zaprosGracza(QString nick)
 {
     if( czyJestPoloczenie == false )
     {
@@ -116,55 +133,64 @@ void OknoLobby::zaprosGracza()
     }
 
     DialogWyslijZaproszenie* dialogZaproszenie = new DialogWyslijZaproszenie(this);
+    dialogZaproszenie->podstawNick(nick);
     int result = dialogZaproszenie->exec();
     if( result == QDialog::Accepted )
     {
-        WiadomoscZaproszenie* zaproszenie = new WiadomoscZaproszenie();
-        zaproszenie->nick = dialogZaproszenie->wezNick();
-        zaproszenie->czas = dialogZaproszenie->wezCzas();
-        wyslijWiadomosc(zaproszenie);
-
-        if( zaproszenie->czyZaproszenieWyslane )
-        {
-            // czekamy na ustawienie zmiennych: pojedynek lub niezgoda
-            oczekiwanieNaOdpowiedz = true;
-            zaproszenieOdrzucone = false;
-            powodzeniePojedynku = false;
-            PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
-            oczekiwanie->setWindowModality(Qt::WindowModal);
-            oczekiwanie->ustawTekst("Oczekiwanie na odpowiedź");
-            oczekiwanie->show();
-            QTimer::singleShot(40000,this, SLOT(anulujPojedynek()));
-            //wyswietlInformacje("zaproszenie wyslane", "");
-            while (oczekiwanieNaOdpowiedz)
-            {
-                 qApp->processEvents(QEventLoop::AllEvents,200);
-            }
-            oczekiwanie->hide();
-            if( zaproszenieOdrzucone )
-            {
-                wyswietlInformacje("Odrzucono", "Odrzucono zaproszenie do gry");
-            }
-            else if( powodzeniePojedynku )
-            {
-                 wyswietlInformacje("","Pojedynek!");
-                // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
-                // np. brak zadan o odswiezenie listy userow
-            }
-            else
-            {
-                wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
-            }
-            delete oczekiwanie;
-        }
-        else if( zaproszenie->czyPoprawnieOdebrane() )
-        {
-            wyswietlInformacje("Niepowodzenie", "Nie wyslano zaproszenia: "
-                                + zaproszenie->powodNiepowodzenia);
-        }
-
-        delete zaproszenie;
+        wyslijZaproszenie(dialogZaproszenie->wezNick(), dialogZaproszenie->wezCzas());
     }
+}
+
+void OknoLobby::wyslijZaproszenie(const QString& nick, int czas)
+{
+    WiadomoscZaproszenie* zaproszenie = new WiadomoscZaproszenie();
+    zaproszenie->nick = nick;
+    zaproszenie->czas = czas;
+    wyslijWiadomosc(zaproszenie);
+
+    if( zaproszenie->czyZaproszenieWyslane )
+    {
+        oczekujNaOdpowiedz();
+    }
+    else if( zaproszenie->czyPoprawnieOdebrane() )
+    {
+        wyswietlInformacje("Niepowodzenie", "Nie wyslano zaproszenia: "
+                            + zaproszenie->powodNiepowodzenia);
+    }
+
+    delete zaproszenie;
+}
+
+void OknoLobby::oczekujNaOdpowiedz()
+{
+    oczekiwanieNaOdpowiedz = true;
+    zaproszenieOdrzucone = false;
+    powodzeniePojedynku = false;
+    PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
+    oczekiwanie->setWindowModality(Qt::WindowModal);
+    oczekiwanie->ustawTekst("Oczekiwanie na odpowiedź");
+    oczekiwanie->show();
+    QTimer::singleShot(40000,this, SLOT(anulujPojedynek()));
+
+    while (oczekiwanieNaOdpowiedz)
+    {
+         qApp->processEvents(QEventLoop::AllEvents,200);
+    }
+    oczekiwanie->hide();
+    if( zaproszenieOdrzucone )
+    {
+        wyswietlInformacje("Odrzucono", "Odrzucono zaproszenie do gry");
+    }
+    else if( powodzeniePojedynku )
+    {
+        // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
+        // np. brak zadan o odswiezenie listy userow
+    }
+    else
+    {
+        wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
+    }
+    delete oczekiwanie;
 }
 
 void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
@@ -209,7 +235,6 @@ void OknoLobby::odpowiedzNaZaproszenie(int result)
         oczekiwanie->close();
         if( powodzeniePojedynku )
         {
-             wyswietlInformacje("","Pojedynek!");
             // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
             // np. brak zadan o odswiezenie listy userow
         }
@@ -221,7 +246,6 @@ void OknoLobby::odpowiedzNaZaproszenie(int result)
     }
     else
         oczekiwanieNaOdpowiedz = false;
-
 }
 
 void OknoLobby::zacznijPojedynek(QString&)
@@ -318,6 +342,8 @@ void OknoLobby::rozloczonoZSerwerem()
     czy_zalogowano = false;
     biezacyUzytkownik->nick = "";
     aktualizujInterfejs();
+    timerOdswiezListe.stop();
+    ui->lista->czysc();
     // Po zerwaniu poloczenia i ponownym przyworceniu sprobuk zalogowac
     // tymi samymi danymi co ostatnio ( tak wiec trzeba trzymac dane
     // najlepiej jako wynik logowania )
@@ -326,6 +352,28 @@ void OknoLobby::rozloczonoZSerwerem()
 void OknoLobby::nieMoznaPolaczycZSerwerem(int)
 {
     ui->statusbar->showMessage("Nie można nawiązać połączenia z serwerem", 5000);
+}
+
+void OknoLobby::zadajListyUzytkownikow()
+{
+    timerOdswiezListe.stop();
+    if( czyJestPoloczenie == true )
+    {
+        ustawStatus("Zadanie listy",1000);
+        WiadomoscListaUzytkownikow* wiadomosc = new WiadomoscListaUzytkownikow();
+        wyslijWiadomosc(wiadomosc);
+        if( wiadomosc->czyPoprawnieOdebrane() )
+        {
+            ustawStatus("Nowa lista",2000);
+            ui->lista->czysc();
+            for(int u = 0; u < wiadomosc->uzytkownicy.size(); u++)
+            {
+                ui->lista->dodajUzytkownika(wiadomosc->uzytkownicy[u]);
+            }
+        }
+        delete wiadomosc;
+    }
+    timerOdswiezListe.start();
 }
 
 void OknoLobby::aktualizujInterfejs()

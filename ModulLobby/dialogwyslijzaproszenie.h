@@ -20,6 +20,8 @@ public:
         wlasnyNick = nick;
     }
 
+    void podstawNick(const QString& nick);
+
     QString wezNick()
     {
         return nick;

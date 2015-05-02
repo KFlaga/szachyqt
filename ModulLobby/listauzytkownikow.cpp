@@ -1,6 +1,6 @@
 #include "listauzytkownikow.h"
 #include "ui_listauzytkownikow.h"
-#include <QTableView>
+#include <QListWidget>
 
 ListaUzytkownikow::ListaUzytkownikow(QWidget *parent) :
     QWidget(parent),
@@ -14,27 +14,54 @@ ListaUzytkownikow::~ListaUzytkownikow()
     delete ui;
 }
 
-void ListaUzytkownikow::uzytkownikWybrany(QModelIndex idx)
+void ListaUzytkownikow::dodajUzytkownika(Uzytkownik& uzyt)
 {
-
-}
-
-void ListaUzytkownikow::podwojneKlikniecie(QModelIndex idx)
-{
-
-}
-
-void ListaUzytkownikow::dodajUzytkownika(Uzytkownik* uzyt)
-{
-    QTableView
+   QListWidgetItem* item = new QListWidgetItem(ui->lista);
+   item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+   QString text;
+   text.fill(' ', 20 - uzyt.nick.size());
+   text.prepend(uzyt.nick);
+   text.append(QString::number(uzyt.ranking));
+   item->setText(text);
 }
 
 void ListaUzytkownikow::usunUzytkownika(QString nick)
 {
-
+    for(int i = 0; i < ui->lista->count(); i++)
+    {
+        if( ui->lista->item(i)->text().startsWith(nick) )
+        {
+            ui->lista->removeItemWidget(ui->lista->item(i));
+            break;
+        }
+    }
 }
 
-void ListaUzytkownikow::usunUzytkownika(Uzytkownik* uzyt)
+void ListaUzytkownikow::usunUzytkownika(Uzytkownik& uzyt)
 {
+    for(int i = 0; i < ui->lista->count(); i++)
+    {
+        if( ui->lista->item(i)->text().startsWith(uzyt.nick) )
+        {
+            ui->lista->removeItemWidget(ui->lista->item(i));
+            break;
+        }
+    }
+}
 
+void ListaUzytkownikow::czysc()
+{
+    ui->lista->clear();
+}
+
+void ListaUzytkownikow::zaprosGracza(QListWidgetItem* gracz)
+{
+    QString nick;
+    int i = 0;
+    while( gracz->text()[i] != ' ')
+    {
+        nick.append(gracz->text()[i]);
+        i++;
+    }
+    emit zaproszono(nick);
 }

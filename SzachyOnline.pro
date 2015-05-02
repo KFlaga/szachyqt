@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     Wiadomosci/wiadomoscwyloguj.cpp \
     ModulLobby/dialogwyslijzaproszenie.cpp \
     Wiadomosci/wiadomoscodpowiedznazaproszenie.cpp \
-    Wiadomosci/wiadomosczaproszenie.cpp
+    Wiadomosci/wiadomosczaproszenie.cpp \
+    ModulLobby/listauzytkownikow.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -74,7 +75,8 @@ HEADERS  += Figury/figura.h \
     Wiadomosci/wiadomoscwyloguj.h \
     ModulLobby/dialogwyslijzaproszenie.h \
     Wiadomosci/wiadomoscodpowiedznazaproszenie.h \
-    Wiadomosci/wiadomosczaproszenie.h
+    Wiadomosci/wiadomosczaproszenie.h \
+    ModulLobby/listauzytkownikow.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
@@ -85,5 +87,6 @@ FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/dialogotrzymanozaproszenie.ui \
     ModulLobby/dialogczekajnaodpowiedz.ui \
     ModulLobby/popupoczekiwanienaserwer.ui \
-    ModulLobby/dialogwyslijzaproszenie.ui
+    ModulLobby/dialogwyslijzaproszenie.ui \
+    ModulLobby/listauzytkownikow.ui
 

@@ -35,3 +35,9 @@ void DialogWyslijZaproszenie::sprawdzPoprawnosc()
     if(ok)
         accept();
 }
+
+void DialogWyslijZaproszenie::podstawNick(const QString& nick)
+{
+    this->nick = nick;
+    ui->leNick->setText(nick);
+}
