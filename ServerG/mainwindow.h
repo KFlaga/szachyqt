@@ -11,7 +11,7 @@
 #include <QFile>
 #include "pojedynek.h"
 #include "uzytkownik.h"
-
+#include <QtSql>
 namespace Ui {
 class MainWindow;
 }
@@ -53,6 +53,7 @@ private:
     int ile;
     QLabel *l;
     char delim;
+    QSqlDatabase db;
 };
 
 #endif // MAINWINDOW_H

@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QLabel>
 #include <QMessageBox>
+#include <QtSql>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -18,6 +20,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     delim = '.';
 
+    //BAZA
+    /*db = QSqlDatabase::addDatabase("QODBC");
+    QString dsn = QString("DRIVER={SQL Server};SERVER=serwer1504606.home.pl;DATABASE=17499764_szachy;PWD=szachyonline123;UID=17499764_szachy");
+    db.setDatabaseName(dsn);
+    if(db.open())
+    {
+        ui->logger->append("Otwarto liste uzytkownikow");
+    }
+    else
+    {
+        ui->logger->append("Niepowodzenie otwarcia listy uzytkownikow");
+    }*/
+
+    //PLIK
     plikListaUzytkownikow.open(QFile::ReadWrite | QFile::Append);
     if( plikListaUzytkownikow.isOpen() )
         ui->logger->append("Otwarto liste uzytkownikow");
@@ -302,6 +318,7 @@ void MainWindow::socketError(QAbstractSocket::SocketError)
 
 void MainWindow::odczytajListeUzytkownikow()
 {
+    //PLIK
     plikListaUzytkownikow.seek(0);
     QTextStream streamUzytkownicy(&plikListaUzytkownikow);
     while (!streamUzytkownicy.atEnd())
@@ -314,14 +331,44 @@ void MainWindow::odczytajListeUzytkownikow()
        uzytkownicy.append(nowy);
        ui->logger->append("Wczytany uzytkownik: " + nowy->nick);
     }
+
+    //BAZA
+   /* QSqlQuery qry;
+
+        if(qry.exec("SELECT * FROM Gracze2"))
+        {
+            while(qry.next())
+            {
+                Uzytkownik* nowy = new Uzytkownik();
+                nowy->login = qry.value(1).toString();
+                nowy->haslo = qry.value(2).toString();
+                nowy->nick = qry.value(3).toString();
+                nowy->ranking = qry.value(7).toInt();
+                nowy->czyZalogowany = false;
+                uzytkownicy.append(nowy);
+                ui->logger->append("Wczytany uzytkownik: " + nowy->nick);
+            }
+        }
+    db.close();*/
 }
 
 void MainWindow::zapiszUzytkownika(Uzytkownik* nowy)
 {
+    //PLIK
     plikListaUzytkownikow.seek(plikListaUzytkownikow.size());
     QTextStream streamUzytkownicy(&plikListaUzytkownikow);
        streamUzytkownicy << nowy->login << ' ' << nowy->haslo << ' ' <<
                nowy->nick << ' ' << nowy->ranking << '\n';
+
+
+    //BAZA
+    /*QSqlQuery qry;
+
+    if(db.open())
+    {
+       qry.exec(QString("INSERT INTO Gracze2 VALUES ('%1','%2','%3',0,0,0,100)").arg(nowy->login).arg(nowy->haslo).arg(nowy->nick));
+    }
+    db.close();*/
 }
 
 void MainWindow::wyslijListeUzytkownikow(QMap<QTcpSocket*,Uzytkownik*>::iterator nadawca, int id)
