@@ -35,11 +35,11 @@ public slots:
     void poloczonoZSerwerem();
     void rozloczonoZSerwerem();
     void nieMoznaPolaczycZSerwerem(int);
-    void otrzymanoZaproszenie(QString& dane);
-    void zacznijPojedynek(QString&);
+    void otrzymanoZaproszenie(QString dane);
+    void zacznijPojedynek(QString);
     void anulujPojedynek();
-    void anulujPojedynek(QString& dane);
-    void odmowaPojedynku(QString&);
+    void anulujPojedynek(QString dane);
+    void odmowaPojedynku(QString);
 
 
 private:

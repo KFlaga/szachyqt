@@ -40,7 +40,10 @@ SOURCES += main.cpp\
     ModulLobby/dialogwyslijzaproszenie.cpp \
     Wiadomosci/wiadomoscodpowiedznazaproszenie.cpp \
     Wiadomosci/wiadomosczaproszenie.cpp \
-    ModulLobby/listauzytkownikow.cpp
+    ModulLobby/listauzytkownikow.cpp \
+    Wiadomosci/wiadomosclistauzytkownikow.cpp \
+    ModulKomunikacji/buforwiadomosci.cpp \
+    logger.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -76,7 +79,10 @@ HEADERS  += Figury/figura.h \
     ModulLobby/dialogwyslijzaproszenie.h \
     Wiadomosci/wiadomoscodpowiedznazaproszenie.h \
     Wiadomosci/wiadomosczaproszenie.h \
-    ModulLobby/listauzytkownikow.h
+    ModulLobby/listauzytkownikow.h \
+    Wiadomosci/wiadomosclistauzytkownikow.h \
+    ModulKomunikacji/buforwiadomosci.h \
+    logger.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
@@ -88,5 +94,6 @@ FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/dialogczekajnaodpowiedz.ui \
     ModulLobby/popupoczekiwanienaserwer.ui \
     ModulLobby/dialogwyslijzaproszenie.ui \
-    ModulLobby/listauzytkownikow.ui
+    ModulLobby/listauzytkownikow.ui \
+    logger.ui
 

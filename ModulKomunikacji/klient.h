@@ -15,7 +15,7 @@ class Klient : public QObject
     Q_OBJECT
 public:
     Klient();
-    Klient::~Klient();
+    ~Klient();
 
     bool czyPoloczony();
 
@@ -31,11 +31,11 @@ public slots:
 
 signals:
     void odebranoRuch(QString& dane);
-    void otrzymanoZaproszenie(QString& dane);
-    void zacznijPojedynek(QString& dane);
-    void zakonczonoPojedynek(QString& dane);
-    void odmowaPojedynku(QString& dane);
-    void anulujPojedynek(QString& dane);
+    void otrzymanoZaproszenie(QString dane);
+    void zacznijPojedynek(QString dane);
+    void zakonczonoPojedynek(QString dane);
+    void odmowaPojedynku(QString dane);
+    void anulujPojedynek(QString dane);
     void buforStart();
     void buforStop();
     void noweDane(const QByteArray&);
