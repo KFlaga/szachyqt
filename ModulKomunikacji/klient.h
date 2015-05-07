@@ -26,11 +26,12 @@ private:
 public slots:
     void wyslijWiadomosc(const QString &tresc, IKomunikator* kom);
     void wyslijWiadomosc(const QString& tresc, int id);
+    void wyslijRuch(const QString ruch);
     void polacz();
     void rozlacz();
 
 signals:
-    void odebranoRuch(QString& dane);
+    void odebranoRuch(QString dane);
     void otrzymanoZaproszenie(QString dane);
     void zacznijPojedynek(QString dane);
     void zakonczonoPojedynek(QString dane);

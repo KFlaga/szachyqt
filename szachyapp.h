@@ -31,6 +31,7 @@ private slots:
     void zalogowano();
     void koniecGry();
     void graLokalnie(Opcje*);
+    void graSieciowa(Opcje*);
     void poloczonoZSerwerem();
     void rozloczonoZSerwerem();
     void niepowodzeniePoloczeniaZSerwerem(int);

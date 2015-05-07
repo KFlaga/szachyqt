@@ -38,6 +38,8 @@ void Silnik::NowaGra(Opcje* opts)
     // Kolejnosc dodawania -> od zera, czyli gora-lewo, dla czarnych
     // potem od konca, czyli dol-prawo, w prawa strone dla bialych
     gra_z_kompem = false;
+    gra_przez_siec = false;
+    czyRuchPrzeciwnika = false;
     for(int i = 0; i < 16; i++)
     {
         Figura* fig = kreator->StworzFigure(i,1);
@@ -75,12 +77,25 @@ void Silnik::NowaGra(Opcje* opts)
             p->write(ba);
         }
     }
+    else if(opts->czyPrzezSiec == true)
+    {
+        gra_przez_siec = true;
+        if(opts->Tura)
+        {
+            czyRuchPrzeciwnika = true;
+        }
+        connect(opts->klient,SIGNAL(odebranoRuch(QString)),this,SLOT(odebranoRuch(QString)));
+        kl = opts->klient;
+        przeciwnik = opts->przciwnik;
+    }
 }
 
 void Silnik::PoleWcisniete(int nrPola)
 {
     if(czy_koniec)return; //jesli koniec partii to nie pozwalam na ruuch
     if(gra_z_kompem && aktualnyGracz==1)return; //nie pozwalam na ruch kiedy gramy z kompem i nie jest nasza kolej
+    if(czyRuchPrzeciwnika)return; //jesli jest ruch przeciwnika to nie pozwalam na ruch
+
     static QVector<int> zaznaczonePola;
     if( zaznaczonePole == nrPola ) // Odznaczamy
     {
@@ -145,6 +160,21 @@ void Silnik::PoleWcisniete(int nrPola)
 void Silnik::RuchAI(int nrPolaStartowego, int nrPolaDocelowego) //zasada dzialania analgo
 {
     //qDebug()<<nrPolaStartowego<<" "<<nrPolaDocelowego;
+    if(czy_koniec)return; //jesli koniec partii to nie pozwalam na ruuch
+
+
+    if( pola[nrPolaDocelowego] != -1 )
+    {
+        ZbijPionek(nrPolaStartowego, nrPolaDocelowego); // arg: atakujacy / atakowany
+    }
+    else
+    {
+        RuszPionek(nrPolaStartowego, nrPolaDocelowego);
+    }
+}
+//na razie tak samo jak RuchAI
+void Silnik::RuchSiec(int nrPolaStartowego, int nrPolaDocelowego)
+{
     if(czy_koniec)return; //jesli koniec partii to nie pozwalam na ruuch
 
 
@@ -223,6 +253,16 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     if(gra_z_kompem && aktualnyGracz == 1)
     {
         wyslij(pozBijacego,pozBitego,nasza_promocja);
+    }
+    if(gra_przez_siec && czyRuchPrzeciwnika == false)
+    {
+        QString tmp = nasza_promocja;
+        if(tmp!="")
+        {
+            tmp="-"+tmp;
+        }
+        kl->wyslijRuch(QByteArray::fromStdString(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(pozBijacego).arg(pozBitego).arg(tmp).toStdString()));
+        czyRuchPrzeciwnika = true;
     }
 }
 
@@ -306,12 +346,22 @@ void Silnik::RuszPionek(int skad, int dokad)
     {
         wyslij(skad,dokad,nasza_promocja);
     }
+    if(gra_przez_siec && czyRuchPrzeciwnika == false)
+    {
+        QString tmp = nasza_promocja;
+        if(tmp!="")
+        {
+            tmp="-"+tmp;
+        }
+        kl->wyslijRuch(QByteArray::fromStdString(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(skad).arg(dokad).arg(tmp).toStdString()));
+        czyRuchPrzeciwnika = true;
+    }
 }
 
 
 void Silnik::Promocja(int strona,int dokad)
 {
-    if(!gra_z_kompem || (gra_z_kompem && aktualnyGracz == 0)) //okno pojawia się jesli nie ma gry z kompem  a jak jest  to pojawia się tylko przy naszym ruchu
+    if((!gra_z_kompem  && !gra_przez_siec) || (gra_z_kompem && aktualnyGracz == 0) || (gra_przez_siec && czyRuchPrzeciwnika  == false)) //okno pojawia się jesli nie ma gry z kompem  a jak jest  to pojawia się tylko przy naszym ruchu
     {
         msgBox->exec();
         if(msgBox->clickedButton() == hetmanButton)
@@ -320,7 +370,7 @@ void Silnik::Promocja(int strona,int dokad)
             Figura* fig = new Hetman(strona,dokad);
             figury[pola[dokad]]=fig;
             emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
-            nasza_promocja = "q";
+            nasza_promocja = "Q";
         }
         else if (msgBox->clickedButton() == goniecButton)
         {
@@ -328,7 +378,7 @@ void Silnik::Promocja(int strona,int dokad)
             Figura* fig = new Goniec(strona,dokad);
             figury[pola[dokad]]=fig;
             emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
-            nasza_promocja = "b";
+            nasza_promocja = "B";
         }
         else if (msgBox->clickedButton() == skoczekButton)
         {
@@ -336,7 +386,7 @@ void Silnik::Promocja(int strona,int dokad)
             Figura* fig = new Skoczek(strona,dokad);
             figury[pola[dokad]]=fig;
             emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
-            nasza_promocja = "n";
+            nasza_promocja = "N";
         }
         else if (msgBox->clickedButton() == wiezaButton)
         {
@@ -344,7 +394,7 @@ void Silnik::Promocja(int strona,int dokad)
             Figura* fig = new Wieza(strona,dokad);
             figury[pola[dokad]]=fig;
             emit DodanoFigureNaPole(dokad, &(figury[pola[dokad]]->ikona));
-            nasza_promocja = "r";
+            nasza_promocja = "R";
         }
     }
     else
@@ -836,5 +886,17 @@ void Silnik::read()  //metoda uruchamiana gdy komputer coś zwraca do konsoli
         RuchAI(id_1, id_2); //skad - dokad
 
     }
+}
+
+void Silnik::odebranoRuch(QString ruch)
+{
+    QStringList list = ruch.split("-");
+    if(list.size() == 3)
+    {
+        promocja = list[2];
+    }
+    RuchSiec(list[0].toInt(),list[1].toInt());
+    czyRuchPrzeciwnika = false;
+
 }
 

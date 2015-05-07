@@ -8,6 +8,8 @@
 #include "opcje.h"
 #include <QMessageBox>
 #include <QProcess>
+#include "ModulKomunikacji/klient.h"
+
 
 class Silnik : QObject
 {
@@ -21,6 +23,7 @@ private:
     int zaznaczonePole;
     int aktualnyGracz;
     bool gra_z_kompem;
+    bool gra_przez_siec;
     bool czy_koniec;
     QString zwrot;
     QProcess *p;                                                                //proces do komunikacji z Brutusem
@@ -29,6 +32,10 @@ private:
 
     QMessageBox *msgBox;   //okno z wyborem figury przy promowaniu pionka
     QPushButton *hetmanButton,*goniecButton,*skoczekButton,*wiezaButton;
+
+    Klient *kl;
+    QString przeciwnik;
+    bool czyRuchPrzeciwnika;
 
     void SprawdzRuchy(int pozPionka, QVector<int> ruchy);
     void ZbijPionek(int pozBijacego, int pozBitego);
@@ -41,6 +48,7 @@ private:
     bool sprawdz_czy_ruch(QString s);
     void wyslij(int id_1, int id_2,QString promocja);
     void RuchAI(int nrPolaStartowego, int nrPolaDocelowego);
+    void RuchSiec(int nrPolaStartowego, int nrPolaDocelowego);
 
 public:
     Silnik();
@@ -51,6 +59,7 @@ public:
 public slots:
     void PoleWcisniete(int nrPola);
     void read();
+    void odebranoRuch(QString ruch);
 
 signals:
     void PodswietlicPola(QVector<int> pola);

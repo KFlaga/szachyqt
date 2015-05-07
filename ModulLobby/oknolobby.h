@@ -25,6 +25,10 @@ public:
     {
         biezacyUzytkownik = u;
     }
+    Uzytkownik* getUzytkownik()
+    {
+        return biezacyUzytkownik;
+    }
 
     void podlaczLacze(Klient* lacze);
 
@@ -40,6 +44,7 @@ public slots:
     void anulujPojedynek();
     void anulujPojedynek(QString dane);
     void odmowaPojedynku(QString);
+    void odebranoRuch(QString);
 
 
 private:
@@ -63,6 +68,7 @@ private slots:
 signals:
     void sygZalogowano();
     void graLokalnie(Opcje*);
+    void graSieciowa(Opcje*);
 
 private:
     Ui::OknoLobby *ui;
@@ -75,6 +81,8 @@ private:
     bool oczekiwanieNaOdpowiedz;
     bool zaproszenieOdrzucone;
     bool powodzeniePojedynku;
+
+    Klient *kl;
 };
 
 #endif // OKNOLOBBY_H

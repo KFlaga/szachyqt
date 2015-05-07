@@ -113,8 +113,10 @@ void MainWindow::readyRead()
     QTcpSocket* nadawca = (QTcpSocket*)sender();
     QString data = nadawca->readAll();
     ui->logger->append(data);
+    int id;
 
-    int id = pobierzID(data);
+    id = pobierzID(data);
+
     if(data.startsWith("register:"))
     {
         data = data.mid(9);
@@ -251,7 +253,7 @@ void MainWindow::readyRead()
                if( klient.value() != NULL && klient.value()->nick == daneOdp[0] )
                {
                    QString odp = QString("pojedynek:" + poloczenia.find(nadawca).value()->nick
-                                         + '-' + daneOdp[1] + ":90.");
+                                         + '-' +daneOdp[0] + '-' + daneOdp[1] + ":90.");
                    klient.key()->write(QByteArray::fromStdString(odp.toStdString()));
                    break;
                }
@@ -259,7 +261,7 @@ void MainWindow::readyRead()
             }
             if( klient != poloczenia.end() )
             {
-                QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[1] + ":90.");
+                QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[0] + '-' + daneOdp[1] + ":90.");
                 ui->logger->append("Pojedynek: " + daneOdp[0] + "-" + poloczenia.find(nadawca).value()->nick);
                 nadawca->write(QByteArray::fromStdString(odp.toStdString()));
                 // W TYM MIEJSCU ZACZYNAMY POJEDYNEK
@@ -286,28 +288,38 @@ void MainWindow::readyRead()
             }
         }
     }
-    //oznacza ruch
-    //move:id1-id2-prom
-    /*
-    else if(data.startsWith("move:"))
+    //foramt ruch:nick-idz-iddo-PROM(ew)
+    else if(data.startsWith("ruch:"))
     {
-        foreach(Pojedynek *p,pojedynki)
+        data = data.mid(5);
+        QStringList ruchy = data.split('-');
+        // nick-czas
+        // wyszukaj uzytkownika o podanym nicku wśród połączonych
+        QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+        while( klient != poloczenia.end() )
         {
-            if(p->A==tt)
-            {
-                p->B->write(data.toStdString().c_str());
-                p->B->flush();
-            }
-            else if(p->B==tt)
-            {
-                p->A->write(data.toStdString().c_str());
-                p->A->flush();
-            }
+           if( klient.value() != NULL && klient.value()->nick == ruchy[0] )
+           {
+               ui->logger->append("Wysylano Ruch");
+               if(ruchy.size() == 3)
+               {
+                   klient.key()->write(QByteArray::fromStdString(QString("ruch:"+ruchy[1]+"-"+ruchy[2]).toStdString()+":80."));
+               }
+               else
+               {
+                    klient.key()->write(QByteArray::fromStdString(QString("ruch:"+ruchy[1]+"-"+ruchy[2]+"-"+ruchy[3]).toStdString()+":80."));
+               }
+               klient.key()->flush();
+               break;
+           }
+           klient++;
         }
-    }*/
-
+    }
     else
+    {
+        QMessageBox::information(this,"3",data);
         nadawca->write("empty::100.");
+    }
 }
 
 void MainWindow::socketError(QAbstractSocket::SocketError)

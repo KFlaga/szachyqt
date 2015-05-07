@@ -91,6 +91,7 @@ void OknoLobby::zagrajLokalnieSI()
     opts->CzyGraAI = true;
     opts->MaxCzas = dialogOpts->czas;
     opts->PoziomTrudnosci = dialogOpts->poziom;
+    opts->czyPrzezSiec = false;
 
     delete dialogOpts;
     emit graLokalnie(opts);
@@ -105,6 +106,7 @@ void OknoLobby::zagrajLokalnieGracz()
     Opcje* opts = new Opcje();
     opts->CzyGraAI = false;
     opts->MaxCzas = dialogOpts->czas;
+    opts->czyPrzezSiec = false;
 
     delete dialogOpts;
     emit graLokalnie(opts);
@@ -248,13 +250,32 @@ void OknoLobby::odpowiedzNaZaproszenie(int result)
         oczekiwanieNaOdpowiedz = false;
 }
 
-void OknoLobby::zacznijPojedynek(QString)
+void OknoLobby::zacznijPojedynek(QString r)
 {
-    ustawStatus("IN: zacznij pojedynek", 2000);
+   ustawStatus("IN: zacznij pojedynek", 2000);
    oczekiwanieNaOdpowiedz = false;
    powodzeniePojedynku = true;
    zaproszenieOdrzucone = false;
     // biezacyUzytkownik->status = Rozgrywka;
+   // kl->wyslijRuch("ruch:1-B2-B4:200.");
+   Opcje* opts = new Opcje();
+   opts->CzyGraAI = false;
+   QStringList t = r.split("-");  // 0 - przeciwnik 2 - czas
+   opts->MaxCzas = t[2].toInt();
+
+   if(getUzytkownik()->nick == t[1])
+   {
+       opts->Tura = 0;
+   }
+   else
+   {
+       opts->Tura = 1;
+   }
+   opts->czyPrzezSiec = true;
+   opts->przciwnik = t[0];
+   opts->klient = kl;
+   emit graSieciowa(opts);
+
 }
 
 void OknoLobby::anulujPojedynek()
@@ -282,6 +303,11 @@ void OknoLobby::odmowaPojedynku(QString)
     oczekiwanieNaOdpowiedz = false;
     powodzeniePojedynku = false;
     zaproszenieOdrzucone = true;
+}
+
+void OknoLobby::odebranoRuch(QString ruch)
+{
+    QMessageBox::information(this,"dsa1111111111111111111111d",ruch);
 }
 
 void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
@@ -327,6 +353,9 @@ void OknoLobby::podlaczLacze(Klient *lacze)
     connect(lacze, SIGNAL(zacznijPojedynek(QString)), this, SLOT(zacznijPojedynek(QString)));
     connect(lacze, SIGNAL(anulujPojedynek(QString)), this, SLOT(anulujPojedynek(QString)));
     connect(lacze, SIGNAL(odmowaPojedynku(QString)), this, SLOT(odmowaPojedynku(QString)));
+
+
+    kl = lacze;
 }
 
 void OknoLobby::poloczonoZSerwerem()

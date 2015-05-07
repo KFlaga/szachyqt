@@ -81,6 +81,18 @@ void Klient::wyslijWiadomosc(const QString &text, int id)
     log->dodajLog(text);
 }
 
+void Klient::wyslijRuch(const QString ruch)
+{
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        return;
+    }
+    socket->write(QByteArray::fromStdString(ruch.toStdString()));
+    socket->flush();
+    log->dodajLog("Wyslano wiadomosc: ");
+    log->dodajLog(ruch);
+}
+
 void Klient::polacz()
 {
     // do ew. zmiany na bardziej szczegółowe sprawdzenie
@@ -188,7 +200,7 @@ void Klient::odbierzWiadomoscWewnatrz(QString& dane)
     }
     else if( dane.startsWith("ruch:") )
     {
-        //emit otrzymanoRuch(dane.mid(5));
+        emit odebranoRuch(dane.mid(5));
     }
     else if( dane.startsWith("koniecpojedynku:"))
     {
