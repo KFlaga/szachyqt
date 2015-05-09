@@ -15,7 +15,7 @@ class Klient : public QObject
     Q_OBJECT
 public:
     Klient();
-    ~Klient();
+    Klient::~Klient();
 
     bool czyPoloczony();
 
@@ -61,7 +61,7 @@ private:
     QTimer* timerCzekajNaPolaczenie;
     Logger* log;
     char delim;
-    QThread watekBufora;
+    QThread* watekBufora;
 };
 
 #endif // KLIENT_H

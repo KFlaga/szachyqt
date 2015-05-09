@@ -1,6 +1,6 @@
 #include "buforwiadomosci.h"
 #include <QThread>
-#include <QApplication>
+#include <QTimer>
 
 BuforWiadomosci::BuforWiadomosci(char delim)
 {
@@ -21,23 +21,40 @@ void BuforWiadomosci::dodajDane(const QByteArray &dane)
 void BuforWiadomosci::start()
 {
     zatrzymaj = false;
-    while( !zatrzymaj )
+    sprawdzBufor();
+}
+
+void BuforWiadomosci::sprawdzBufor()
+{
+    if( !zatrzymaj )
     {
         if( bufor.size() > 0 )
             przetwarzajWiadomosci();
-        while( wiadomosci.size() > 0 )
-        {
-            zakonczonoPrzetwarzanie = false;
-            emit nowaWiadomosc(wiadomosci.first());
-            while( !zakonczonoPrzetwarzanie ) // oczekiwanie na zakonczenie przetwarzania
-            {
-                qApp->processEvents(QEventLoop::AllEvents,100);
-            }
-            emit log("Zakonczono nadawanie - bufor");
-            wiadomosci.removeFirst();
-        }
-        qApp->processEvents(QEventLoop::AllEvents,100);
+        sprawdzWiadomosci();
     }
+}
+
+void BuforWiadomosci::sprawdzCzyKoniec()
+{
+    if( !zakonczonoPrzetwarzanie ) // oczekiwanie na zakonczenie przetwarzania
+    {
+        QTimer::singleShot(50, this, SLOT(sprawdzCzyKoniec()));
+    }
+    emit log("Zakonczono nadawanie - bufor");
+    wiadomosci.removeFirst();
+    QTimer::singleShot(50, this, SLOT(sprawdzWiadomosci()));
+}
+
+void BuforWiadomosci::sprawdzWiadomosci()
+{
+    if( wiadomosci.size() > 0 )
+    {
+        zakonczonoPrzetwarzanie = false;
+        QTimer::singleShot(10, this, SLOT(sprawdzCzyKoniec()));
+        emit nowaWiadomosc(wiadomosci.first());
+        return;
+    }
+    QTimer::singleShot(100, this, SLOT(sprawdzBufor()));
 }
 
 void BuforWiadomosci::stop()
@@ -68,7 +85,6 @@ void BuforWiadomosci::przetwarzajWiadomosci()
                 jestWiadomosc = true;
                 wiadomosci.append(nowaWiad);
                 przetwarzanaWiadomosc = przetwarzanaWiadomosc.mid(i+1);
-                emit log("Nowa wiadomosc: " + nowaWiad);
                 break;
             }
             nowaWiad.append(c);

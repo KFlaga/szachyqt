@@ -8,7 +8,6 @@ DialogWyslijZaproszenie::DialogWyslijZaproszenie(QWidget *parent) :
     ui(new Ui::DialogWyslijZaproszenie)
 {
     ui->setupUi(this);
-    czas = 5;
     ui->labelBlad->hide();
 }
 
@@ -20,13 +19,13 @@ DialogWyslijZaproszenie::~DialogWyslijZaproszenie()
 void DialogWyslijZaproszenie::sprawdzPoprawnosc()
 {
     bool ok = true;
-    if( nick == wlasnyNick )
+    if( wezNick() == wlasnyNick )
     {
         ui->labelBlad->setText("Nie możesz zaprosić sam siebie");
         ui->labelBlad->show();
         ok = false;
     }
-    else if( nick.contains(znakiZarezerwowane))
+    else if( wezNick().contains(znakiZarezerwowane))
     {
         ui->labelBlad->setText("Nick nie może zawierać znaków specjanych");
         ui->labelBlad->show();
@@ -38,6 +37,15 @@ void DialogWyslijZaproszenie::sprawdzPoprawnosc()
 
 void DialogWyslijZaproszenie::podstawNick(const QString& nick)
 {
-    this->nick = nick;
     ui->leNick->setText(nick);
+}
+
+QString DialogWyslijZaproszenie::wezNick()
+{
+    return ui->leNick->text();
+}
+
+int DialogWyslijZaproszenie::wezCzas()
+{
+    return ui->spinCzas->value();
 }

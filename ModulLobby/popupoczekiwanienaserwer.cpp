@@ -15,7 +15,7 @@ PopupOczekiwanieNaSerwer::PopupOczekiwanieNaSerwer(QWidget *parent) :
     timer->setInterval(100);
     timer->setTimerType(Qt::CoarseTimer);
 
-    connect(timer, SIGNAL(timeout()), ui->labelCzekaj, SLOT(obroc()));
+  //  connect(timer, SIGNAL(timeout()), ui->labelCzekaj, SLOT(obroc()));
 }
 
 PopupOczekiwanieNaSerwer::~PopupOczekiwanieNaSerwer()

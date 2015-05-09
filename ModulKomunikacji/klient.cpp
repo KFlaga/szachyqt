@@ -10,19 +10,21 @@ Klient::Klient() : QObject()
     connect(socket,SIGNAL(readyRead()),this,SLOT(buforujWiadomosc()));
 
     delim = '.';
+    watekBufora = new QThread();
     BuforWiadomosci* bufor = new BuforWiadomosci(delim);
-    bufor->moveToThread(&watekBufora);
+    bufor->moveToThread(watekBufora);
 
-    connect(&watekBufora, &QThread::finished, bufor, &QObject::deleteLater);
+    connect(watekBufora, &QThread::finished, bufor, &QObject::deleteLater);
+    connect(watekBufora, &QThread::finished, watekBufora, &QObject::deleteLater);
     connect(this, SIGNAL(buforStart()), bufor, SLOT(start()));
     connect(this, SIGNAL(buforStop()), bufor, SLOT(stop()));
-    connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)));
+    connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)), Qt::DirectConnection);
     connect(this, SIGNAL(zakonczonoPrzetwarzanie()), bufor, SLOT(nadajKolejnaWiadomosc()));
     connect(bufor, SIGNAL(nowaWiadomosc(QString)), this, SLOT(przetworzWiadomosc(QString)));
     connect(bufor, SIGNAL(log(QString)), this, SLOT(dodajLog(QString)));
 
-    connect(&watekBufora, SIGNAL(started()), this, SIGNAL(buforStart()));
-    watekBufora.start();
+    connect(watekBufora, SIGNAL(started()), this, SIGNAL(buforStart()));
+    watekBufora->start();
 
     timerCzekajNaPolaczenie = new QTimer(this);
     timerCzekajNaPolaczenie->setInterval(5000);
@@ -35,13 +37,16 @@ Klient::Klient() : QObject()
 
     log = new Logger();
     log->show();
+
+    connect(log, SIGNAL(nadajWiadomoscLokalnie(QByteArray)),
+            bufor, SLOT(dodajDane(QByteArray)));
 }
 
 Klient::~Klient()
 {
+    watekBufora->exit();
     socket->close();
     socket->deleteLater();
-    watekBufora.exit();
 }
 
 void Klient::wyslijWiadomosc(const QString& text, IKomunikator* kom)
@@ -135,8 +140,8 @@ inline bool Klient::czyPoloczony()
 void Klient::buforujWiadomosc()
 {
     QByteArray dane = socket->readAll();
-    emit noweDane(dane);
     log->dodajLog("Otrzymano dane: " + QString(dane));
+    emit noweDane(dane);
 }
 
 void Klient::przetworzWiadomosc(QString data)
@@ -152,6 +157,11 @@ void Klient::przetworzWiadomosc(QString data)
     {
         for(QList<IKomunikator*>::iterator it = komunikatory.begin(); it != komunikatory.end(); it++)
         {
+            if( (*it) == NULL )
+            {
+                komunikatory.erase(it);
+                continue;
+            }
             if( (*it)->wezID() == id )
             {
                 (*it)->odbierzWiadomosc(&data);

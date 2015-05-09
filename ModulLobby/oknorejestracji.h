@@ -3,7 +3,8 @@
 
 #include <QDialog>
 #include "Wiadomosci/wiadomoscrejestruj.h"
-#include "komunikatorlobbyserwer.h"
+#include "ModulKomunikacji/ikomunikator.h"
+#include "popupoczekiwanienaserwer.h"
 
 namespace Ui {
 class OknoRejestracji;
@@ -14,20 +15,24 @@ class OknoRejestracji : public QDialog
     Q_OBJECT
 
 public:
-    explicit OknoRejestracji(QWidget *parent, KomunikatorLobbySerwer *kom);
+    explicit OknoRejestracji(QWidget *parent);
     ~OknoRejestracji();
 
 private:
     bool sprawdzPola();
-    bool sprobujZarejestrowac();
+    void wyslijDaneRejestracji();
 
 private slots:
     void on_buttonRegister_clicked();
+    void sprawdzOdpowiedz(Wiadomosc* wiadomosc, bool czyAnulowano);
+
+signals:
+    void nadajWiadomosc(const QString&, IKomunikator*);
 
 private:
     Ui::OknoRejestracji *ui;
     WiadomoscRejestruj* wiadomosc;
-    KomunikatorLobbySerwer* komunikator;
+    PopupOczekiwanieNaSerwer* oczekiwanie;
 };
 
 #endif // OKNOREJESTRACJI_H

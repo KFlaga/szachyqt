@@ -191,22 +191,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>leNick</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>DialogWyslijZaproszenie</receiver>
-   <slot>zmienNick(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>109</x>
-     <y>41</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>35</x>
-     <y>55</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>spinCzas</sender>
    <signal>valueChanged(int)</signal>
    <receiver>DialogWyslijZaproszenie</receiver>
@@ -219,22 +203,6 @@
     <hint type="destinationlabel">
      <x>181</x>
      <y>85</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>leNick</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>labelBlad</receiver>
-   <slot>hide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>161</x>
-     <y>39</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>166</x>
-     <y>58</y>
     </hint>
    </hints>
   </connection>

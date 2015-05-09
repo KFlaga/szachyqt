@@ -2,25 +2,19 @@
 #define KOMUNIKATORLOBBYSERWER_H
 
 #include <QWidget>
-#include "popupoczekiwanienaserwer.h"
 #include <QTimer>
 #include "Wiadomosci/wiadomosc.h"
 #include "ModulKomunikacji/ikomunikator.h"
 
 
-class KomunikatorLobbySerwer : public IKomunikator
+class KomunikatorLobbySerwer : public QObject
 {
     Q_OBJECT
 public:
-    enum WynikWyslania { Powodzenie, PrzekroczonoCzas, Zajety, Anulowano, Niepowodzenie };
-
     explicit KomunikatorLobbySerwer(QWidget *parent = 0);
     ~KomunikatorLobbySerwer();
 
-    WynikWyslania wyslijWiadomosc(Wiadomosc* msg);
-    WynikWyslania wyslijWiadomoscZeZwrotem(Wiadomosc* msg, QString popupTekst = "");
-
-    void ustawCzasOczekiwania(int ms) { timeout = ms; }
+    void wyslijWiadomosc(Wiadomosc* msg, bool czyZwrot = false, int timeout = 5000);
 
 private slots:
     void przekroczonyCzasOczekiwania();
@@ -28,13 +22,12 @@ private slots:
 
 signals:
     void nadajWiadomosc(QString, IKomunikator*);
+    void odebranoZwrot(Wiadomosc*, bool);
 
 private:
-    PopupOczekiwanieNaSerwer* oczekiwanie;
     QTimer* timer;
-    int timeout;
-    bool zajety;
-    WynikWyslania status;
+    bool czyOdebranoOdpowiedz;
+    bool czyPrzekroczonoCzas;
 };
 
 #endif // KOMUNIKATORLOBBYSERWER_H

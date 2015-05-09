@@ -22,31 +22,14 @@ public:
 
     void podstawNick(const QString& nick);
 
-    QString wezNick()
-    {
-        return nick;
-    }
-
-    int wezCzas()
-    {
-        return czas;
-    }
+    QString wezNick();
+    int wezCzas();
 
 private slots:
-    void zmienCzas(int nczas)
-    {
-        czas = nczas;
-    }
-    void zmienNick(QString nnick)
-    {
-        nick = nnick;
-    }
     void sprawdzPoprawnosc();
 
 private:
     Ui::DialogWyslijZaproszenie *ui;
-    int czas;
-    QString nick;
     QString wlasnyNick;
 };
 

@@ -10,7 +10,6 @@ struct Opcje
     int Tura;  //aby określić kto zaczyna
     bool czyPrzezSiec;
     QString przciwnik;
-    Klient *klient;
 };
 
 #endif // OPCJE

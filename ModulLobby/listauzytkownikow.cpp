@@ -58,7 +58,7 @@ void ListaUzytkownikow::zaprosGracza(QListWidgetItem* gracz)
 {
     QString nick;
     int i = 0;
-    while( gracz->text()[i] != ' ')
+    while( gracz->text()[i] != ' ' && i < gracz->text().size())
     {
         nick.append(gracz->text()[i]);
         i++;

@@ -1,83 +1,94 @@
 #include "ModulLobby/oknologowania.h"
 #include "ui_oknologowania.h"
 #include <QMessageBox>
+#include "komunikatorlobbyserwer.h"
 
 extern QRegExp znakiZarezerwowane;
 
-OknoLogowania::OknoLogowania(QWidget *parent, KomunikatorLobbySerwer* kom) :
+OknoLogowania::OknoLogowania(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OknoLogowania)
 {
     ui->setupUi(this);
     ui->labelZleDane->hide();
     wiadomosc = new WiadomoscLoguj();
-    komunikator = kom;
+    oczekiwanie = new PopupOczekiwanieNaSerwer(this);
 }
 
 OknoLogowania::~OknoLogowania()
 {
     delete ui;
+    delete oczekiwanie;
+    delete wiadomosc;
 }
 
 void OknoLogowania::on_buttonLogin_clicked()
 {
     if( !sprawdzPola() )
         return;
-    if( !sprobujZalogowac() )
-        return;
-    if( wiadomosc->czyDaneOk == false ) // nie znalazlo uzytkownika
-    {
-        ui->labelZleDane->setText("Podano zły login lub hasło");
-        ui->labelZleDane->show();
-        return;
-    }
-    ustawDaneUzytkownika();
-    if( uzytkownik->czy_zalogowany == true )
-    {
-       QMessageBox* mbZalogowany = new QMessageBox(this);
-       mbZalogowany->setText("Użytkownik o podanym loginie i haśle jest już zalogowany");
-       mbZalogowany->setStandardButtons(QMessageBox::Ok);
-       mbZalogowany->setWindowTitle("Zalogowany");
-       mbZalogowany->exec();
-       delete mbZalogowany;
-    }
-    else
-    {
-        uzytkownik->czy_zalogowany = true;
-        emit zalogowano();
-        close();
-    }
+    wyslijDaneLogowania();
 }
 
-bool OknoLogowania::sprobujZalogowac()
+void OknoLogowania::wyslijDaneLogowania()
 {
     wiadomosc->czyDaneOk = false;
     wiadomosc->login = ui->leLogin->text();
     wiadomosc->haslo = ui->leHaslo->text();
-    KomunikatorLobbySerwer::WynikWyslania status = komunikator->wyslijWiadomoscZeZwrotem(wiadomosc);
-    // powinno wrocic dopiero po wiadomosci zwrotnej
-    if( status == KomunikatorLobbySerwer::Powodzenie )
-        return true;
 
-    QMessageBox* mbBlad = new QMessageBox(this);
-    mbBlad->setText("Przekroczono czas oczekiwania na odpowiedz serwera");
-    mbBlad->setStandardButtons(QMessageBox::Ok);
-    mbBlad->setWindowTitle("Blad");
-    if ( status == KomunikatorLobbySerwer::PrzekroczonoCzas )
-        mbBlad->setText("Przekroczono czas oczekiwania na odpowiedz serwera");
+    KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+    connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
+    connect(komunikator, SIGNAL(odebranoZwrot(Wiadomosc*,bool)),
+            this, SLOT(sprawdzOdpowiedz(Wiadomosc*, bool)));
+    oczekiwanie->open();
+    komunikator->wyslijWiadomosc(wiadomosc,true);
+}
+
+void OknoLogowania::sprawdzOdpowiedz(Wiadomosc* w, bool czyAnulowano)
+{
+    oczekiwanie->close();
+    sender()->deleteLater();
+    WiadomoscLoguj* wiadomosc = (WiadomoscLoguj*)w;
+
+    if( !czyAnulowano )
+    {
+        if( wiadomosc->czyDaneOk == false ) // nie znalazlo uzytkownika
+        {
+            ui->labelZleDane->setText("Podano zły login lub hasło");
+            ui->labelZleDane->show();
+            return;
+        }
+        ustawDaneUzytkownika();
+        if( uzytkownik->czy_zalogowany == true )
+        {
+            QMessageBox* mbZalogowany = new QMessageBox(this);
+            mbZalogowany->setText("Użytkownik o podanym loginie i haśle jest już zalogowany");
+            mbZalogowany->setStandardButtons(QMessageBox::Ok);
+            mbZalogowany->setWindowTitle("Zalogowany");
+            mbZalogowany->exec();
+            delete mbZalogowany;
+        }
+        else
+        {
+            uzytkownik->czy_zalogowany = true;
+            emit zalogowano();
+            close();
+        }
+    }
     else
-        mbBlad->setText("Niepowodzenie logowania");
-
-    mbBlad->exec();
-    delete mbBlad;
-
-    return false;
+    {
+        QMessageBox mbBlad(this);
+        mbBlad.setText("Przekroczono czas oczekiwania na odpowiedz serwera");
+        mbBlad.setStandardButtons(QMessageBox::Ok);
+        mbBlad.setWindowTitle("Blad");
+        mbBlad.exec();
+    }
 }
 
 bool OknoLogowania::sprawdzPola()
 {
     if(ui->leHaslo->text().count() == 0 ||
-       ui->leLogin->text().count() == 0 )
+            ui->leLogin->text().count() == 0 )
     {
         ui->labelZleDane->setText("Należy wypełnić wszystkie pola");
     }
@@ -103,7 +114,9 @@ void OknoLogowania::ustawDaneUzytkownika()
 
 void OknoLogowania::on_buttonRegister_clicked()
 {
-    oknoRejestracji = new OknoRejestracji(this, komunikator);
+    oknoRejestracji = new OknoRejestracji(this);
+    connect(oknoRejestracji, SIGNAL(nadajWiadomosc(const QString&, IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
     oknoRejestracji->exec();
     delete oknoRejestracji;
 }

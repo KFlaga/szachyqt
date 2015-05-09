@@ -33,7 +33,6 @@ private:
     QMessageBox *msgBox;   //okno z wyborem figury przy promowaniu pionka
     QPushButton *hetmanButton,*goniecButton,*skoczekButton,*wiezaButton;
 
-    Klient *kl;
     QString przeciwnik;
     bool czyRuchPrzeciwnika;
 
@@ -66,6 +65,7 @@ signals:
     void UsunietoFigureZPola(int nrPola);
     void DodanoFigureNaPole(int nrPola, QIcon* figura);
     void WykonanoRuch(int);
+    void wyslijRuch(QString);
 };
 
 #endif // SILNIK_H

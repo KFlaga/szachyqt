@@ -12,6 +12,7 @@
 #include "popupoczekiwanienaserwer.h"
 #include "listauzytkownikow.h"
 #include "Wiadomosci/wiadomosclistauzytkownikow.h"
+#include "komunikatorlobbyserwer.h"
 
 QRegExp znakiZarezerwowane("[-,;:'\"\\\\ ]");
 
@@ -22,39 +23,42 @@ OknoLobby::OknoLobby(QWidget *parent) :
     ui->setupUi(this);
     czy_zalogowano = false;
     this->statusBar()->showMessage("Nie ma połączenia z serwerem");
-    komunikator = new KomunikatorLobbySerwer(this);
-    czyJestPoloczenie = NULL;
+    czyJestPoloczenie = false;
+    opts = new Opcje();
 
-    Uzytkownik u;
-    u.nick = "test";
-    u.ranking = 999;
-    ui->lista->dodajUzytkownika(u);
-    ui->lista->dodajUzytkownika(u);
+    oczekiwanie = new PopupOczekiwanieNaSerwer(this);
+    oczekiwanie->setWindowModality(Qt::WindowModal);
 
     connect(ui->lista, SIGNAL(zaproszono(QString)), this, SLOT(zaprosGracza(QString)));
-    connect(ui->lista, SIGNAL(odswiez()), this, SLOT(zadajListyUzytkownikow()));
 
     timerOdswiezListe.setInterval(10000);
     timerOdswiezListe.setTimerType(Qt::VeryCoarseTimer);
     timerOdswiezListe.setSingleShot(true);
-  //  connect(&timerOdswiezListe, SIGNAL(timeout()), this, SLOT(zadajListyUzytkownikow()));
+    connect(&timerOdswiezListe, SIGNAL(timeout()), this, SLOT(zadajListyUzytkownikow()));
+
+    timerOczekiwanie = new QTimer(this);
+    timerOczekiwanie->setSingleShot(true);
+    connect(timerOczekiwanie, SIGNAL(timeout()), this, SLOT(anulujPojedynek()));
 }
 
 OknoLobby::~OknoLobby()
 {
     delete ui;
+    delete oczekiwanie;
 }
 
 void OknoLobby::closeEvent(QCloseEvent * ce)
 {
     qApp->closeAllWindows();
-    qApp->exit();
 }
 
 void OknoLobby::wyloguj()
 {
     if( czyJestPoloczenie == true )
     {
+        KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+        connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+                this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
         WiadomoscWyloguj* wiadomosc = new WiadomoscWyloguj();
         komunikator->wyslijWiadomosc(wiadomosc);
         delete wiadomosc;
@@ -66,9 +70,11 @@ void OknoLobby::wyloguj()
 
 void OknoLobby::zaloguj()
 {
-    OknoLogowania* oknoLog = new OknoLogowania(this, komunikator);
+    OknoLogowania* oknoLog = new OknoLogowania(this);
     oknoLog->ustawUzytkownika(biezacyUzytkownik);
     connect(oknoLog, SIGNAL(zalogowano()), this, SLOT(zalogowano()));
+    connect(oknoLog, SIGNAL(nadajWiadomosc(const QString&, IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
     oknoLog->exec();
     delete oknoLog;
 }
@@ -87,7 +93,6 @@ void OknoLobby::zagrajLokalnieSI()
     int result = dialogOpts->exec();
     if( result == QDialog::Rejected )
         return;
-    Opcje* opts = new Opcje();
     opts->CzyGraAI = true;
     opts->MaxCzas = dialogOpts->czas;
     opts->PoziomTrudnosci = dialogOpts->poziom;
@@ -103,7 +108,6 @@ void OknoLobby::zagrajLokalnieGracz()
     int result = dialogOpts->exec();
     if( result == QDialog::Rejected )
         return;
-    Opcje* opts = new Opcje();
     opts->CzyGraAI = false;
     opts->MaxCzas = dialogOpts->czas;
     opts->czyPrzezSiec = false;
@@ -148,18 +152,36 @@ void OknoLobby::wyslijZaproszenie(const QString& nick, int czas)
     WiadomoscZaproszenie* zaproszenie = new WiadomoscZaproszenie();
     zaproszenie->nick = nick;
     zaproszenie->czas = czas;
-    wyslijWiadomosc(zaproszenie);
+    KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+    connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
+    connect(komunikator, SIGNAL(odebranoZwrot(Wiadomosc*,bool)),
+            this, SLOT(sprawdzZwrotZaproszenia(Wiadomosc*,bool)));
+    oczekiwanie->show();
+    komunikator->wyslijWiadomosc(zaproszenie, true);
+}
 
-    if( zaproszenie->czyZaproszenieWyslane )
+void OknoLobby::sprawdzZwrotZaproszenia(Wiadomosc* wiadomosc, bool czyAnulowano)
+{
+    sender()->deleteLater();
+    WiadomoscZaproszenie* zaproszenie = (WiadomoscZaproszenie*)wiadomosc;
+    oczekiwanie->hide();
+    if( !czyAnulowano )
     {
-        oczekujNaOdpowiedz();
+        if( zaproszenie->czyZaproszenieWyslane )
+        {
+            oczekujNaOdpowiedz();
+        }
+        else if( zaproszenie->czyPoprawnieOdebrane() )
+        {
+            wyswietlInformacje("Niepowodzenie", "Nie wyslano zaproszenia: "
+                               + zaproszenie->powodNiepowodzenia);
+        }
     }
-    else if( zaproszenie->czyPoprawnieOdebrane() )
+    else
     {
-        wyswietlInformacje("Niepowodzenie", "Nie wyslano zaproszenia: "
-                            + zaproszenie->powodNiepowodzenia);
+        wyswietlInformacje("Niepowodzenie", "Nie otrzymano odpowiedzi serwera");
     }
-
     delete zaproszenie;
 }
 
@@ -168,17 +190,17 @@ void OknoLobby::oczekujNaOdpowiedz()
     oczekiwanieNaOdpowiedz = true;
     zaproszenieOdrzucone = false;
     powodzeniePojedynku = false;
-    PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
-    oczekiwanie->setWindowModality(Qt::WindowModal);
+
     oczekiwanie->ustawTekst("Oczekiwanie na odpowiedź");
     oczekiwanie->show();
-    QTimer::singleShot(40000,this, SLOT(anulujPojedynek()));
+    timerOczekiwanie->start(30000);
 
     while (oczekiwanieNaOdpowiedz)
     {
          qApp->processEvents(QEventLoop::AllEvents,200);
     }
     oczekiwanie->hide();
+    oczekiwanie->ustawTekst();
     if( zaproszenieOdrzucone )
     {
         wyswietlInformacje("Odrzucono", "Odrzucono zaproszenie do gry");
@@ -187,15 +209,16 @@ void OknoLobby::oczekujNaOdpowiedz()
     {
         // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
         // np. brak zadan o odswiezenie listy userow
+        timerOdswiezListe.stop();
+        emit graSieciowa(opts);
     }
     else
     {
         wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
     }
-    delete oczekiwanie;
 }
 
-void OknoLobby::otrzymanoZaproszenie(QString nadawca)
+void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
 {
     DialogOtrzymanoZaproszenie* dialogOdpowiedz = new DialogOtrzymanoZaproszenie(this);
     QStringList dane = nadawca.split('-');
@@ -221,49 +244,55 @@ void OknoLobby::odpowiedzNaZaproszenie(int result)
 
     oczekiwanieNaOdpowiedz = true;
     powodzeniePojedynku = false;
+    KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+    connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
     komunikator->wyslijWiadomosc(wiadomosc);
     delete wiadomosc;
 
     if(result == QDialog::Accepted)
     {
-        PopupOczekiwanieNaSerwer* oczekiwanie = new PopupOczekiwanieNaSerwer(this);
-        oczekiwanie->open();
-        QTimer::singleShot(5000, this, SLOT(anulujPojedynek()));
+        oczekiwanie->show();
+        timerOczekiwanie->start(5000);
 
         while (oczekiwanieNaOdpowiedz)
         {
              qApp->processEvents(QEventLoop::AllEvents,200);
         }
-        oczekiwanie->close();
+        oczekiwanie->hide();
         if( powodzeniePojedynku )
         {
             // ZACZNIJ POJEDYNEK - czyli ew. czyszczenie czego trzeba
             // np. brak zadan o odswiezenie listy userow
+            timerOdswiezListe.stop();
+            emit graSieciowa(opts);
         }
         else
         {
             wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
         }
-        delete oczekiwanie;
     }
     else
         oczekiwanieNaOdpowiedz = false;
 }
 
-void OknoLobby::zacznijPojedynek(QString r)
+void OknoLobby::koniecGry()
 {
-   ustawStatus("IN: zacznij pojedynek", 2000);
+    timerOdswiezListe.start();
+}
+
+void OknoLobby::zacznijPojedynek(QString& wiad)
+{
+    ustawStatus("IN: zacznij pojedynek", 2000);
    oczekiwanieNaOdpowiedz = false;
    powodzeniePojedynku = true;
    zaproszenieOdrzucone = false;
-    // biezacyUzytkownik->status = Rozgrywka;
-   // kl->wyslijRuch("ruch:1-B2-B4:200.");
-   Opcje* opts = new Opcje();
-   opts->CzyGraAI = false;
-   QStringList t = r.split("-");  // 0 - przeciwnik 2 - czas
-   opts->MaxCzas = t[2].toInt();
+   timerOczekiwanie->stop();
 
-   if(getUzytkownik()->nick == t[1])
+   opts->CzyGraAI = false;
+   QStringList dane = wiad.split("-");  // 0 - przeciwnik 2 - czas
+   opts->MaxCzas = dane[2].toInt();
+   if(biezacyUzytkownik->nick == dane[1])
    {
        opts->Tura = 0;
    }
@@ -272,15 +301,12 @@ void OknoLobby::zacznijPojedynek(QString r)
        opts->Tura = 1;
    }
    opts->czyPrzezSiec = true;
-   opts->przciwnik = t[0];
-   opts->klient = kl;
-   emit graSieciowa(opts);
-
+   opts->przciwnik = dane[0];
 }
 
 void OknoLobby::anulujPojedynek()
 {
-     ustawStatus("IN: anuluj pojedynek timeout", 2000);
+    ustawStatus("IN: anuluj pojedynek timeout", 2000);
     if( oczekiwanieNaOdpowiedz == true )
     {
         oczekiwanieNaOdpowiedz = false;
@@ -289,48 +315,21 @@ void OknoLobby::anulujPojedynek()
     }
 }
 
-void OknoLobby::anulujPojedynek(QString)
+void OknoLobby::anulujPojedynek(QString&)
 {
+    timerOczekiwanie->stop();
      ustawStatus("IN: anuluj pojedynek", 2000);
     oczekiwanieNaOdpowiedz = false;
     powodzeniePojedynku = false;
     zaproszenieOdrzucone = false;
 }
 
-void OknoLobby::odmowaPojedynku(QString)
+void OknoLobby::odmowaPojedynku(QString&)
 {
      ustawStatus("IN: odmowa pojedynku", 2000);
     oczekiwanieNaOdpowiedz = false;
     powodzeniePojedynku = false;
     zaproszenieOdrzucone = true;
-}
-
-void OknoLobby::odebranoRuch(QString ruch)
-{
-    QMessageBox::information(this,"dsa1111111111111111111111d",ruch);
-}
-
-void OknoLobby::wyslijWiadomosc(Wiadomosc* wiadomosc, QString popupTekst)
-{
-    KomunikatorLobbySerwer::WynikWyslania res =
-            komunikator->wyslijWiadomoscZeZwrotem(wiadomosc,popupTekst);
-    if( res == KomunikatorLobbySerwer::PrzekroczonoCzas )
-    {
-        wyswietlInformacje("Brak Odpowiedzi", "Przekroczono czas oczekiwania na odpowiedź serwera");
-    }
-    // Wiadmosci poniezej w celach informacyjnych dla nas
-    else if( res == KomunikatorLobbySerwer::Anulowano )
-    {
-        this->statusBar()->showMessage("Anulowano probę komunikacji z serwerem", 1000);
-    }
-    else if( res == KomunikatorLobbySerwer::Zajety )
-    {
-        this->statusBar()->showMessage("Komunikator jest zajety", 1000);
-    }
-    else
-    {
-        this->statusBar()->showMessage("Pomyślnie skomunikowano z serwerem", 1000);
-    }
 }
 
 void OknoLobby::wyswietlInformacje(const QString &tytul, const QString &info)
@@ -342,26 +341,25 @@ void OknoLobby::wyswietlInformacje(const QString &tytul, const QString &info)
     mb.exec();
 }
 
+// To w sumie powinno byc w SzachyApp i Lobby nie widzi Klienta
 void OknoLobby::podlaczLacze(Klient *lacze)
 {
-    connect(komunikator, SIGNAL(nadajWiadomosc(const QString&,IKomunikator*)),
+    connect(this, SIGNAL(nadajWiadomosc(const QString&,IKomunikator*)),
             lacze, SLOT(wyslijWiadomosc(const QString&,IKomunikator*)));
     connect(lacze, SIGNAL(poloczono()), this, SLOT(poloczonoZSerwerem()));
     connect(lacze, SIGNAL(rozloczono()), this, SLOT(rozloczonoZSerwerem()));
     connect(lacze, SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(nieMoznaPolaczycZSerwerem(int)));
-    connect(lacze, SIGNAL(otrzymanoZaproszenie(QString)), this, SLOT(otrzymanoZaproszenie(QString)));
-    connect(lacze, SIGNAL(zacznijPojedynek(QString)), this, SLOT(zacznijPojedynek(QString)));
-    connect(lacze, SIGNAL(anulujPojedynek(QString)), this, SLOT(anulujPojedynek(QString)));
-    connect(lacze, SIGNAL(odmowaPojedynku(QString)), this, SLOT(odmowaPojedynku(QString)));
-
-
-    kl = lacze;
+    connect(lacze, SIGNAL(otrzymanoZaproszenie(QString&)), this, SLOT(otrzymanoZaproszenie(QString&)));
+    connect(lacze, SIGNAL(zacznijPojedynek(QString&)), this, SLOT(zacznijPojedynek(QString&)));
+    connect(lacze, SIGNAL(anulujPojedynek(QString&)), this, SLOT(anulujPojedynek(QString&)));
+    connect(lacze, SIGNAL(odmowaPojedynku(QString&)), this, SLOT(odmowaPojedynku(QString&)));
 }
 
 void OknoLobby::poloczonoZSerwerem()
 {
     ui->statusbar->showMessage("Połączono z serwerem", 5000);
     czyJestPoloczenie = true;
+    timerOdswiezListe.start();
 }
 
 void OknoLobby::rozloczonoZSerwerem()
@@ -390,18 +388,29 @@ void OknoLobby::zadajListyUzytkownikow()
     {
         ustawStatus("Zadanie listy",1000);
         WiadomoscListaUzytkownikow* wiadomosc = new WiadomoscListaUzytkownikow();
-        wyslijWiadomosc(wiadomosc);
-        if( wiadomosc->czyPoprawnieOdebrane() )
-        {
-            ustawStatus("Nowa lista",2000);
-            ui->lista->czysc();
-            for(int u = 0; u < wiadomosc->uzytkownicy.size(); u++)
-            {
-                ui->lista->dodajUzytkownika(wiadomosc->uzytkownicy[u]);
-            }
-        }
-        delete wiadomosc;
+        KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+        connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+                this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
+        connect(komunikator, SIGNAL(odebranoZwrot(Wiadomosc*,bool)),
+                this, SLOT(aktualizujListeUzytkownikow(Wiadomosc*,bool)));
+        komunikator->wyslijWiadomosc(wiadomosc, true);
     }
+}
+
+void OknoLobby::aktualizujListeUzytkownikow(Wiadomosc* wiadomosc, bool czyAnulowano)
+{
+    sender()->deleteLater();
+    if( !czyAnulowano && wiadomosc->czyPoprawnieOdebrane() )
+    {
+        ustawStatus("Nowa lista",2000);
+        ui->lista->czysc();
+        for(int u = 0; u < ((WiadomoscListaUzytkownikow*)wiadomosc)->uzytkownicy.size(); u++)
+        {
+            ui->lista->dodajUzytkownika(((WiadomoscListaUzytkownikow*)wiadomosc)->uzytkownicy[u]);
+        }
+    }
+    delete wiadomosc;
+
     timerOdswiezListe.start();
 }
 

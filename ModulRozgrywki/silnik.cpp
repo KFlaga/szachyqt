@@ -84,8 +84,7 @@ void Silnik::NowaGra(Opcje* opts)
         {
             czyRuchPrzeciwnika = true;
         }
-        connect(opts->klient,SIGNAL(odebranoRuch(QString)),this,SLOT(odebranoRuch(QString)));
-        kl = opts->klient;
+
         przeciwnik = opts->przciwnik;
     }
 }
@@ -261,7 +260,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
         {
             tmp="-"+tmp;
         }
-        kl->wyslijRuch(QByteArray::fromStdString(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(pozBijacego).arg(pozBitego).arg(tmp).toStdString()));
+        emit wyslijRuch(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(pozBijacego).arg(pozBitego).arg(tmp));
         czyRuchPrzeciwnika = true;
     }
 }
@@ -353,7 +352,7 @@ void Silnik::RuszPionek(int skad, int dokad)
         {
             tmp="-"+tmp;
         }
-        kl->wyslijRuch(QByteArray::fromStdString(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(skad).arg(dokad).arg(tmp).toStdString()));
+        emit wyslijRuch(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(skad).arg(dokad).arg(tmp));
         czyRuchPrzeciwnika = true;
     }
 }

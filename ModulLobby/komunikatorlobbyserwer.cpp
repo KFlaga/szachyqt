@@ -1,72 +1,55 @@
 #include "komunikatorlobbyserwer.h"
+#include <QApplication>
+#include "oknolobby.h"
 
-KomunikatorLobbySerwer::KomunikatorLobbySerwer(QWidget *parent) : IKomunikator((QObject*)parent)
+KomunikatorLobbySerwer::KomunikatorLobbySerwer(QWidget* parent) : QObject(parent)
 {
-    oczekiwanie  = new PopupOczekiwanieNaSerwer(parent);
-    oczekiwanie->setWindowModality(Qt::WindowModal);
     timer = new QTimer(this);
-    timeout = 5000;
-    zajety = false;
-    connect(this, SIGNAL(odebranoWiadomosc()),
-            this, SLOT(odebranoOdpowiedz()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(przekroczonyCzasOczekiwania()));
 }
 
 KomunikatorLobbySerwer::~KomunikatorLobbySerwer()
 {
     delete timer;
-    delete oczekiwanie;
-}
-
-KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomosc(Wiadomosc* msg)
-{
-    status = Powodzenie;
-
-    if(zajety)
-        return Zajety;
-
-    ustawWiadomosc(msg);
-    emit nadajWiadomosc(stworzWiadomosc(), (IKomunikator*)this);
-
-    return status;
 }
 
 void KomunikatorLobbySerwer::przekroczonyCzasOczekiwania()
 {
-    status = PrzekroczonoCzas;
-    oczekiwanie->accept();
+    czyPrzekroczonoCzas = true;
+    czyOdebranoOdpowiedz = true;
 }
 
 void KomunikatorLobbySerwer::odebranoOdpowiedz()
 {
-    status = Powodzenie;
-    oczekiwanie->accept();
+    czyOdebranoOdpowiedz = true;
 }
 
-KomunikatorLobbySerwer::WynikWyslania KomunikatorLobbySerwer::wyslijWiadomoscZeZwrotem(Wiadomosc *msg,
-                                                                                       QString popupTekst)
+void KomunikatorLobbySerwer::wyslijWiadomosc(Wiadomosc *msg, bool czyZwrot, int timeout)
 {
-    if(popupTekst != "")
-        oczekiwanie->ustawTekst(popupTekst);
+    czyOdebranoOdpowiedz = false;
+    czyPrzekroczonoCzas = false;
 
-    ustawCzyZeZwrotem(true);
-    wyslijWiadomosc(msg);
-    status = Niepowodzenie;
+    IKomunikator* skrzynka = new IKomunikator(this);
+    connect(skrzynka, SIGNAL(odebranoWiadomosc()),
+            this, SLOT(odebranoOdpowiedz()));
+    skrzynka->ustawCzyZeZwrotem(czyZwrot);
 
-    zajety = true;
-    timer->setSingleShot(true);
-    timer->setInterval(timeout);
-    connect(timer,SIGNAL(timeout()), this, SLOT(przekroczonyCzasOczekiwania()));
-    timer->start();
+    skrzynka->ustawWiadomosc(msg);
+    emit nadajWiadomosc(skrzynka->stworzWiadomosc(), skrzynka);
 
-    int res = oczekiwanie->exec();
-    zajety = false;
+    if( czyZwrot == true )
+    {
+        timer->setSingleShot(true);
+        timer->setInterval(timeout);
+        timer->start();
 
-    if( res == QDialog::Rejected )
-        status = Anulowano;
+        while( !czyOdebranoOdpowiedz )
+        {
+            qApp->processEvents(QEventLoop::AllEvents,50);
+        }
 
-    anuluj();
-    oczekiwanie->ustawTekst();
-    ustawCzyZeZwrotem(false);
+        emit odebranoZwrot(msg, czyPrzekroczonoCzas);
+    }
 
-    return status;
+    skrzynka->deleteLater();
 }

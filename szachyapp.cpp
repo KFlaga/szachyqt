@@ -73,6 +73,8 @@ void SzachyApp::graSieciowa(Opcje * opts)
     connect(oknoGry->WezPlansze(), SIGNAL(WcisnietoPole(int)), (QObject*)silnik, SLOT(PoleWcisniete(int)));
     connect((QObject*)silnik, SIGNAL(WykonanoRuch(int)), oknoGry, SLOT(WykonanoRuch(int)));
     connect(oknoGry, SIGNAL(zamknietoOkno()), this, SLOT(koniecGry()));
+    connect(lacze,SIGNAL(odebranoRuch(QString)),(QObject*)silnik,SLOT(odebranoRuch(QString)));
+    connect((QObject*)silnik,SIGNAL(wyslijRuch(QString)), lacze, SLOT(wyslijRuch(QString)));
 
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);
@@ -86,6 +88,7 @@ void SzachyApp::koniecGry()
 {
     oknoGry->hide();
     oknoGry->close();
+    lobby->koniecGry();
     lobby->show();
 
     delete oknoGry;

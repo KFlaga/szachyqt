@@ -3,10 +3,11 @@
 #include <QtTest/QSignalSpy>
 #include <QMessageBox>
 #include "komunikatorlobbyserwer.h"
+#include "popupoczekiwanienaserwer.h"
 
 extern QRegExp znakiZarezerwowane;
 
-OknoRejestracji::OknoRejestracji(QWidget *parent, KomunikatorLobbySerwer* kom) :
+OknoRejestracji::OknoRejestracji(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OknoRejestracji)
 {
@@ -17,12 +18,14 @@ OknoRejestracji::OknoRejestracji(QWidget *parent, KomunikatorLobbySerwer* kom) :
     ui->labelNickError->setVisible(false);
 
     wiadomosc = new WiadomoscRejestruj();
-    komunikator = kom;
+    oczekiwanie = new PopupOczekiwanieNaSerwer(this);
 }
 
 OknoRejestracji::~OknoRejestracji()
 {
     delete ui;
+    delete oczekiwanie;
+    delete wiadomosc;
 }
 
 void OknoRejestracji::on_buttonRegister_clicked()
@@ -32,17 +35,7 @@ void OknoRejestracji::on_buttonRegister_clicked()
         return;
     // 2) Wyslij zapytanie czy Login i Nick sa unikalne i jak sa
     //    utworz uzytkownika
-    if( !sprobujZarejestrowac() )
-        return;
-    // 4) Wysietl info, ze pomyslinie zakonczona
-    QMessageBox* mbSkonczone = new QMessageBox(this);
-    mbSkonczone->setText("Pomyślnie zakończono rejestrację");
-    mbSkonczone->setStandardButtons(QMessageBox::Ok);
-    mbSkonczone->setWindowTitle("Rejestracja");
-    mbSkonczone->exec();
-
-    delete mbSkonczone;
-    close();
+    wyslijDaneRejestracji();
 }
 
 bool OknoRejestracji::sprawdzPola()
@@ -89,28 +82,35 @@ bool OknoRejestracji::sprawdzPola()
     return czyDobrze;
 }
 
-bool OknoRejestracji::sprobujZarejestrowac()
+void OknoRejestracji::wyslijDaneRejestracji()
 {
-    bool czyDobrze = true;
     wiadomosc->login = ui->leLogin->text();
     wiadomosc->haslo = ui->leHaslo->text();
     wiadomosc->nick = ui->leNick->text();
-    KomunikatorLobbySerwer::WynikWyslania status = komunikator->wyslijWiadomoscZeZwrotem(wiadomosc);
+    KomunikatorLobbySerwer* komunikator = new KomunikatorLobbySerwer(this);
+    connect(komunikator, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+            this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
+    connect(komunikator, SIGNAL(odebranoZwrot(Wiadomosc*,bool)),
+            this, SLOT(sprawdzOdpowiedz(Wiadomosc*,bool)));
+    komunikator->wyslijWiadomosc(wiadomosc,true);
+    oczekiwanie->open();
+}
 
-    if( status != KomunikatorLobbySerwer::Powodzenie )
+void OknoRejestracji::sprawdzOdpowiedz(Wiadomosc* w, bool czyAnulowano)
+{
+    WiadomoscRejestruj* wiadomosc = (WiadomoscRejestruj*)w;
+    oczekiwanie->close();
+    sender()->deleteLater();
+    if( czyAnulowano )
     {
-        QMessageBox* mbBlad = new QMessageBox(this);
-        mbBlad->setStandardButtons(QMessageBox::Ok);
-        mbBlad->setWindowTitle("Blad");
-        if ( status == KomunikatorLobbySerwer::PrzekroczonoCzas )
-            mbBlad->setText("Przekroczono czas oczekiwania na odpowiedz serwera");
-        else
-            mbBlad->setText("Niepowodzenie rejestracji");
-
-        mbBlad->exec();
-        delete mbBlad;
-        return false;
+        QMessageBox mbBlad(this);
+        mbBlad.setStandardButtons(QMessageBox::Ok);
+        mbBlad.setWindowTitle("Blad");
+        mbBlad.setText("Przekroczono czas oczekiwania na odpowiedz serwera");
+        mbBlad.exec();
+        return;
     }
+    bool czyDobrze = true;
     if( !wiadomosc->loginOK ) // czy istnieje juz taki login
     {
         ui->labelLoginError->setVisible(true);
@@ -123,5 +123,13 @@ bool OknoRejestracji::sprobujZarejestrowac()
         ui->labelNickError->setText("Istnieje juz taki pseudonim");
         czyDobrze = false;
     }
-    return czyDobrze;
+    if( czyDobrze )
+    {
+        QMessageBox* mbSkonczone = new QMessageBox(this);
+        mbSkonczone->setText("Pomyślnie zakończono rejestrację");
+        mbSkonczone->setStandardButtons(QMessageBox::Ok);
+        mbSkonczone->setWindowTitle("Rejestracja");
+        mbSkonczone->exec();
+        close();
+    }
 }

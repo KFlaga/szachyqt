@@ -22,6 +22,11 @@ public slots:
     void stop();
     void nadajKolejnaWiadomosc();
 
+private slots:
+    void sprawdzBufor();
+    void sprawdzWiadomosci();
+    void sprawdzCzyKoniec();
+
 signals:
     void nowaWiadomosc(QString);
     void log(QString);
