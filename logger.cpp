@@ -22,3 +22,13 @@ void Logger::ustawTytul(const QString &tytul)
 {
     ui->label->setText(tytul);
 }
+
+void Logger::wyslijKlient()
+{
+    emit nadajWiadomoscLokalnie(QByteArray::fromStdString(ui->lineEdit->text().toStdString()));
+}
+
+void Logger::wyslijSerwer()
+{
+
+}

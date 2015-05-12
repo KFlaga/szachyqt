@@ -218,7 +218,7 @@ void OknoLobby::oczekujNaOdpowiedz()
     }
 }
 
-void OknoLobby::otrzymanoZaproszenie(QString& nadawca)
+void OknoLobby::otrzymanoZaproszenie(QString nadawca)
 {
     DialogOtrzymanoZaproszenie* dialogOdpowiedz = new DialogOtrzymanoZaproszenie(this);
     QStringList dane = nadawca.split('-');
@@ -281,7 +281,7 @@ void OknoLobby::koniecGry()
     timerOdswiezListe.start();
 }
 
-void OknoLobby::zacznijPojedynek(QString& wiad)
+void OknoLobby::zacznijPojedynek(QString wiad)
 {
     ustawStatus("IN: zacznij pojedynek", 2000);
    oczekiwanieNaOdpowiedz = false;
@@ -315,7 +315,7 @@ void OknoLobby::anulujPojedynek()
     }
 }
 
-void OknoLobby::anulujPojedynek(QString&)
+void OknoLobby::anulujPojedynek(QString)
 {
     timerOczekiwanie->stop();
      ustawStatus("IN: anuluj pojedynek", 2000);
@@ -324,7 +324,7 @@ void OknoLobby::anulujPojedynek(QString&)
     zaproszenieOdrzucone = false;
 }
 
-void OknoLobby::odmowaPojedynku(QString&)
+void OknoLobby::odmowaPojedynku(QString)
 {
      ustawStatus("IN: odmowa pojedynku", 2000);
     oczekiwanieNaOdpowiedz = false;
@@ -344,15 +344,15 @@ void OknoLobby::wyswietlInformacje(const QString &tytul, const QString &info)
 // To w sumie powinno byc w SzachyApp i Lobby nie widzi Klienta
 void OknoLobby::podlaczLacze(Klient *lacze)
 {
-    connect(this, SIGNAL(nadajWiadomosc(const QString&,IKomunikator*)),
-            lacze, SLOT(wyslijWiadomosc(const QString&,IKomunikator*)));
+    connect(this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)),
+            lacze, SLOT(wyslijWiadomosc(QString,IKomunikator*)));
     connect(lacze, SIGNAL(poloczono()), this, SLOT(poloczonoZSerwerem()));
     connect(lacze, SIGNAL(rozloczono()), this, SLOT(rozloczonoZSerwerem()));
     connect(lacze, SIGNAL(niepowodzeniePoloczenia(int)), this, SLOT(nieMoznaPolaczycZSerwerem(int)));
-    connect(lacze, SIGNAL(otrzymanoZaproszenie(QString&)), this, SLOT(otrzymanoZaproszenie(QString&)));
-    connect(lacze, SIGNAL(zacznijPojedynek(QString&)), this, SLOT(zacznijPojedynek(QString&)));
-    connect(lacze, SIGNAL(anulujPojedynek(QString&)), this, SLOT(anulujPojedynek(QString&)));
-    connect(lacze, SIGNAL(odmowaPojedynku(QString&)), this, SLOT(odmowaPojedynku(QString&)));
+    connect(lacze, SIGNAL(otrzymanoZaproszenie(QString)), this, SLOT(otrzymanoZaproszenie(QString)));
+    connect(lacze, SIGNAL(zacznijPojedynek(QString)), this, SLOT(zacznijPojedynek(QString)));
+    connect(lacze, SIGNAL(anulujPojedynek(QString)), this, SLOT(anulujPojedynek(QString)));
+    connect(lacze, SIGNAL(odmowaPojedynku(QString)), this, SLOT(odmowaPojedynku(QString)));
 }
 
 void OknoLobby::poloczonoZSerwerem()

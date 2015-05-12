@@ -41,7 +41,8 @@ void BuforWiadomosci::sprawdzCzyKoniec()
         QTimer::singleShot(50, this, SLOT(sprawdzCzyKoniec()));
     }
     emit log("Zakonczono nadawanie - bufor");
-    wiadomosci.removeFirst();
+    if( !wiadomosci.empty() )
+     wiadomosci.removeFirst();
     QTimer::singleShot(50, this, SLOT(sprawdzWiadomosci()));
 }
 

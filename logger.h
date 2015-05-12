@@ -20,6 +20,13 @@ public:
 public slots:
     void dodajLog(const QString& log);
 
+private slots:
+    void wyslijKlient();
+    void wyslijSerwer();
+
+signals:
+    void nadajWiadomoscLokalnie(QByteArray);
+
 private:
     Ui::Logger *ui;
 };

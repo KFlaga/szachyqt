@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>264</width>
-    <height>222</height>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,8 +28,62 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="buttonSerwer">
+     <property name="text">
+      <string>Wyślij Wiadomość Na Serwer</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="buttonKlient">
+     <property name="text">
+      <string>Wyślij Wiadomość Do Klienta</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonSerwer</sender>
+   <signal>clicked()</signal>
+   <receiver>Logger</receiver>
+   <slot>wyslijSerwer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>261</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonKlient</sender>
+   <signal>clicked()</signal>
+   <receiver>Logger</receiver>
+   <slot>wyslijKlient()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>241</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>wyslijSerwer()</slot>
+  <slot>wyslijKlient()</slot>
+ </slots>
 </ui>
