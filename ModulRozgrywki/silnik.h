@@ -66,6 +66,7 @@ signals:
     void DodanoFigureNaPole(int nrPola, QIcon* figura);
     void WykonanoRuch(int);
     void wyslijRuch(QString);
+    void wyslijWynik(QString);
 };
 
 #endif // SILNIK_H

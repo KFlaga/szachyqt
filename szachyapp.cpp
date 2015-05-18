@@ -29,7 +29,8 @@ void SzachyApp::Run()
     qRegisterMetaType<Opcje>("Opcje");
     connect(lobby, SIGNAL(graLokalnie(Opcje*)), this, SLOT(graLokalnie(Opcje*)));
     connect(lobby, SIGNAL(sygZalogowano()), this, SLOT(zalogowano()));
-    connect(lobby,SIGNAL(graSieciowa(Opcje*)),this,SLOT(graSieciowa(Opcje*)));
+   // connect(lobby,SIGNAL(graSieciowa(Opcje*)),this,SLOT(graSieciowa(Opcje*)));
+    connect(lobby,SIGNAL(graSieciowa(Opcje*)),this,SLOT(graSieciowa(Opcje*)),Qt::QueuedConnection);
 
 
     lobby->show();
@@ -75,6 +76,7 @@ void SzachyApp::graSieciowa(Opcje * opts)
     connect(oknoGry, SIGNAL(zamknietoOkno()), this, SLOT(koniecGry()));
     connect(lacze,SIGNAL(odebranoRuch(QString)),(QObject*)silnik,SLOT(odebranoRuch(QString)));
     connect((QObject*)silnik,SIGNAL(wyslijRuch(QString)), lacze, SLOT(wyslijRuch(QString)));
+    connect((QObject*)silnik,SIGNAL(wyslijWynik(QString)),lacze,SLOT(wyslijWynik(QString)));
 
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);

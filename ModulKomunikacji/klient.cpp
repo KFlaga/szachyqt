@@ -18,7 +18,8 @@ Klient::Klient() : QObject()
     connect(watekBufora, &QThread::finished, watekBufora, &QObject::deleteLater);
     connect(this, SIGNAL(buforStart()), bufor, SLOT(start()));
     connect(this, SIGNAL(buforStop()), bufor, SLOT(stop()));
-    connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)), Qt::DirectConnection);
+   // connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)), Qt::DirectConnection);
+    connect(this, SIGNAL(noweDane(QByteArray)), bufor, SLOT(dodajDane(QByteArray)));
     connect(this, SIGNAL(zakonczonoPrzetwarzanie()), bufor, SLOT(nadajKolejnaWiadomosc()));
     connect(bufor, SIGNAL(nowaWiadomosc(QString)), this, SLOT(przetworzWiadomosc(QString)));
     connect(bufor, SIGNAL(log(QString)), this, SLOT(dodajLog(QString)));
@@ -96,6 +97,18 @@ void Klient::wyslijRuch(const QString ruch)
     socket->flush();
     log->dodajLog("Wyslano wiadomosc: ");
     log->dodajLog(ruch);
+}
+
+void Klient::wyslijWynik(const QString wynik)
+{
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        return;
+    }
+    socket->write(QByteArray::fromStdString(wynik.toStdString()));
+    socket->flush();
+    log->dodajLog("Wyslano wiadomosc: ");
+    log->dodajLog(wynik);
 }
 
 void Klient::polacz()

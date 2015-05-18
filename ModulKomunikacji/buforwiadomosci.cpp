@@ -39,6 +39,7 @@ void BuforWiadomosci::sprawdzCzyKoniec()
     if( !zakonczonoPrzetwarzanie ) // oczekiwanie na zakonczenie przetwarzania
     {
         QTimer::singleShot(50, this, SLOT(sprawdzCzyKoniec()));
+        return;
     }
     emit log("Zakonczono nadawanie - bufor");
     if( !wiadomosci.empty() )

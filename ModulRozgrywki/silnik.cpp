@@ -229,11 +229,13 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
 
 
 
+    int status;
     if(Sprawdz_czy_szach())
     {
         if(Sprawdz_czy_mat())
         {
             czy_koniec = true;
+            status = 1;
             emit WykonanoRuch(2);
         }
         else
@@ -242,6 +244,7 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
     else if(sprawdz_czy_pat())
     {
         czy_koniec = true;
+        status =  2;
         emit WykonanoRuch(3);
     }
     else
@@ -261,6 +264,10 @@ void Silnik::ZbijPionek(int pozBijacego, int pozBitego)
             tmp="-"+tmp;
         }
         emit wyslijRuch(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(pozBijacego).arg(pozBitego).arg(tmp));
+        if(czy_koniec)
+        {
+            emit wyslijWynik(QString("wynik:%1-%2:200.").arg(przeciwnik).arg(status));
+        }
         czyRuchPrzeciwnika = true;
     }
 }
@@ -321,11 +328,13 @@ void Silnik::RuszPionek(int skad, int dokad)
 
     aktualnyGracz = -aktualnyGracz + 1;
 
+    int status;
     if(Sprawdz_czy_szach())
     {
         if(Sprawdz_czy_mat())
         {
             czy_koniec = true;
+            status = 1;
             emit WykonanoRuch(2);
         }
         else
@@ -334,6 +343,7 @@ void Silnik::RuszPionek(int skad, int dokad)
     else if(sprawdz_czy_pat())
     {
         czy_koniec = true;
+        status  = 2;
         emit WykonanoRuch(3);
     }
     else
@@ -353,6 +363,10 @@ void Silnik::RuszPionek(int skad, int dokad)
             tmp="-"+tmp;
         }
         emit wyslijRuch(QString("ruch:%1-%2-%3%4:200.").arg(przeciwnik).arg(skad).arg(dokad).arg(tmp));
+        if(czy_koniec)
+        {
+            emit wyslijWynik(QString("wynik:%1-%2:200.").arg(przeciwnik).arg(status));
+        }
         czyRuchPrzeciwnika = true;
     }
 }

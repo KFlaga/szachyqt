@@ -15,7 +15,7 @@ class Klient : public QObject
     Q_OBJECT
 public:
     Klient();
-    Klient::~Klient();
+    ~Klient();
 
     bool czyPoloczony();
 
@@ -27,6 +27,7 @@ public slots:
     void wyslijWiadomosc(const QString &tresc, IKomunikator* kom);
     void wyslijWiadomosc(const QString& tresc, int id);
     void wyslijRuch(const QString ruch);
+    void wyslijWynik(const QString wynik);
     void polacz();
     void rozlacz();
 

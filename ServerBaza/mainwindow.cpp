@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QtSql>
+#include <QtCore/qmath.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,9 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     delim = '.';
 
-    //BAZA
-    /*db = QSqlDatabase::addDatabase("QODBC");
-    QString dsn = QString("DRIVER={SQL Server};SERVER=serwer1504606.home.pl;DATABASE=17499764_szachy;PWD=szachyonline123;UID=17499764_szachy");
+    db = QSqlDatabase::addDatabase("QODBC");
+    //QString dsn = QString("DRIVER={SQL Server};SERVER=serwer1504606.home.pl;DATABASE=17499764_szachy;PWD=szachyonline123;UID=17499764_szachy");
+    QString dsn = QString("DRIVER={SQL Server};SERVER=M4800;DATABASE=SzachyOnline");
     db.setDatabaseName(dsn);
     if(db.open())
     {
@@ -31,14 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
     else
     {
         ui->logger->append("Niepowodzenie otwarcia listy uzytkownikow");
-    }*/
+    }
 
-    //PLIK
-    plikListaUzytkownikow.open(QFile::ReadWrite | QFile::Append);
-    if( plikListaUzytkownikow.isOpen() )
-        ui->logger->append("Otwarto liste uzytkownikow");
-    else
-        ui->logger->append("Niepowodzenie otwarcia listy uzytkownikow");
+
 
     odczytajListeUzytkownikow();
 }
@@ -110,6 +106,7 @@ void MainWindow::readyRead()
 
     QTcpSocket* nadawca = (QTcpSocket*)sender();
     QString data = nadawca->readAll();
+
     ui->logger->append(data);
     int id;
 
@@ -319,7 +316,53 @@ void MainWindow::readyRead()
         QStringList wynik = data.split('-');
         // nick-czas
         // wyszukaj uzytkownika o podanym nicku wśród połączonych
-        QMessageBox::information(this,wynik[0],wynik[1]);
+       // QMessageBox::information(this,wynik[0],nadawca);
+        int id = poloczenia[nadawca]->id;
+        int id2;
+        QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+        while( klient != poloczenia.end() )
+        {
+           if( klient.value() != NULL && klient.value()->nick == wynik[0] )
+           {
+               id2 = klient.value()->id;
+               break;
+           }
+           klient++;
+        }
+        QSqlQuery qry;
+
+        if(db.open())
+        {
+            int w;
+            if(wynik[1] == "1")
+            {
+                w = id;
+            }
+            else if(wynik[1] == "2")
+            {
+                w = -1;  //remis
+            }
+           qry.exec(QString("INSERT INTO Historia VALUES (%1,%2,%3)").arg(id).arg(id2).arg(w));
+           if(w==-1)
+           {
+               klient.value()->ile_rem++;
+               poloczenia[nadawca]->ile_rem++;
+               int xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,0.5);
+               int ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.5);
+               qry.exec(QString("UPDATE Users SET ilosc_remisow=%1,ranking=%2 WHERE id=%3;").arg(klient.value()->ile_rem).arg(ynew).arg(id2));
+               qry.exec(QString("UPDATE Users SET ilosc_remisow=%1,ranking=%2 WHERE id=%3;").arg(poloczenia[nadawca]->ile_rem).arg(xnew).arg(id));
+           }
+           else
+           {
+               klient.value()->ile_przeg++;
+               poloczenia[nadawca]->ile_wqyg++;
+               int xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,1.0);
+               int ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.0);
+               qry.exec(QString("UPDATE Users SET ilosc_przegranych=%1,ranking=%2 WHERE id=%3;").arg(klient.value()->ile_przeg).arg(ynew).arg(id2));
+               qry.exec(QString("UPDATE Users SET ilosc_wygranych=%1,ranking=%2 WHERE id=%3;").arg(poloczenia[nadawca]->ile_wqyg).arg(xnew).arg(id));
+           }
+        }
+        db.close();
     }
     else
     {
@@ -335,57 +378,58 @@ void MainWindow::socketError(QAbstractSocket::SocketError)
 
 void MainWindow::odczytajListeUzytkownikow()
 {
-    //PLIK
-    plikListaUzytkownikow.seek(0);
-    QTextStream streamUzytkownicy(&plikListaUzytkownikow);
-    while (!streamUzytkownicy.atEnd())
-    {
-       Uzytkownik* nowy = new Uzytkownik();
-       streamUzytkownicy>> nowy->login >> nowy->haslo >>
-               nowy->nick >> nowy->ranking;
-       nowy->czyZalogowany = false;
-       // nowy.status = 0; // statusy do zrobienia
-       uzytkownicy.append(nowy);
-       ui->logger->append("Wczytany uzytkownik: " + nowy->nick);
-    }
-
-    //BAZA
-   /* QSqlQuery qry;
-
-        if(qry.exec("SELECT * FROM Gracze2"))
+    QSqlQuery qry;
+        if(qry.exec("SELECT * FROM Users"))
         {
             while(qry.next())
             {
                 Uzytkownik* nowy = new Uzytkownik();
+                nowy->id = qry.value(0).toInt();
                 nowy->login = qry.value(1).toString();
                 nowy->haslo = qry.value(2).toString();
                 nowy->nick = qry.value(3).toString();
+                nowy->ile_wqyg = qry.value(4).toInt();
+                nowy->ile_przeg = qry.value(5).toInt();
+                nowy->ile_rem = qry.value(6).toInt();
                 nowy->ranking = qry.value(7).toInt();
                 nowy->czyZalogowany = false;
                 uzytkownicy.append(nowy);
                 ui->logger->append("Wczytany uzytkownik: " + nowy->nick);
             }
         }
-    db.close();*/
+    db.close();
 }
 
 void MainWindow::zapiszUzytkownika(Uzytkownik* nowy)
 {
-    //PLIK
-    plikListaUzytkownikow.seek(plikListaUzytkownikow.size());
-    QTextStream streamUzytkownicy(&plikListaUzytkownikow);
-       streamUzytkownicy << nowy->login << ' ' << nowy->haslo << ' ' <<
-               nowy->nick << ' ' << nowy->ranking << '\n';
-
-
-    //BAZA
-    /*QSqlQuery qry;
+    QSqlQuery qry;
 
     if(db.open())
     {
        qry.exec(QString("INSERT INTO Gracze2 VALUES ('%1','%2','%3',0,0,0,100)").arg(nowy->login).arg(nowy->haslo).arg(nowy->nick));
     }
-    db.close();*/
+    db.close();
+}
+
+int MainWindow::wyznaczNowyRanking(int xr, int yr, double wynik) //gracz, przeciwnik, wynik (0 jeśli gracz X przegrał, 0.5 jeśli zremisował, 1 jeśli wygrał )
+{
+    int d = yr - xr;
+    double We = 1/(1+qPow(10,(d/400.0)));
+    double Diff = wynik - We;
+    int k; //wsp rozwoju
+    if(xr < 2100)
+    {
+        k = 32;
+    }
+    else if(xr < 2400)
+    {
+        k = 24;
+    }
+    else
+    {
+        k = 16;
+    }
+    return xr + (k*Diff);
 }
 
 void MainWindow::wyslijListeUzytkownikow(QMap<QTcpSocket*,Uzytkownik*>::iterator nadawca, int id)
