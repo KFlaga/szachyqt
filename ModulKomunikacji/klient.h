@@ -56,6 +56,8 @@ signals:
     void poloczono();
     void niepowodzeniePoloczenia(int);
 
+    void nowyRanking(int);
+
 private:
     QTcpSocket *socket;
     QList<IKomunikator*> komunikatory;

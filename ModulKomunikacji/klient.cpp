@@ -225,9 +225,9 @@ void Klient::odbierzWiadomoscWewnatrz(QString& dane)
     {
         emit odebranoRuch(dane.mid(5));
     }
-    else if( dane.startsWith("koniecpojedynku:"))
+    else if( dane.startsWith("rank:"))
     {
-        emit zakonczonoPojedynek(dane.mid(16));
+        emit nowyRanking(dane.mid(5).toInt());
     }
     else if( dane.startsWith("test:"))
     {

@@ -64,6 +64,8 @@ private slots:
     void sprawdzZwrotZaproszenia(Wiadomosc*, bool);
     void aktualizujListeUzytkownikow(Wiadomosc* wiadomosc, bool czyAnulowano);
 
+    void aktualizujRanking(int rank);
+
 signals:
     void sygZalogowano();
     void graLokalnie(Opcje*);

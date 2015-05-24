@@ -107,6 +107,7 @@ void MainWindow::readyRead()
     QTcpSocket* nadawca = (QTcpSocket*)sender();
     QString data = nadawca->readAll();
 
+
     ui->logger->append(data);
     int id;
 
@@ -342,13 +343,15 @@ void MainWindow::readyRead()
             {
                 w = -1;  //remis
             }
+            int xnew;
+            int ynew;
            qry.exec(QString("INSERT INTO Historia VALUES (%1,%2,%3)").arg(id).arg(id2).arg(w));
            if(w==-1)
            {
                klient.value()->ile_rem++;
                poloczenia[nadawca]->ile_rem++;
-               int xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,0.5);
-               int ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.5);
+               xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,0.5);
+               ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.5);
                qry.exec(QString("UPDATE Users SET ilosc_remisow=%1,ranking=%2 WHERE id=%3;").arg(klient.value()->ile_rem).arg(ynew).arg(id2));
                qry.exec(QString("UPDATE Users SET ilosc_remisow=%1,ranking=%2 WHERE id=%3;").arg(poloczenia[nadawca]->ile_rem).arg(xnew).arg(id));
            }
@@ -356,11 +359,15 @@ void MainWindow::readyRead()
            {
                klient.value()->ile_przeg++;
                poloczenia[nadawca]->ile_wqyg++;
-               int xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,1.0);
-               int ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.0);
+               xnew = wyznaczNowyRanking(poloczenia[nadawca]->ranking,klient.value()->ranking,1.0);
+               ynew = wyznaczNowyRanking(klient.value()->ranking,poloczenia[nadawca]->ranking,0.0);
                qry.exec(QString("UPDATE Users SET ilosc_przegranych=%1,ranking=%2 WHERE id=%3;").arg(klient.value()->ile_przeg).arg(ynew).arg(id2));
                qry.exec(QString("UPDATE Users SET ilosc_wygranych=%1,ranking=%2 WHERE id=%3;").arg(poloczenia[nadawca]->ile_wqyg).arg(xnew).arg(id));
            }
+           klient.key()->write(QByteArray::fromStdString(QString("rank:"+QString::number(ynew) + ":40.").toStdString()));
+           nadawca->write(QByteArray::fromStdString(QString("rank:"+QString::number(xnew) + ":40.").toStdString()));
+           poloczenia[nadawca]->ranking = xnew;
+           klient.value()->ranking = ynew;
         }
         db.close();
     }

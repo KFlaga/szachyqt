@@ -353,6 +353,8 @@ void OknoLobby::podlaczLacze(Klient *lacze)
     connect(lacze, SIGNAL(zacznijPojedynek(QString)), this, SLOT(zacznijPojedynek(QString)));
     connect(lacze, SIGNAL(anulujPojedynek(QString)), this, SLOT(anulujPojedynek(QString)));
     connect(lacze, SIGNAL(odmowaPojedynku(QString)), this, SLOT(odmowaPojedynku(QString)));
+
+    connect(lacze,SIGNAL(nowyRanking(int)),this,SLOT(aktualizujRanking(int)));
 }
 
 void OknoLobby::poloczonoZSerwerem()
@@ -412,6 +414,12 @@ void OknoLobby::aktualizujListeUzytkownikow(Wiadomosc* wiadomosc, bool czyAnulow
     delete wiadomosc;
 
     timerOdswiezListe.start();
+}
+
+void OknoLobby::aktualizujRanking(int rank)
+{
+    this->biezacyUzytkownik->ranking = rank;
+    ui->teRanking->setText(QString::number(biezacyUzytkownik->ranking));
 }
 
 void OknoLobby::aktualizujInterfejs()

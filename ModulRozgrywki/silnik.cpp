@@ -30,6 +30,10 @@ Silnik::~Silnik()
         p->close();
         delete p;
     }
+    if(gra_przez_siec)
+    {
+
+    }
 }
 
 void Silnik::NowaGra(Opcje* opts)
