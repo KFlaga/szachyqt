@@ -16,6 +16,7 @@ public:
     int ranking;
     int status;
     bool czyZalogowany;
+    QString aktualnyPrzeciwnik;
 };
 
 #endif // UZYTKOWNIK

@@ -59,6 +59,8 @@ public slots:
     void PoleWcisniete(int nrPola);
     void read();
     void odebranoRuch(QString ruch);
+    void zakonczPrzezWalkower();
+
 
 signals:
     void PodswietlicPola(QVector<int> pola);
@@ -67,6 +69,9 @@ signals:
     void WykonanoRuch(int);
     void wyslijRuch(QString);
     void wyslijWynik(QString);
+
+    void przegrajPrzezWalkower(QString);
+    void zmienStatusNaWolny(QString);
 };
 
 #endif // SILNIK_H

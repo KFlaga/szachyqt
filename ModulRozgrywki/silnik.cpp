@@ -30,9 +30,13 @@ Silnik::~Silnik()
         p->close();
         delete p;
     }
-    if(gra_przez_siec)
+    if(gra_przez_siec && czy_koniec == false)  //do uciekiniera
     {
-
+        emit przegrajPrzezWalkower("walkower::20.");
+    }
+    if(gra_przez_siec && czy_koniec) //do nie uciekniera
+    {
+        emit zmienStatusNaWolny("zakonczono::15.");
     }
 }
 
@@ -915,5 +919,12 @@ void Silnik::odebranoRuch(QString ruch)
     RuchSiec(list[0].toInt(),list[1].toInt());
     czyRuchPrzeciwnika = false;
 
+}
+
+void Silnik::zakonczPrzezWalkower()
+{
+    czy_koniec = true;
+    emit WykonanoRuch(4);
+    QMessageBox::information(0,"Wygrałeś","Przeciwnik opuścił pojedynek. Wygrywasz przez walkower!");
 }
 

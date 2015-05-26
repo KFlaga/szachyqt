@@ -133,7 +133,7 @@ void OknoGry::WykonanoRuch(int i)
         else
         {
             tura = 0;
-            wiadomoscTura->setText("Ruch bialych");
+            wiadomoscTura->setText("Ruch białych");
         }
     }
     else  if(i==1)
@@ -146,7 +146,7 @@ void OknoGry::WykonanoRuch(int i)
         else
         {
             tura = 0;
-            wiadomoscTura->setText("Szach! Ruch bialych");
+            wiadomoscTura->setText("Szach! Ruch białych");
         }
     }
 
@@ -156,19 +156,24 @@ void OknoGry::WykonanoRuch(int i)
         if( tura == 0 )
         {
             tura = 1;
-            wiadomoscTura->setText("Szach mat! Wygrywaja biale");
+            wiadomoscTura->setText("Szach mat! Wygrywają białe");
             czy_koniec = true;
         }
         else
         {
             tura = 0;
-            wiadomoscTura->setText("Szach mat! Wygrywaja czarne");
+            wiadomoscTura->setText("Szach mat! Wygrywają czarne");
             czy_koniec = true;
         }
     }
     else if(i==3)
     {
         wiadomoscTura->setText("Pat! Remis");
+        czy_koniec = true;
+    }
+    else if(i == 4)
+    {
+        wiadomoscTura->setText("Wygrana przez walkower");
         czy_koniec = true;
     }
 

@@ -37,7 +37,7 @@ Klient::Klient() : QObject()
             this, SLOT(socketError(QAbstractSocket::SocketError)));
 
     log = new Logger();
-    log->show();
+   // log->show();
 
     connect(log, SIGNAL(nadajWiadomoscLokalnie(QByteArray)),
             bufor, SLOT(dodajDane(QByteArray)));
@@ -228,6 +228,10 @@ void Klient::odbierzWiadomoscWewnatrz(QString& dane)
     else if( dane.startsWith("rank:"))
     {
         emit nowyRanking(dane.mid(5).toInt());
+    }
+    else if(dane.startsWith("walkower:"))
+    {
+        emit wygranaPrzezWalkower();
     }
     else if( dane.startsWith("test:"))
     {

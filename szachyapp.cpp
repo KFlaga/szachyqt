@@ -76,6 +76,9 @@ void SzachyApp::graSieciowa(Opcje * opts)
     connect(lacze,SIGNAL(odebranoRuch(QString)),(QObject*)silnik,SLOT(odebranoRuch(QString)));
     connect((QObject*)silnik,SIGNAL(wyslijRuch(QString)), lacze, SLOT(wyslijRuch(QString)));
     connect((QObject*)silnik,SIGNAL(wyslijWynik(QString)),lacze,SLOT(wyslijWynik(QString)));
+    connect(lacze,SIGNAL(wygranaPrzezWalkower()),(QObject*)silnik,SLOT(zakonczPrzezWalkower()));
+    connect((QObject*)silnik,SIGNAL(przegrajPrzezWalkower(QString)),lacze,SLOT(wyslijWynik(QString)));
+    connect((QObject*)silnik,SIGNAL(zmienStatusNaWolny(QString)),lacze,SLOT(wyslijWynik(QString)));
 
     oknoGry->NowaGra(opts);
     silnik->NowaGra(opts);

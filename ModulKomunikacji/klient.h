@@ -57,6 +57,7 @@ signals:
     void niepowodzeniePoloczenia(int);
 
     void nowyRanking(int);
+    void wygranaPrzezWalkower();
 
 private:
     QTcpSocket *socket;
