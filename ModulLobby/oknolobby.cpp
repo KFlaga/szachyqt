@@ -13,7 +13,8 @@
 #include "listauzytkownikow.h"
 #include "Wiadomosci/wiadomosclistauzytkownikow.h"
 #include "komunikatorlobbyserwer.h"
-
+#include "dialogszukanie.h"
+#include <QTimer>
 QRegExp znakiZarezerwowane("[-,;:'\"\\\\ ]");
 
 OknoLobby::OknoLobby(QWidget *parent) :
@@ -118,6 +119,9 @@ void OknoLobby::zagrajLokalnieGracz()
 
 void OknoLobby::szukajGracza()
 {
+    DialogSzukanie *dial = new DialogSzukanie();
+    connect(dial,SIGNAL(szukajG(QString)),this,SLOT(znajdzGracza(QString)));
+    dial->show();
     // Pomysł jest taki:
     // istnieje kolejka graczy, którzy dali opcje szukaj gracza
     // są 3 opcje wyszukiwania - silniejszy, równy, lepszy ( liczone jakimś tam rankingiem )
@@ -283,7 +287,7 @@ void OknoLobby::koniecGry()
 
 void OknoLobby::zacznijPojedynek(QString wiad)
 {
-    ustawStatus("IN: zacznij pojedynek", 2000);
+   ustawStatus("IN: zacznij pojedynek", 2000);
    oczekiwanieNaOdpowiedz = false;
    powodzeniePojedynku = true;
    zaproszenieOdrzucone = false;
@@ -356,6 +360,7 @@ void OknoLobby::podlaczLacze(Klient *lacze)
     connect(lacze, SIGNAL(odmowaPojedynku(QString)), this, SLOT(odmowaPojedynku(QString)));
 
     connect(lacze,SIGNAL(nowyRanking(int)),this,SLOT(aktualizujRanking(int)));
+
 }
 
 void OknoLobby::poloczonoZSerwerem()
@@ -422,6 +427,41 @@ void OknoLobby::aktualizujRanking(int rank)
     this->biezacyUzytkownik->ranking = rank;
     ui->teRanking->setText(QString::number(biezacyUzytkownik->ranking));
 }
+
+void OknoLobby::znajdzGracza(QString ss)
+{
+    emit szukajPrzeciwnika(ss);
+
+    oczekiwanieNaOdpowiedz = true;
+
+    oczekiwanie->ustawTekst("Szukanie gracza...");
+    oczekiwanie->show();
+    timerOczekiwanie->start(5000);
+
+    while (oczekiwanieNaOdpowiedz)
+    {
+         qApp->processEvents(QEventLoop::AllEvents,200);
+    }
+    oczekiwanie->hide();
+    oczekiwanie->ustawTekst();
+    if( powodzeniePojedynku )
+    {
+        timerOdswiezListe.stop();
+        emit graSieciowa(opts);
+    }
+    else
+    {
+        emit szukajPrzeciwnika("szukaj:1:35.");
+        wyswietlInformacje("Niepowodzenie", "Nie udało się stworzyć gry");
+    }
+
+}
+
+void OknoLobby::skonczSzukanieGracza()
+{
+    //emit szukajPrzeciwnika("szukaj:1:35.");
+}
+
 
 void OknoLobby::aktualizujInterfejs()
 {

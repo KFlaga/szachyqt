@@ -476,9 +476,50 @@ void MainWindow::readyRead()
 
         db.close();
     }
-    else if("zakonczono:")
+    else if(data.startsWith("zakonczono:"))
     {
         poloczenia[nadawca]->status = 0;
+    }
+    else if(data.startsWith("szukaj:"))
+    {
+        data = data.mid(7);
+        QStringList list = data.split("-");
+        if(list[0] == "0")
+        {
+          poloczenia[nadawca]->status = 2;
+          poloczenia[nadawca]->jakiCzas =  list[1].toInt();
+          QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.begin();
+          while( klient != poloczenia.end() )
+          {
+              if( klient.value() != NULL)
+              {
+                  if(klient.value()->status == 2 && (klient.value()->nick != poloczenia[nadawca]->nick) && poloczenia[nadawca]->jakiCzas == klient.value()->jakiCzas) //jesli tez szuka
+                  {
+                      QString odp = QString("pojedynek:" + poloczenia.find(nadawca).value()->nick
+                                            + '-' +klient.value()->nick + '-' + "5" + ":90.");
+                      klient.key()->write(QByteArray::fromStdString(odp.toStdString()));
+                      klient.value()->status = 1;
+                      klient.value()->aktualnyPrzeciwnik = poloczenia[nadawca]->nick;
+
+
+                      odp = QString("pojedynek:" + klient.value()->nick + '-' + klient.value()->nick + '-' + "10" + ":90.");
+                      nadawca->write(QByteArray::fromStdString(odp.toStdString()));
+                      poloczenia[nadawca]->status = 1;
+                      poloczenia[nadawca]->aktualnyPrzeciwnik = klient.value()->nick;
+                     // qDebug() << "Start!";
+
+
+                  }
+                  break;
+              }
+              klient++;
+          }
+
+        }
+        else
+        {
+          poloczenia[nadawca]->status = 0;
+        }
     }
     else
     {

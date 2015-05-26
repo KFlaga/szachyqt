@@ -17,6 +17,7 @@ public:
     int status;
     bool czyZalogowany;
     QString aktualnyPrzeciwnik;
+    int jakiCzas;
 };
 
 #endif // UZYTKOWNIK

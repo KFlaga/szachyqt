@@ -111,6 +111,18 @@ void Klient::wyslijWynik(const QString wynik)
     log->dodajLog(wynik);
 }
 
+void Klient::wyslijInfOSzukaniu(const QString sz)
+{
+    if( socket->state() != QTcpSocket::ConnectedState )
+    {
+        return;
+    }
+    socket->write(QByteArray::fromStdString(sz.toStdString()));
+    socket->flush();
+    log->dodajLog("Wyslano wiadomosc: ");
+    log->dodajLog(sz);
+}
+
 void Klient::polacz()
 {
     // do ew. zmiany na bardziej szczegółowe sprawdzenie

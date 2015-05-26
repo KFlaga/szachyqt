@@ -43,7 +43,8 @@ SOURCES += main.cpp\
     ModulLobby/listauzytkownikow.cpp \
     Wiadomosci/wiadomosclistauzytkownikow.cpp \
     ModulKomunikacji/buforwiadomosci.cpp \
-    logger.cpp
+    logger.cpp \
+    ModulLobby/dialogszukanie.cpp
 
 
 HEADERS  += Figury/figura.h \
@@ -82,7 +83,8 @@ HEADERS  += Figury/figura.h \
     ModulLobby/listauzytkownikow.h \
     Wiadomosci/wiadomosclistauzytkownikow.h \
     ModulKomunikacji/buforwiadomosci.h \
-    logger.h
+    logger.h \
+    ModulLobby/dialogszukanie.h
 
 FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/oknologowania.ui \
@@ -95,5 +97,6 @@ FORMS    += ModulLobby/oknorejestracji.ui \
     ModulLobby/popupoczekiwanienaserwer.ui \
     ModulLobby/dialogwyslijzaproszenie.ui \
     ModulLobby/listauzytkownikow.ui \
-    logger.ui
+    logger.ui \
+    ModulLobby/dialogszukanie.ui
 

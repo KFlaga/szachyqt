@@ -28,6 +28,7 @@ public slots:
     void wyslijWiadomosc(const QString& tresc, int id);
     void wyslijRuch(const QString ruch);
     void wyslijWynik(const QString wynik);
+    void wyslijInfOSzukaniu(const QString sz);
     void polacz();
     void rozlacz();
 

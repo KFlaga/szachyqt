@@ -30,6 +30,10 @@ void ListaUzytkownikow::dodajUzytkownika(Uzytkownik& uzyt)
     {
         status = "w grze";
     }
+    else if(uzyt.status == 2)
+    {
+        status = "szuka";
+    }
     text.append(QString::number(uzyt.ranking));text.append("     " + status);
     item->setText(text);
 }

@@ -32,6 +32,8 @@ void SzachyApp::Run()
    // connect(lobby,SIGNAL(graSieciowa(Opcje*)),this,SLOT(graSieciowa(Opcje*)));
     connect(lobby,SIGNAL(graSieciowa(Opcje*)),this,SLOT(graSieciowa(Opcje*)),Qt::QueuedConnection);
 
+    connect(lobby,SIGNAL(szukajPrzeciwnika(QString)),lacze,SLOT(wyslijInfOSzukaniu(QString)));
+
     lobby->show();
 }
 

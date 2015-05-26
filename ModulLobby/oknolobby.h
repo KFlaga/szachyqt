@@ -65,6 +65,8 @@ private slots:
     void aktualizujListeUzytkownikow(Wiadomosc* wiadomosc, bool czyAnulowano);
 
     void aktualizujRanking(int rank);
+    void znajdzGracza(QString);
+    void skonczSzukanieGracza();
 
 signals:
     void sygZalogowano();
@@ -72,6 +74,7 @@ signals:
     void graSieciowa(Opcje*);
     void nadajWiadomosc(const QString&, IKomunikator*);
     void przeciwnikWyszedl();
+    void szukajPrzeciwnika(QString);
 
 private:
     Ui::OknoLobby *ui;
