@@ -45,7 +45,7 @@ void WiadomoscListaUzytkownikow::interpretujWiadomosc(QString& tresc)
         Uzytkownik u;
         u.nick = dane[3*i - 2];
         u.ranking = dane[3*i - 1].toInt();
-       // u.status = dane[3*i];
+        u.status = dane[3*i].toInt();
         uzytkownicy.push_back(u);
     }
 

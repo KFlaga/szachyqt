@@ -92,8 +92,8 @@ void OknoRejestracji::wyslijDaneRejestracji()
             this, SIGNAL(nadajWiadomosc(QString,IKomunikator*)));
     connect(komunikator, SIGNAL(odebranoZwrot(Wiadomosc*,bool)),
             this, SLOT(sprawdzOdpowiedz(Wiadomosc*,bool)));
-    komunikator->wyslijWiadomosc(wiadomosc,true);
     oczekiwanie->open();
+    komunikator->wyslijWiadomosc(wiadomosc,true);
 }
 
 void OknoRejestracji::sprawdzOdpowiedz(Wiadomosc* w, bool czyAnulowano)

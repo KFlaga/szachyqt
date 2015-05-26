@@ -16,13 +16,22 @@ ListaUzytkownikow::~ListaUzytkownikow()
 
 void ListaUzytkownikow::dodajUzytkownika(Uzytkownik& uzyt)
 {
-   QListWidgetItem* item = new QListWidgetItem(ui->lista);
-   item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-   QString text;
-   text.fill(' ', 20 - uzyt.nick.size());
-   text.prepend(uzyt.nick);
-   text.append(QString::number(uzyt.ranking));
-   item->setText(text);
+    QListWidgetItem* item = new QListWidgetItem(ui->lista);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    QString text;
+    text.fill(' ', 20 - uzyt.nick.size());
+    text.prepend(uzyt.nick);
+    QString status="";
+    if(uzyt.status == 0)
+    {
+        status = "wolny";
+    }
+    else if(uzyt.status == 1)
+    {
+        status = "w grze";
+    }
+    text.append(QString::number(uzyt.ranking));text.append("     " + status);
+    item->setText(text);
 }
 
 void ListaUzytkownikow::usunUzytkownika(QString nick)

@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QtSql>
 #include <QtCore/qmath.h>
+#include  <QNetworkInterface>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -46,13 +47,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+    QList<QHostAddress> ipAddressesList =
+       QNetworkInterface::allAddresses();
+
+    for(int i = 0;i<ipAddressesList.size();i++)
+    {
+            qDebug() << ipAddressesList[i];
+    }
     if(!server->listen(QHostAddress::Any,2222))
     {
         l->setText("Serwer nie wystartował");
     }
     else
     {
-        l->setText("Serwer wystartował");
+        l->setText("Serwer wystartowałz");
         ui->pushButton->setDisabled(true);
         ui->pushButton_2->setDisabled(false);
     }
@@ -251,6 +259,7 @@ void MainWindow::readyRead()
                    QString odp = QString("pojedynek:" + poloczenia.find(nadawca).value()->nick
                                          + '-' +daneOdp[0] + '-' + daneOdp[1] + ":90.");
                    klient.key()->write(QByteArray::fromStdString(odp.toStdString()));
+                   klient.value()->status = 1;
                    break;
                }
                klient++;
@@ -260,6 +269,7 @@ void MainWindow::readyRead()
                 QString odp = QString("pojedynek:" + daneOdp[0] + '-' + daneOdp[0] + '-' + daneOdp[1] + ":90.");
                 ui->logger->append("Pojedynek: " + daneOdp[0] + "-" + poloczenia.find(nadawca).value()->nick);
                 nadawca->write(QByteArray::fromStdString(odp.toStdString()));
+                poloczenia[nadawca]->status = 1;
                 // W TYM MIEJSCU ZACZYNAMY POJEDYNEK
             }
             else
@@ -368,6 +378,8 @@ void MainWindow::readyRead()
            nadawca->write(QByteArray::fromStdString(QString("rank:"+QString::number(xnew) + ":40.").toStdString()));
            poloczenia[nadawca]->ranking = xnew;
            klient.value()->ranking = ynew;
+           klient.value()->status = 0;
+           poloczenia[nadawca]->status = 0;
         }
         db.close();
     }
@@ -413,7 +425,7 @@ void MainWindow::zapiszUzytkownika(Uzytkownik* nowy)
 
     if(db.open())
     {
-       qry.exec(QString("INSERT INTO Gracze2 VALUES ('%1','%2','%3',0,0,0,100)").arg(nowy->login).arg(nowy->haslo).arg(nowy->nick));
+       qry.exec(QString("INSERT INTO Users VALUES ('%1','%2','%3',0,0,0,1000)").arg(nowy->login).arg(nowy->haslo).arg(nowy->nick));
     }
     db.close();
 }
@@ -450,7 +462,7 @@ void MainWindow::wyslijListeUzytkownikow(QMap<QTcpSocket*,Uzytkownik*>::iterator
          {
               dane.append('-'+user->nick);
               dane.append('-'+QString::number(user->ranking));
-              dane.append("-status");
+              dane.append("-"+QString::number(user->status));
               liczbaU++;
          }
     }

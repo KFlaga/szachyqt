@@ -302,6 +302,7 @@ void OknoLobby::zacznijPojedynek(QString wiad)
    }
    opts->czyPrzezSiec = true;
    opts->przciwnik = dane[0];
+   aktualnyPrzeciwnik = dane[0];
 }
 
 void OknoLobby::anulujPojedynek()

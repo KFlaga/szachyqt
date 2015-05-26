@@ -71,6 +71,7 @@ signals:
     void graLokalnie(Opcje*);
     void graSieciowa(Opcje*);
     void nadajWiadomosc(const QString&, IKomunikator*);
+    void przeciwnikWyszedl();
 
 private:
     Ui::OknoLobby *ui;
@@ -85,6 +86,7 @@ private:
     bool zaproszenieOdrzucone;
     bool powodzeniePojedynku;
     Opcje* opts;
+    QString aktualnyPrzeciwnik;
 };
 
 #endif // OKNOLOBBY_H
