@@ -541,10 +541,8 @@ void MainWindow::przetwarzajWiadomosc(QString data, QTcpSocket* nadawca)
                       poloczenia[nadawca]->status = 1;
                       poloczenia[nadawca]->aktualnyPrzeciwnik = klient.value()->nick;
                      // qDebug() << "Start!";
-
-
+                    break;
                   }
-                  break;
               }
               klient++;
           }
