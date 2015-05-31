@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    pojedynek.cpp
+    pojedynek.cpp \
+    buforwiadomosci.cpp
 
 HEADERS  += mainwindow.h \
     pojedynek.h \
-    uzytkownik.h
+    uzytkownik.h \
+    buforwiadomosci.h
 
 FORMS    += mainwindow.ui

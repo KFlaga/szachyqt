@@ -65,7 +65,7 @@ void Klient::wyslijWiadomosc(const QString& text, IKomunikator* kom)
     // by zwrocic odpowiedz do odpowiedniego nadawcy
     QString tmp = text;
     socket->write( QByteArray::fromStdString(tmp.append(':').
-                                             append(QString::number(kom->wezID()))
+                                             append(QString::number(kom->wezID()).append('.'))
                                              .toStdString()) );
     socket->flush();
     log->dodajLog("Wyslano wiadomosc (kom): ");
@@ -80,47 +80,25 @@ void Klient::wyslijWiadomosc(const QString &text, int id)
     }
     QString tmp = text;
     socket->write( QByteArray::fromStdString(tmp.append(':').
-                                             append(QString::number(id))
+                                             append(QString::number(id).append('.'))
                                              .toStdString()) );
     socket->flush();
     log->dodajLog("Wyslano wiadomosc: ");
     log->dodajLog(text);
 }
 
-void Klient::wyslijRuch(const QString ruch)
+void Klient::wyslijWiadomosc(const QString text)
 {
     if( socket->state() != QTcpSocket::ConnectedState )
     {
         return;
     }
-    socket->write(QByteArray::fromStdString(ruch.toStdString()));
+    QString tmp = text;
+    socket->write( QByteArray::fromStdString(tmp.append(':')
+                                         .append('.').toStdString()) );
     socket->flush();
     log->dodajLog("Wyslano wiadomosc: ");
-    log->dodajLog(ruch);
-}
-
-void Klient::wyslijWynik(const QString wynik)
-{
-    if( socket->state() != QTcpSocket::ConnectedState )
-    {
-        return;
-    }
-    socket->write(QByteArray::fromStdString(wynik.toStdString()));
-    socket->flush();
-    log->dodajLog("Wyslano wiadomosc: ");
-    log->dodajLog(wynik);
-}
-
-void Klient::wyslijInfOSzukaniu(const QString sz)
-{
-    if( socket->state() != QTcpSocket::ConnectedState )
-    {
-        return;
-    }
-    socket->write(QByteArray::fromStdString(sz.toStdString()));
-    socket->flush();
-    log->dodajLog("Wyslano wiadomosc: ");
-    log->dodajLog(sz);
+    log->dodajLog(text);
 }
 
 void Klient::polacz()

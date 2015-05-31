@@ -26,9 +26,7 @@ private:
 public slots:
     void wyslijWiadomosc(const QString &tresc, IKomunikator* kom);
     void wyslijWiadomosc(const QString& tresc, int id);
-    void wyslijRuch(const QString ruch);
-    void wyslijWynik(const QString wynik);
-    void wyslijInfOSzukaniu(const QString sz);
+    void wyslijWiadomosc(const QString tresc);
     void polacz();
     void rozlacz();
 

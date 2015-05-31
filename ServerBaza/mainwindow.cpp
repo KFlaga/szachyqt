@@ -5,6 +5,7 @@
 #include <QtSql>
 #include <QtCore/qmath.h>
 #include  <QNetworkInterface>
+#include "buforwiadomosci.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -21,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit->setText(QString::number(ile));
 
     delim = '.';
+    zakonczPrzetwarzanie = false;
 
     db = QSqlDatabase::addDatabase("QODBC");
     //QString dsn = QString("DRIVER={SQL Server};SERVER=serwer1504606.home.pl;DATABASE=17499764_szachy;PWD=szachyonline123;UID=17499764_szachy");
@@ -34,8 +36,6 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         ui->logger->append("Niepowodzenie otwarcia listy uzytkownikow");
     }
-
-
 
     odczytajListeUzytkownikow();
 }
@@ -85,9 +85,23 @@ void MainWindow::newConnection()
     ui->logger->append("Nowe polaczenie");
     QTcpSocket *s = server->nextPendingConnection();
     poloczenia.insert(s,NULL);
-    connect(s,SIGNAL(readyRead()),this,SLOT(readyRead()));
+
+    QThread* watekBufora = new QThread();
+    BuforWiadomosci* bufor = new BuforWiadomosci(s, delim);
+    bufor->moveToThread(watekBufora);
+
+   // connect(watekBufora, &QThread::finished, bufor, &QObject::deleteLater);
+   // connect(watekBufora, &QThread::finished, watekBufora, &QObject::deleteLater);
+    connect(s, SIGNAL(readyRead()), bufor, SLOT(wczytajDane()), Qt::DirectConnection);
+    connect(bufor, SIGNAL(nowaWiadomosc(QString,QTcpSocket*)), this, SLOT(dodajWiadomosc(QString, QTcpSocket*)), Qt::DirectConnection);
+
     connect(s, SIGNAL(disconnected()), this, SLOT(removeClient()));
     connect(s,SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
+
+    watkiBuforow.insert(s,watekBufora);
+    watekBufora->start();
+    bufor->start();
+
     ile++;
     ui->lineEdit->setText(QString::number(ile));
 }
@@ -95,6 +109,9 @@ void MainWindow::newConnection()
 void MainWindow::removeClient()
 {
     QTcpSocket *nadawca = (QTcpSocket*)sender();
+    watkiBuforow.find(nadawca).value()->exit();
+    watkiBuforow.remove(nadawca);
+
     QMap<QTcpSocket*,Uzytkownik*>::iterator klient = poloczenia.find(nadawca); //uciekinier;
 
     if( klient.value() != NULL)
@@ -136,8 +153,6 @@ void MainWindow::removeClient()
             qry.exec(QString("INSERT INTO Historia VALUES (%1,%2,%3)").arg(kl.value()->id).arg(klient.value()->id).arg(kl.value()->id));
             klient.value()->status = 0;
             db.close();
-
-
         }
 
         klient.value()->czyZalogowany = false;
@@ -151,13 +166,32 @@ void MainWindow::removeClient()
     ui->lineEdit->setText(QString::number(ile));
 }
 
-void MainWindow::readyRead()
+void MainWindow::dodajWiadomosc(QString data, QTcpSocket* nadawca)
+{
+    wiadomosciLock.lock();
+    wiadomosci.append(QPair<QString,QTcpSocket*>(data,nadawca));
+    wiadomosciLock.unlock();
+}
+
+void MainWindow::zacznijPrzetwarzanieWiadomosci()
+{
+    while(!zakonczPrzetwarzanie)
+    {
+        while(wiadomosci.size() > 0)
+        {
+            wiadomosciLock.lock();
+            QPair<QString,QTcpSocket*> wiad = wiadomosci.first();
+            wiadomosci.removeFirst();
+            wiadomosciLock.unlock();
+            przetwarzajWiadomosc(wiad.first,wiad.second);
+        }
+        qApp->processEvents(QEventLoop::AllEvents,10);
+    }
+}
+
+void MainWindow::przetwarzajWiadomosc(QString data, QTcpSocket* nadawca)
 {
     ui->logger->append("Otrzymano wiadomosc:");
-
-    QTcpSocket* nadawca = (QTcpSocket*)sender();
-    QString data = nadawca->readAll();
-
 
     ui->logger->append(data);
     int id;
@@ -640,4 +674,15 @@ void MainWindow::testPoloczen()
         klient.key()->flush();
         klient++;
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent * ce)
+{
+    foreach(QThread* bufor, watkiBuforow.values())
+    {
+        bufor->terminate();
+        QMainWindow::closeEvent(ce);
+    }
+    qApp->instance()->exit(0);
+    zakonczPrzetwarzanie = true;
 }
