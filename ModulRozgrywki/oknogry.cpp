@@ -24,6 +24,7 @@ OknoGry::OknoGry(QWidget *parent) :
     timer = new QTimer();
     connect(timer,SIGNAL(timeout()),this,SLOT(timeout()));
     tura = false;
+    this->setWindowTitle("Szachy");
 }
 
 void OknoGry::inicjalizujUI()
@@ -35,7 +36,7 @@ void OknoGry::inicjalizujUI()
     QHBoxLayout *czasLayout=new QHBoxLayout();
     mainLayout->addLayout(czasLayout);
 
-    wiadomoscTura = new QLabel("Zaczynają biale");
+    wiadomoscTura = new QLabel("Zaczynają białe");
   //  wiadomoscTura->setFixedWidth(00);
     wiadomoscTura->setAlignment(Qt::AlignHCenter);
     QFont f;
@@ -242,7 +243,3 @@ void OknoGry::closeEvent(QCloseEvent* )
     emit zamknietoOkno(); // Moze jakis staus czy powod
 }
 
-void OknoGry::on_actionNowa_Gra_triggered()
-{
-
-}

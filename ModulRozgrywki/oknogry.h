@@ -46,7 +46,6 @@ private slots:
     void closeEvent(QCloseEvent *);
     void timeout();
 
-    void on_actionNowa_Gra_triggered();
 
 private:
     Ui::OknoGry *ui;

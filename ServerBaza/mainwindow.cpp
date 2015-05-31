@@ -507,10 +507,8 @@ void MainWindow::readyRead()
                       poloczenia[nadawca]->status = 1;
                       poloczenia[nadawca]->aktualnyPrzeciwnik = klient.value()->nick;
                      // qDebug() << "Start!";
-
-
+                    break;
                   }
-                  break;
               }
               klient++;
           }

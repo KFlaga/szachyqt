@@ -29,20 +29,8 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuStart">
-    <property name="title">
-     <string>Start</string>
-    </property>
-    <addaction name="actionNowa_Gra"/>
-   </widget>
-   <addaction name="menuStart"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionNowa_Gra">
-   <property name="text">
-    <string>Nowa Gra</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>
